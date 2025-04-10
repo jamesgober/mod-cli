@@ -86,7 +86,6 @@ cargo run --bin modcli --features internal-commands hello James
 | `internal-commands`    | Enables built-in test/dev commands like `ping`, `hello` |
 | `color`                | Enables CLI output coloring (coming soon)             |
 | `json-loader`          | Enables external command loading from JSON config     |
-| `frag-support`         | (planned) Integrates with Fragonite-based memory engine |
 
 
 
