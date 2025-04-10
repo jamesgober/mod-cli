@@ -47,7 +47,7 @@
 <br>
 <h2>Status</h2>
 
-> **Pre-release (v0.1.0)**  
+> **Pre-release (v0.1.5)**  
 > Active development — core is stable, features are evolving.  
 > Production use is possible, but interfaces may still evolve until 1.0.
 
