@@ -28,11 +28,15 @@
 <div>
     <h3>Added</h3>
     <ul>
-        <li>TBD.</li>    
+        <li><code>--version</code> flag returns the main application version.</li>
+        <li><code>--modcli</code> hidden flag prints ModCLI framework version, internal command status, and command count.</li>
+        <li>Built-in command help handler</li>
+        <li>Command argument validation system</li>
+        <li></li>
     </ul>
     <h3>Changed</h3>
     <ul>    
-        <li>TBD.</li>
+        <li>CLI runner to no longer require mut (technically internal).</li>
     </ul>
     <hr><br><br>
 <div>
@@ -70,7 +74,7 @@ POST-RELEASE/STABLE GOES HERE
 <!--
  PRE-RELEASE =========================================================== -->
 [0.1.3]: https://github.com/jamesgober/daemon-base/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/jamesgober/daemon-base/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...HEAD
 
 
