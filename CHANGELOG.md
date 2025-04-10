@@ -92,7 +92,7 @@ Initial Commit
 <!--
 /////////// BEGIN FOOTER
 ####################################################################################################### -->
-[unreleased]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...HEAD
 <!-- 
 ============================================================================
 VERSIONS
@@ -105,9 +105,9 @@ POST-RELEASE/STABLE GOES HERE
 
 <!--
  PRE-RELEASE =========================================================== -->
-[0.1.3]: https://github.com/jamesgober/daemon-base/compare/v0.1.2...v0.1.3
-[0.2.0]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...HEAD
+[0.1.3]: https://github.com/jamesgober/mod-cli/compare/v0.1.2...v0.1.3
+[0.2.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...HEAD
 
 
 
