@@ -1,11 +1,28 @@
+use modcli::ModCli;
+use modcli::config::CliConfig;
+use modcli::loader::sources::JsonFileSource;
+
 fn main() {
     println!("Tool binary is running!");
 
-    // You can do CLI arg handling here if needed
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() > 1 {
-        println!("Received arg: {}", args[1]);
-    } else {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+
+    let _config = CliConfig::load("examples/config.json");
+
+
+
+    if args.is_empty() {
         println!("No args provided.");
+        return;
     }
+
+    // Initialize CLI
+    let mut cli = ModCli::new();
+
+    // Load JSON commands from file located at modcli/examples/commands.json
+    let source = JsonFileSource::new("examples/commands.json");
+    cli.registry.load_from(Box::new(source));
+
+    // Run CLI with remaining arguments
+    cli.run(args);
 }

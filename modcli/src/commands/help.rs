@@ -1,6 +1,6 @@
 use crate::command::Command;
 
-/// Prints available commands (placeholder until we inject registry data)
+/// Built-in help command (execution handled by registry internally)
 pub struct HelpCommand;
 
 impl HelpCommand {
@@ -29,12 +29,8 @@ impl Command for HelpCommand {
             Ok(())
         }
     }
-    
+
     fn execute(&self, _args: &[String]) {
-        println!("Help:");
-        println!("  help         Displays this message");
-        println!("  ping         Responds with pong");
-        println!("  echo         Repeats your input");
-        println!("  hello        Greets the user");
+        // Do nothing — real logic is handled inside registry.execute()
     }
 }

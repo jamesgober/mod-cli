@@ -2,6 +2,7 @@ pub mod command;
 pub mod parser;
 pub mod loader;
 pub mod output;
+pub mod config;
 
 #[cfg(feature = "internal-commands")]
 pub mod commands;
