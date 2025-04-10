@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::command::Command;
 
 #[cfg(feature = "internal-commands")]
-use crate::commands::{PingCommand, EchoCommand, HelloCommand};
+use crate::commands::{PingCommand, EchoCommand, HelloCommand, HelpCommand};
 
 /// Registry for available CLI commands
 pub struct CommandRegistry {
@@ -28,10 +28,19 @@ impl CommandRegistry {
     /// Execute a command if it exists, passing args
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Some(command) = self.commands.get(cmd) {
-            command.execute(args);
+            if let Err(reason) = command.validate(args) {
+                eprintln!("Invalid usage: {}", reason);
+            } else {
+                command.execute(args);
+            }
         } else {
             eprintln!("Unknown command: {}", cmd);
         }
+    }
+
+    /// Returns the number of registered commands
+    pub fn len(&self) -> usize {
+        self.commands.len()
     }
 
     /// Load built-in internal commands if the feature is enabled
@@ -41,6 +50,8 @@ impl CommandRegistry {
             self.register(Box::new(PingCommand));
             self.register(Box::new(EchoCommand));
             self.register(Box::new(HelloCommand));
+            self.register(Box::new(HelpCommand::new()));
         }
     }
+
 }

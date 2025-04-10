@@ -10,5 +10,8 @@ pub trait Command {
     fn hidden(&self) -> bool {
         false
     }
+    fn validate(&self, _args: &[String]) -> Result<(), String> {
+        Ok(())
+    }
     fn execute(&self, args: &[String]);
 }
