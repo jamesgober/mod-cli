@@ -12,10 +12,3 @@ pub trait Command {
     }
     fn execute(&self, args: &[String]);
 }
-
-/// Trait for defining custom CLI commands.
-pub trait Command {
-    fn name(&self) -> &'static str;
-    fn execute(&self, args: &[String]);
-    fn description(&self) -> &'static str;
-}
