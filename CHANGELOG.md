@@ -9,7 +9,7 @@
         <strong>CHANGELOG</strong>
         <sup>
             <br><sub>ModCLI</sub><br>
-            <sup><suP>0.2.0</sup></sup>
+            <sup><suP>0.2.5</sup></sup>
         </sup>
     </h1>
 </div>
@@ -26,12 +26,10 @@
 
 ## [Unreleased]
 <div>
- <!--
     <h3>Added</h3>
     <ul>
-       <li></li>
+       <li>Added support for external plugin system via <code>PluginLoader</code> (behind <code>plugins</code> feature flag)</li>
     </ul>
--->
     <h3>Changed</h3>
     <ul>    
         <li>CLI registry to no longer require mut (technically internal).</li>
