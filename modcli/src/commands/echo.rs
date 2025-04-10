@@ -3,16 +3,20 @@ use crate::command::Command;
 pub struct EchoCommand;
 
 impl Command for EchoCommand {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "echo"
     }
 
-    fn aliases(&self) -> &[&str] {
-        &["say", "repeat"]
+    fn help(&self) -> Option<&str> {
+        Some("Repeats your input")
     }
 
-    fn help(&self) -> Option<&str> {
-        Some("Echoes the arguments provided")
+    fn validate(&self, args: &[String]) -> Result<(), String> {
+        if args.is_empty() {
+            Err("You must provide at least one word to echo.".into())
+        } else {
+            Ok(())
+        }
     }
 
     fn execute(&self, args: &[String]) {

@@ -11,8 +11,19 @@ impl Command for HelloCommand {
         Some("Greets the user")
     }
 
+    fn validate(&self, args: &[String]) -> Result<(), String> {
+        if args.len() > 1 {
+            Err("Hello takes at most one argument (your name).".into())
+        } else {
+            Ok(())
+        }
+    }
+
     fn execute(&self, args: &[String]) {
-        let name = args.get(0).cloned().unwrap_or_else(|| "World".to_string());
-        println!("Hello, {}!", name);
+        if let Some(name) = args.get(0) {
+            println!("Hello, {}!", name);
+        } else {
+            println!("Hello!");
+        }
     }
 }
