@@ -32,6 +32,10 @@
        <li></li>
     </ul>
 -->
+    <h3>Changed</h3>
+    <ul>    
+        <li>CLI registry to no longer require mut (technically internal).</li>
+    </ul>
     <hr><br><br>
 <div>
 
