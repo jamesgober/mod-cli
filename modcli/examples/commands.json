@@ -1,0 +1,13 @@
+[
+    {
+      "name": "json-hello",
+      "help": "Hello from JSON command!",
+      "aliases": ["jh", "hello-json"],
+      "hidden": false
+    },
+    {
+      "name": "secret",
+      "help": "Hidden test",
+      "hidden": true
+    }
+  ]
