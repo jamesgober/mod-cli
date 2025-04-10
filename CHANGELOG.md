@@ -9,7 +9,7 @@
         <strong>CHANGELOG</strong>
         <sup>
             <br><sub>ModCLI</sub><br>
-            <sup><suP>0.1.0</sup></sup>
+            <sup><suP>0.2.0</sup></sup>
         </sup>
     </h1>
 </div>
@@ -26,24 +26,56 @@
 
 ## [Unreleased]
 <div>
+ <!--
     <h3>Added</h3>
     <ul>
-        <li><code>--version</code> flag returns the main application version.</li>
-        <li><code>--modcli</code> hidden flag prints ModCLI framework version, internal command status, and command count.</li>
-        <li>Built-in command help handler</li>
-        <li>Command argument validation system</li>
-        <li></li>
+       <li></li>
     </ul>
-    <h3>Changed</h3>
-    <ul>    
-        <li>CLI runner to no longer require mut (technically internal).</li>
-    </ul>
+-->
     <hr><br><br>
 <div>
 
 
 
 
+
+<!-- 0.2.0
+============================================
+Initial Commit
+============================================-->
+## [0.2.0] - 2025-04-10 
+<div>
+    <h3>Added</h3>
+    <ul>
+        <li><code>--version</code> flag for app versioning.</li>
+        <li>Hidden <code>--modcli</code> flag for framework internals.</li>
+        <li>Built-in help command with usage guidance.</li>
+        <li>Command argument validation system.</li>
+        <li>JSON-based CommandSource loader support.</li>
+        <li>Name, alias, and description loading via JSON input</li>
+        <li>
+            CLI configuration loader with <code>CliConfig</code> struct
+            <ul>
+                <li>Supports loading CLI settings from a JSON file (<i>examples/config.json</i>)</li>
+                <li>
+                    Fields include:
+                    <ul>
+                        <li><code>theme</code>: Optional string to represent CLI theme (e.g., "monochrome", "default").</li>
+                        <li><code>strict_args</code>: Optional boolean to enable strict argument checking.</li>
+                        <li><code>banner</code>: Optional string to display a CLI welcome message.</li>
+                    </ul>
+                    <blockquote>Note: Settings are parsed but not yet applied in runtime logic. Behavioral integration will be introduced in a future release.</blockquote>
+                </li>
+            </ul>
+        </li>
+        <li>Support for <code>hidden</code> field on commands to hide them from help output.</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>    
+        <li>CLI runner to no longer require mut (technically internal).</li>
+    </ul>
+    <br>
+<div>
 
 <!-- 0.1.0
 ============================================
@@ -74,7 +106,7 @@ POST-RELEASE/STABLE GOES HERE
 <!--
  PRE-RELEASE =========================================================== -->
 [0.1.3]: https://github.com/jamesgober/daemon-base/compare/v0.1.2...v0.1.3
-[0.1.1]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...v0.1.1
+[0.2.0]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jamesgober/daemon-base/compare/v0.1.0...HEAD
 
 
