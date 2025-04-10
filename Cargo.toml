@@ -1,0 +1,12 @@
+#  ¸_____¸_____¸  
+#   ╲__¸ ┊ ¸__╱    James Gober
+#  ¸_  ┊ ┊ ┊ ___   Profile: @JamesGober 
+#  ┊ [_┊ ┊ ┊_] ┊   Contact: <contact@JamesGober.com>
+#  ┊_____A_____┊   Website: https://JamesGober.com
+#▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+[workspace]
+members = [
+    "modcli"
+]
+
+resolver = "2"

@@ -1,0 +1,95 @@
+#  ¸_____¸_____¸  
+#   ╲__¸ ┊ ¸__╱    James Gober
+#  ¸_  ┊ ┊ ┊ ___   Profile: @JamesGober 
+#  ┊ [_┊ ┊ ┊_] ┊   Contact: <contact@JamesGober.com>
+#  ┊_____A_____┊   Website: https://JamesGober.com
+#****************************************************
+[package] 
+name    = "modcli"
+version = "0.1.0"
+edition = "2021"
+readme  = "README.md"
+license = "Apache-2.0"
+
+# Project Links
+repository    = "https://github.com/jamesgober/mod-cli"
+documentation = "https://docs.rs/mod-cli"
+
+# Project Metadata
+description = "A fully customizable, feature-rich CLI framework for Rust. Define commands, prefixes, styled output, and more—built for flexibility and speed."
+keywords = [
+    "cli",
+    "framework",
+    "terminal",
+    "commands",
+    "modular",
+]
+categories = [
+    "command-line-interface", 
+    "command-line-utilities", 
+    "asynchronous", 
+    "development-tools"
+]
+
+# Project Authors
+authors = [
+    "James Gober <contact@jamesgober.com>"
+]
+
+# LIBRARY
+#####################################################
+[lib]
+name = "modcli"
+path = "src/lib.rs"
+
+
+# BINARY
+#####################################################
+[[bin]]
+name = "tool"
+path = "bin/tool.rs"
+
+[[bin]]
+name = "modcli"
+path = "bin/modcli.rs"
+
+
+# EXAMPLES
+#####################################################
+[[example]]
+name = "demo"
+path = "examples/demo.rs"
+
+#####################################################
+
+
+# FEATURES
+#####################################################
+[features] 
+interactive = []  # Opt-in for interactive features
+default = []
+internal-commands = []
+
+
+# DEPENDENCIES
+#####################################################
+[dependencies]
+thiserror = "1.0.56"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Common dependencies
+tokio = { version = "1.0", features = ["full"] }
+once_cell = "1.18"
+
+# Project dependencies
+crossterm = { version = "0.27.0", features = ["event-stream"] }
+colorgrad = "0.6.0"
+clap = { version = "4.5.4", features = ["derive"] }
+colored = "2.1.0"
+
+# DEV DEPENDENCIES
+#####################################################
+[dev-dependencies]
+tokio = { version = "1.0", features = ["rt-multi-thread"] }
+once_cell = "1.19"
