@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="63px" height="auto" src="./docs/media/rust.svg" alt="Rust Logo">
+    <img width="63px" height="auto" src="./../docs/media/rust.svg" alt="Rust Logo">
     <h1>
         <strong>ModCLI</strong>
         <sup><br><sub>RUST CLI FRAMEWORK</sup><br></sup>

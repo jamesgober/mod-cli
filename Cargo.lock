@@ -303,7 +303,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "modcli"
+name = "mod-cli"
 version = "0.1.0"
 dependencies = [
  "clap",

@@ -5,7 +5,7 @@
 #  ┊_____A_____┊   Website: https://JamesGober.com
 #****************************************************
 [package] 
-name    = "modcli"
+name = "mod-cli"
 version = "0.1.0"
 edition = "2021"
 readme  = "README.md"
