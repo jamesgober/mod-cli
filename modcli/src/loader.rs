@@ -22,7 +22,7 @@ pub struct CommandRegistry {
 impl CommandRegistry {
     /// Create a new command registry and register internal commands (if enabled)
     pub fn new() -> Self {
-        let mut reg = Self {
+        let reg = Self {
             commands: HashMap::new(),
         };
 
