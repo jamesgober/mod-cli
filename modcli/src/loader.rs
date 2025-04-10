@@ -8,6 +8,12 @@ pub mod sources;
 
 use crate::loader::sources::CommandSource;
 
+#[cfg(feature = "plugins")]
+pub mod plugins;
+
+#[cfg(feature = "plugins")]
+use crate::loader::plugins::PluginLoader;
+
 /// Registry for available CLI commands
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn Command>>,
@@ -16,7 +22,7 @@ pub struct CommandRegistry {
 impl CommandRegistry {
     /// Create a new command registry and register internal commands (if enabled)
     pub fn new() -> Self {
-        let reg = Self {
+        let mut reg = Self {
             commands: HashMap::new(),
         };
 
@@ -31,6 +37,15 @@ impl CommandRegistry {
         self.commands.insert(cmd.name().to_string(), cmd);
     }
 
+    /// Load plugin commands from a dynamic library path (enabled via `plugins` feature)
+    #[cfg(feature = "plugins")]
+    pub fn load_plugins(&mut self, path: &str) {
+        let loader = PluginLoader::new(path);
+        for plugin in loader.load_plugins() {
+            self.register(plugin);
+        }
+    }
+
     /// Execute a command if it exists, passing args
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Some(command) = self.commands.get(cmd) {
@@ -40,7 +55,7 @@ impl CommandRegistry {
                     println!("Invalid usage: Too many arguments. Usage: help [command]");
                     return;
                 }
-    
+
                 if args.len() == 1 {
                     let query = &args[0];
                     if let Some(target) = self.commands.get(query) {
@@ -58,7 +73,7 @@ impl CommandRegistry {
                     }
                     return;
                 }
-    
+
                 println!("Help:");
                 for command in self.commands.values() {
                     if !command.hidden() {
@@ -75,13 +90,13 @@ impl CommandRegistry {
                     eprintln!("Invalid usage: {}", err);
                     return;
                 }
-    
+
                 command.execute(args);
             }
         } else {
             eprintln!("Unknown command: {}", cmd);
         }
-    }  
+    }
 
     /// Load built-in internal commands (enabled via feature flag)
     #[cfg(feature = "internal-commands")]
