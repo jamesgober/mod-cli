@@ -1,8 +1,8 @@
 <div align="center">
-    <img width="63px" height="auto" src="./docs/media/rust.svg" alt="Rust Logo">
+        <img width="120px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
     <h1>
         <strong>ModCLI</strong>
-        <sup><br><sub>RUST CLI FRAMEWORK</sup><br></sup>
+        <sup><br><sup>RUST CLI FRAMEWORK</sup><br></sup>
     </h1>
     <div>
         <a href="https://crates.io/crates/mod-cli" alt="ModCLI on Crates.io"><img alt="Crates.io" src="https://img.shields.io/crates/v/mod-cli"></a>
@@ -47,7 +47,7 @@
 <br>
 <h2>Status</h2>
 
-> **Pre-release (v0.2.5)**  
+> **Pre-release (v0.3.0)**  
 > Active development — core is stable, features are evolving.  
 > Production use is possible, but interfaces may still evolve until 1.0.
 

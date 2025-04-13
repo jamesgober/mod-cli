@@ -9,7 +9,7 @@
         <strong>CHANGELOG</strong>
         <sup>
             <br><sub>ModCLI</sub><br>
-            <sup><suP>0.2.5</sup></sup>
+            <sup><suP>0.3.0</sup></sup>
         </sup>
     </h1>
 </div>
@@ -26,9 +26,38 @@
 
 ## [Unreleased]
 <div>
+<!-- 
     <h3>Added</h3>
     <ul>
-       <li>Added support for external plugin system via <code>PluginLoader</code> (behind <code>plugins</code> feature flag)</li>
+        <li>TBD</li>
+    </ul>
+-->
+    <hr><br><br>
+<div>
+
+
+<!-- 0.4.0
+============================================
+Extension &amp; Config Support
+============================================-->
+
+
+
+<!-- 0.3.0 | Structural Foundation
+============================================
+Config, plugin system, tables, etc
+============================================-->
+## [0.3.0] - 2025-04-13 
+<div>
+    <h3>Added</h3>
+    <ul>
+        <li>External plugin system via <code>PluginLoader</code> (behind <code>plugins</code> feature flag)</li>
+        <li>CLI output theme engine with support for dark/light/custom styles</li>
+        <li>Basic table rendering system (auto-width, adaptive layout)</li>
+        <li><code>print_multiline()</code> utility for styled multi-line output with optional delay</li>
+        <li>Reading CLI behavior config via <code>config.json</code></li>
+        <li>CLI startup banners (defined in config)</li>
+        <li>Performance benchmarking support</li>
     </ul>
     <h3>Changed</h3>
     <ul>    
@@ -38,12 +67,9 @@
 <div>
 
 
-
-
-
-<!-- 0.2.0
+<!-- 0.2.0 | Command Structure
 ============================================
-Initial Commit
+Custom commanda, Version, Help, etc.
 ============================================-->
 ## [0.2.0] - 2025-04-10 
 <div>
@@ -107,11 +133,10 @@ POST-RELEASE/STABLE GOES HERE
 
 <!--
  PRE-RELEASE =========================================================== -->
-[0.1.3]: https://github.com/jamesgober/mod-cli/compare/v0.1.2...v0.1.3
+[0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.4.0...v0.4.0
+[0.3.0]: https://github.com/jamesgober/mod-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...HEAD
-
-
 
 
 <!--#######################################################################################################
