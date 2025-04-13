@@ -1,8 +1,10 @@
 pub mod command;
 pub mod parser;
 pub mod loader;
-pub mod output;
 pub mod config;
+
+// Output module for printing to the console
+pub mod output;
 
 #[cfg(feature = "internal-commands")]
 pub mod commands;

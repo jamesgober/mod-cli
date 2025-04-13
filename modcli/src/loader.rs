@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::command::Command;
 
 #[cfg(feature = "internal-commands")]
-use crate::commands::{PingCommand, EchoCommand, HelloCommand, HelpCommand};
+use crate::commands::{PingCommand, EchoCommand, HelloCommand, HelpCommand, BenchmarkCommand};
 
 pub mod sources;
 
@@ -22,7 +22,7 @@ pub struct CommandRegistry {
 impl CommandRegistry {
     /// Create a new command registry and register internal commands (if enabled)
     pub fn new() -> Self {
-        let reg = Self {
+        let mut reg = Self {
             commands: HashMap::new(),
         };
 
@@ -30,6 +30,11 @@ impl CommandRegistry {
         reg.load_internal_commands();
 
         reg
+    }
+
+    /// Get a command by name
+    pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
+        self.commands.get(name)
     }
 
     /// Register a new command
@@ -105,6 +110,7 @@ impl CommandRegistry {
         self.register(Box::new(EchoCommand));
         self.register(Box::new(HelloCommand));
         self.register(Box::new(HelpCommand::new()));
+        self.register(Box::new(BenchmarkCommand::new()));
     }
 
     /// Load commands dynamically from a source (e.g. JSON, plugin)
