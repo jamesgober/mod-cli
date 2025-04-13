@@ -1,5 +1,5 @@
 {
     "theme": "monochrome",
-    "strict_args": true,
+    "strict_args": false,
     "banner": "Welcome to My CLI"
   }
