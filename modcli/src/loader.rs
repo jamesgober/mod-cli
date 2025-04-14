@@ -1,12 +1,8 @@
-use std::collections::HashMap;
-use crate::command::Command;
+#[cfg(feature = "custom-commands")]
+//pub mod custom;
 
-#[cfg(feature = "internal-commands")]
-use crate::commands::{PingCommand, EchoCommand, HelloCommand, HelpCommand, BenchmarkCommand};
-
-pub mod sources;
-
-use crate::loader::sources::CommandSource;
+#[cfg(feature = "custom-commands")]
+use crate::custom::CustomCommand;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
@@ -14,17 +10,33 @@ pub mod plugins;
 #[cfg(feature = "plugins")]
 use crate::loader::plugins::PluginLoader;
 
-/// Registry for available CLI commands
+#[cfg(feature = "internal-commands")]
+use crate::commands::{
+    PingCommand, 
+    EchoCommand, 
+    HelloCommand, 
+    HelpCommand, 
+    BenchmarkCommand
+};
+
+use std::collections::HashMap;
+use crate::command::Command;
+use crate::loader::sources::CommandSource;
+pub mod sources;
+
 pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn Command>>,
 }
-
 impl CommandRegistry {
-    /// Create a new command registry and register internal commands (if enabled)
+
+    /// Creates a new command registry
     pub fn new() -> Self {
         let mut reg = Self {
             commands: HashMap::new(),
         };
+
+        #[cfg(feature = "custom-commands")]
+        reg.load_custom_commands();
 
         #[cfg(feature = "internal-commands")]
         reg.load_internal_commands();
@@ -32,17 +44,17 @@ impl CommandRegistry {
         reg
     }
 
-    /// Get a command by name
+ 
     pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
         self.commands.get(name)
     }
 
-    /// Register a new command
+ 
     pub fn register(&mut self, cmd: Box<dyn Command>) {
         self.commands.insert(cmd.name().to_string(), cmd);
     }
 
-    /// Load plugin commands from a dynamic library path (enabled via `plugins` feature)
+ 
     #[cfg(feature = "plugins")]
     pub fn load_plugins(&mut self, path: &str) {
         let loader = PluginLoader::new(path);
@@ -51,7 +63,6 @@ impl CommandRegistry {
         }
     }
 
-    /// Execute a command if it exists, passing args
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Some(command) = self.commands.get(cmd) {
             if command.name() == "help" {
@@ -103,7 +114,7 @@ impl CommandRegistry {
         }
     }
 
-    /// Load built-in internal commands (enabled via feature flag)
+
     #[cfg(feature = "internal-commands")]
     pub fn load_internal_commands(&mut self) {
         self.register(Box::new(PingCommand));
@@ -113,15 +124,22 @@ impl CommandRegistry {
         self.register(Box::new(BenchmarkCommand::new()));
     }
 
-    /// Load commands dynamically from a source (e.g. JSON, plugin)
+
+
     pub fn load_from(&mut self, source: Box<dyn CommandSource>) {
         for cmd in source.load_commands() {
             self.register(cmd);
         }
     }
 
-    /// Number of loaded commands
+
     pub fn len(&self) -> usize {
         self.commands.len()
     }
+
+    #[cfg(feature = "custom-commands")]
+    pub fn load_custom_commands(&mut self) {
+        self.register(Box::new(CustomCommand));
+    }
+
 }

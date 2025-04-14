@@ -1,4 +1,5 @@
 use crate::command::Command;
+use crate::output::hooks::*;
 
 pub struct HelloCommand;
 
@@ -20,6 +21,11 @@ impl Command for HelloCommand {
     }
 
     fn execute(&self, args: &[String]) {
+        print_info("CLI started");
+        print_status("Checking mood...");
+        print_success("You seem ready!");
+        print_warn("But don’t get cocky.");
+        print_error("Just kidding. You're good. 😎");
         if let Some(name) = args.get(0) {
             println!("Hello, {}!", name);
         } else {

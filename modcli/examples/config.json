@@ -1,5 +1,9 @@
 {
-    "theme": "monochrome",
+    "theme": "default",
     "strict_args": false,
-    "banner": "Welcome to My CLI"
+    "prompt_prefix": "Mod >",
+    "banner": "Welcome to My CLI",
+    "welcome": ["Welcome to the Interactive Console!", "Type 'exit' or 'quit' to leave."],
+    "goodbye": ["Thanks for playing!", "CLI shutting down..."],
+    "line_delay": 50
   }

@@ -1,3 +1,5 @@
+
+
 pub fn parse_args(args: &[String]) -> (String, Vec<String>) {
     if args.is_empty() {
         return ("".to_string(), vec![]);

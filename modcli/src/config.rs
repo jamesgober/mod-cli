@@ -5,7 +5,11 @@ use std::fs;
 pub struct CliConfig {
     pub theme: Option<String>,
     pub strict_args: Option<bool>,
+    pub prompt_prefix: Option<String>,
     pub banner: Option<String>,
+    pub welcome: Option<Vec<String>>,
+    pub goodbye: Option<Vec<String>>,
+    pub line_delay: Option<u64>,
 }
 
 impl CliConfig {

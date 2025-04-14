@@ -1,30 +1,33 @@
-pub mod command;
-pub mod parser;
 pub mod loader;
 pub mod config;
-
-// Output module for printing to the console
+pub mod input;
 pub mod output;
+pub mod command;
+pub mod parser;
+use crate::loader::CommandRegistry;
+pub use crate::command::Command as CliCustom;
 
 #[cfg(feature = "internal-commands")]
 pub mod commands;
 
-use crate::loader::CommandRegistry;
+#[cfg(feature = "custom-commands")]
+pub mod custom;
 
-/// Main CLI framework interface
+
+/// Represents a CLI application
 pub struct ModCli {
     pub registry: CommandRegistry,
 }
 
 impl ModCli {
-    /// Creates a new CLI instance with registered commands
+
     pub fn new() -> Self {
         Self {
             registry: CommandRegistry::new(),
         }
     }
 
-    /// Runs the CLI logic with given args
+
     pub fn run(&self, args: Vec<String>) {
         if args.is_empty() {
             eprintln!("No command provided.");
