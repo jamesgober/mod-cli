@@ -47,7 +47,7 @@
 <br>
 <h2>Status</h2>
 
-> **Pre-release (v0.3.0)**  
+> **Pre-release (v0.3.8)**  
 > Active development — core is stable, features are evolving.  
 > Production use is possible, but interfaces may still evolve until 1.0.
 
@@ -60,8 +60,7 @@
     Binary apps with internal admin or debugging commands.
 </li>
 <li>
-    Scriptable daemons or language tools (e.g. HiveScript shell, Torque engine).
-</li>
+    Daemons or language tools (e.g. HiveScript shell, Torque engine).</li>
 <li>
     Systems that need fast, internal-only dev tools during builds.
 </li>
@@ -84,8 +83,9 @@ cargo run --bin modcli --features internal-commands hello James
 | Feature               | Description                                           |
 |------------------------|-------------------------------------------------------|
 | `internal-commands`    | Enables built-in test/dev commands like `ping`, `hello` |
-| `color`                | Enables CLI output coloring (coming soon)             |
+| `custom-commands`      | Enables CLI custom command creation.                  |
 | `json-loader`          | Enables external command loading from JSON config     |
+| `plugins`              | Enables plugin support for dynamic runtime command injection |
 
 
 

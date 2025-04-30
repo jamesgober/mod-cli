@@ -9,7 +9,7 @@
         <strong>CHANGELOG</strong>
         <sup>
             <br><sub>ModCLI</sub><br>
-            <sup><suP>0.3.0</sup></sup>
+            <sup><suP>0.3.8</sup></sup>
         </sup>
     </h1>
 </div>
@@ -26,27 +26,63 @@
 
 ## [Unreleased]
 <div>
-<!-- 
+<!--
     <h3>Added</h3>
     <ul>
-        <li>TBD</li>
+        <li></li>
     </ul>
 -->
     <hr><br><br>
 <div>
 
 
-<!-- 0.4.0
+
+
+<!-- 0.4.0 | Advanced 
 ============================================
 Extension &amp; Config Support
-============================================-->
+============================================ -->
 
+
+
+<!-- 0.4.0 | Functional CLI With Styles
+============================================
+Styles, themes, 
+============================================ -->
+
+
+<!-- 0.3.8 | Structural Foundation
+============================================
+Config, plugin system, tables, etc
+============================================ -->
+## [0.3.8] - 2025-04-29 
+<div>
+    <h3>Added</h3>
+    <ul>
+        <li>Added support for terminal colors and text styling options</li>
+        <li>Standardized logging color constants (<code>COLOR_SUCCESS</code>, etc.)</li>
+        <li>CLI theme management via <code>apply_theme()</code> for terminal foreground/background styling.</li>
+        <li>Output hook system (<code>print_info</code>, <code>print_warn</code>, <code>print_error</code>, etc.)</li>
+        <li>CLI commands can now display standardized status messages.</li>
+        <li>Gradient printing system with RGB interpolation</li>
+        <li>Animated CLI progress utilities (progress bar, spinner, percent)</li>
+        <li>CLI Input builder (forms, secure prompt, interactive menus).</li>
+        <li>Added support for custom commands registration and handling.</li>
+        <li>Added <code>Console Mode</code> support via <code>Shell</code>, enabling persistent interactive CLI sessions.</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>    
+        <li>Refactored output into modular format.</li>
+        <li>Improved theme system prep with internal constants.</li>
+    </ul>
+    <hr><br><br>
+<div>
 
 
 <!-- 0.3.0 | Structural Foundation
 ============================================
 Config, plugin system, tables, etc
-============================================-->
+============================================ -->
 ## [0.3.0] - 2025-04-13 
 <div>
     <h3>Added</h3>
@@ -133,7 +169,9 @@ POST-RELEASE/STABLE GOES HERE
 
 <!--
  PRE-RELEASE =========================================================== -->
-[0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.4.0...v0.4.0
+[0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.3.9...v0.4.0
+[0.3.9]: https://github.com/jamesgober/mod-cli/compare/v0.3.8...v0.3.9
+[0.3.8]: https://github.com/jamesgober/mod-cli/compare/v0.3.0...v0.3.8
 [0.3.0]: https://github.com/jamesgober/mod-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...HEAD

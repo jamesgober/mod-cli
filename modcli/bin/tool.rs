@@ -9,9 +9,9 @@ use modcli::output::{
     progress::{
         ProgressBar, 
         ProgressStyle,
-//        show_progress_bar,
-//        show_percent_progress,
-//        show_spinner,
+        show_progress_bar,
+        show_percent_progress,
+        show_spinner,
     },
     themes::{
         apply_theme,
