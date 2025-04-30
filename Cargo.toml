@@ -1,12 +1,12 @@
-#  ¸_____¸_____¸  
-#   ╲__¸ ┊ ¸__╱    James Gober
-#  ¸_  ┊ ┊ ┊ ___   Profile: @JamesGober 
-#  ┊ [_┊ ┊ ┊_] ┊   Contact: <contact@JamesGober.com>
-#  ┊_____A_____┊   Website: https://JamesGober.com
-#▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+# ¸_____¸_____¸  
+#  ╲__¸ ┊ ¸__╱   
+# ¸_  ┊ ┊ ┊ ___  James Gober
+# ┊ [_┊ ┊ ┊_] ┊  Contact@JamesGober.com
+# ┊_____A_____┊  https://JamesGober.com
+# JAMES ⬡ GOBER   
+# ===================================================
 [workspace]
 members = [
     "modcli"
 ]
-
 resolver = "2"

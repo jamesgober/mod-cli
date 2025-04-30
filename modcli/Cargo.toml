@@ -1,24 +1,23 @@
-#  ¸_____¸_____¸  
-#   ╲__¸ ┊ ¸__╱   James Gober
-#  ¸_  ┊ ┊ ┊ ___  Profile: @JamesGober 
-#  ┊ [_┊ ┊ ┊_] ┊  Contact: <contact@JamesGober.com>
-#  ┊_____A_____┊  Website: https://JamesGober.com
-#  JAMES ⬡ GOBER 
-#
-##***************************************************
+# ¸_____¸_____¸  
+#  ╲__¸ ┊ ¸__╱   
+# ¸_  ┊ ┊ ┊ ___  James Gober
+# ┊ [_┊ ┊ ┊_] ┊  Contact@JamesGober.com
+# ┊_____A_____┊  https://JamesGober.com
+# JAMES ⬡ GOBER   
+# ===================================================
 [package] 
 name = "mod-cli"
-version = "0.3.8"
+version = "0.4.0"
 edition = "2021"
 readme  = "README.md"
 license = "Apache-2.0"
 
-# Project Links
+homepage      = "https://github.com/jamesgober/mod-cli"
 repository    = "https://github.com/jamesgober/mod-cli"
 documentation = "https://docs.rs/mod-cli"
 
-# Project Metadata
-description = "A fully customizable, feature-rich CLI framework for Rust. Define commands, prefixes, styled output, and more—built for flexibility and speed."
+description   = "A fully customizable, feature-rich CLI framework for Rust. Define commands, prefixes, styled output, and more—built for flexibility and speed."
+
 keywords = [
     "cli",
     "framework",
@@ -26,6 +25,7 @@ keywords = [
     "commands",
     "modular",
 ]
+
 categories = [
     "command-line-interface", 
     "command-line-utilities", 
@@ -33,11 +33,13 @@ categories = [
     "development-tools",
 ]
 
-# Project Authors
 authors = [
     "James Gober <contact@jamesgober.com>"
 ]
 
+
+
+#####################################################
 # LIBRARY
 #####################################################
 [lib]
@@ -45,6 +47,7 @@ name = "modcli"
 path = "src/lib.rs"
 
 
+#####################################################
 # BINARY
 #####################################################
 [[bin]]
@@ -60,16 +63,16 @@ name = "shell"
 path = "bin/shell.rs"
 
 
+#####################################################
 # EXAMPLES
 #####################################################
 [[example]]
 name = "demo"
 path = "examples/demo.rs"
 
+
 #####################################################
-
-
-# FEATURES
+# 📦 FEATURES
 #####################################################
 [features]
 default = ["internal-commands"]
@@ -79,6 +82,7 @@ internal-commands = []
 custom-commands=[]
 
 
+#####################################################
 # DEPENDENCIES
 #####################################################
 [dependencies]
@@ -97,9 +101,12 @@ rpassword = "7.2.0"
 crossterm = { version = "0.27.0", features = ["event-stream"] }
 colorgrad = "0.6.0"
 colored = "2.1.0"
+console = "0.15"
 clap = { version = "4.5.4", features = ["derive"] }
 
 
+
+#####################################################
 # DEV DEPENDENCIES
 #####################################################
 [dev-dependencies]

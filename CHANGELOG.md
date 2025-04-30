@@ -1,10 +1,5 @@
 <div align="center" id="top">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="./docs/media/jamesgober-logo-dark.png">
-        <img  width="72"  height="72" 
-            alt="Official brand mark and logo of James Gober. Image shows JG stylish initials encased in a hexagon outline." 
-            src="./docs/media/jamesgober-logo.png">
-    </picture>
+    <img width="120px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
     <h1>
         <strong>CHANGELOG</strong>
         <sup>
@@ -26,16 +21,66 @@
 
 ## [Unreleased]
 <div>
-<!--
+<!-- 
     <h3>Added</h3>
     <ul>
         <li></li>
     </ul>
+    <hr>
 -->
-    <hr><br><br>
+    <br><br>
 <div>
 
 
+<!-- 0.5.0 | CLI Framework
+============================================
+Enhanced design, output, and functionality.
+============================================ -->
+
+
+<!-- 0.4.5 | Enhanced CLI
+============================================
+Enhanced Output, Visual Improvements, Test Ready.
+============================================ -->
+
+
+<!-- 0.4.0 | Enhanced CLI
+============================================
+Enhanced Output, Visual Improvements, Test Ready.
+============================================ -->
+## [0.4.0] - 2025-04-30 
+<div>
+    <h3>Added</h3>
+    <ul>
+        <li>Added three color and multi-color functionality to output/gradient.</li>
+        <li>Added output/colors module.</li>
+        <li>Added output/style module.</li>
+        <li>Added custom "no command" message.</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>    
+        <li>Refactored output/gradient module.</li>
+        <li>Refactored output/themes module.</li>
+        <li>Refactored output/print module.</li>
+        <li>Refactored output/hooks module.</li>
+        <li>Changed output/hooks to output/hook.</li>
+        <li>Refactored output/input/console module.</li>
+        <li>Refactored output/progress module.</li>
+        <li>Refactored output/table module.</li>
+    </ul>
+    <h3>Deprecated</h3>
+    <ul>    
+        <li>
+            Module: <code>color_picker.rs</code> replaced by <code>colors.rs</code>.
+            <ul>
+                <li><code>list_named_colors()</code></li>
+                <li><code>print_color_swatch()</code></li>
+                <li><code>get_color_by_name()</code></li>
+            </ul>
+        </li>
+    </ul>
+    <hr><br><br>
+<div>
 
 <!-- 0.3.8 | Functional CLI With Styles
 ============================================
@@ -155,8 +200,8 @@ POST-RELEASE/STABLE GOES HERE
 
 <!--
  PRE-RELEASE =========================================================== -->
-[0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.3.9...v0.4.0
-[0.3.9]: https://github.com/jamesgober/mod-cli/compare/v0.3.8...v0.3.9
+[0.5.0]: https://github.com/jamesgober/mod-cli/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/jamesgober/mod-cli/compare/v0.3.0...v0.3.8
 [0.3.0]: https://github.com/jamesgober/mod-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jamesgober/mod-cli/compare/v0.1.0...v0.2.0
