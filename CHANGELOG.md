@@ -37,23 +37,9 @@
 
 
 
-
-<!-- 0.4.0 | Advanced 
+<!-- 0.3.8 | Functional CLI With Styles
 ============================================
-Extension &amp; Config Support
-============================================ -->
-
-
-
-<!-- 0.4.0 | Functional CLI With Styles
-============================================
-Styles, themes, 
-============================================ -->
-
-
-<!-- 0.3.8 | Structural Foundation
-============================================
-Config, plugin system, tables, etc
+Styles, Colors, Gradients, Themes, Custom Commands
 ============================================ -->
 ## [0.3.8] - 2025-04-29 
 <div>
