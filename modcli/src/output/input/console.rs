@@ -1,16 +1,15 @@
 use crate::config::CliConfig;
 use crate::output::input::prompt_text;
-use crate::output::print::print_multiline;
+use crate::output::print;
 
 pub fn run_interactive_console(config: &CliConfig) {
+    // Show welcome message, scroll line-by-line with optional delay
     if let Some(welcome) = &config.welcome {
-        print_multiline(
-            &welcome.iter().map(String::as_str).collect::<Vec<&str>>(),
-            Some(config.line_delay.unwrap_or(0)),
-        );
+        let welcome_text = welcome.join("\n");
+        print::scroll(&welcome_text, config.line_delay.unwrap_or(0));
     }
 
-    // Set prompt prefix or default to ">> "
+    // Set prompt prefix or default to "Mod > "
     let prompt = config.prompt_prefix.as_deref().unwrap_or("Mod > ");
 
     loop {
@@ -19,13 +18,12 @@ pub fn run_interactive_console(config: &CliConfig) {
             break;
         }
 
-        println!("You typed: {}", input);
+        print::line(&format!("You typed: {}", input), 0);
     }
 
+    // Show goodbye message, scroll line-by-line with optional delay
     if let Some(goodbye) = &config.goodbye {
-        print_multiline(
-            &goodbye.iter().map(String::as_str).collect::<Vec<&str>>(),
-            Some(config.line_delay.unwrap_or(0)),
-        );
+        let goodbye_text = goodbye.join("\n");
+        print::scroll(&goodbye_text, config.line_delay.unwrap_or(0));
     }
 }
