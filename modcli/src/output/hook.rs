@@ -1,5 +1,10 @@
 use crate::output::print;
 
+/// Hook for debug messages
+pub fn debug(msg: &str) {
+    print::debug(msg);
+}
+
 /// Hook for info-level messages
 pub fn info(msg: &str) {
     print::info(msg);
