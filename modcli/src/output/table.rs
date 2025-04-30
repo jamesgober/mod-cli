@@ -54,7 +54,7 @@ pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style
 
     // Header Row
     print!("{}", border.vertical);
-    for (i, h) in headers.iter().enumerate() {
+    for (_i, h) in headers.iter().enumerate() {
         print!("{}{}", pad_cell(h, col_width), border.vertical);
     }
     println!();
