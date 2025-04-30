@@ -130,7 +130,7 @@ println!("----------------\n");
  
  // 🎯 Named Color Demo
  if let Some(teal) = get_color_by_name("teal") {
-     println!("{}", "This is teal!".with(teal));
+     println!("{}", "Color Demo: (Teal)".with(teal));
  }
 
 
@@ -139,9 +139,9 @@ println!("----------------\n");
 
 // ⚠ Output Hooks Demo
 print_status("CLI started");
-print_success("You seem ready!");
-print_warning("But don’t get cocky.");
-print_error("Just kidding. You're good. 😎");
+print_success("Success: Test");
+print_warning("Warning: Test");
+print_error("Error: Test");
 
 
 // ###############################################
