@@ -3,11 +3,8 @@ use crate::output::style::build;
 use crate::output::themes::current_theme;
 
 /// Prints a single line with optional delay (ms)
-pub fn line(text: &str, delay_ms: u64) {
+pub fn line(text: &str) {
     println!("{}", text);
-    if delay_ms > 0 {
-        thread::sleep(Duration::from_millis(delay_ms));
-    }
 }
 
 /// Prints text without newline
@@ -21,9 +18,12 @@ pub fn end() {
 }
 
 /// Scrolls through a multi-line string with optional delay
-pub fn scroll(multiline: &str, delay_ms: u64) {
-    for text_line in multiline.lines() {
-        line(text_line, delay_ms);
+pub fn scroll(multiline: &[&str], delay_ms: u64) {
+    for text_line in multiline {
+        line(text_line);
+        if delay_ms > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(delay_ms));
+        }
     }
 }
 
@@ -31,7 +31,10 @@ pub fn scroll(multiline: &str, delay_ms: u64) {
 pub fn file(path: &str, delay_ms: u64) {
     if let Ok(lines) = read_lines(path) {
         for text_line in lines.flatten() {
-            line(&text_line, delay_ms);
+            line(&text_line);
+            if delay_ms > 0 {
+                thread::sleep(Duration::from_millis(delay_ms));
+            }
         }
     } else {
         error("Failed to open file");
@@ -52,7 +55,7 @@ pub fn debug(msg: &str) {
     let styled = build()
         .part("DEBUG:").color(theme.get_log_color("debug")).space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn info(msg: &str) {
@@ -60,7 +63,7 @@ pub fn info(msg: &str) {
     let styled = build()
         .part("INFO:").color(theme.get_log_color("info")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn warn(msg: &str) {
@@ -68,7 +71,7 @@ pub fn warn(msg: &str) {
     let styled = build()
         .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn error(msg: &str) {
@@ -76,7 +79,7 @@ pub fn error(msg: &str) {
     let styled = build()
         .part("ERROR:").color(theme.get_log_color("error")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn success(msg: &str) {
@@ -84,7 +87,7 @@ pub fn success(msg: &str) {
     let styled = build()
         .part("SUCCESS:").color(theme.get_log_color("success")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn status(msg: &str) {
@@ -92,7 +95,7 @@ pub fn status(msg: &str) {
     let styled = build()
         .part("STATUS ").color(theme.get_log_color("info")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn deprecated(msg: &str) {
@@ -100,7 +103,7 @@ pub fn deprecated(msg: &str) {
     let styled = build()
         .part("DEPRECATED:").color(theme.get_log_color("warn")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
 
 pub fn unknown(msg: &str) {
@@ -108,5 +111,5 @@ pub fn unknown(msg: &str) {
     let styled = build()
         .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
         .part(msg).get();
-    line(&styled, 0);
+    line(&styled);
 }
