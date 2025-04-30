@@ -7,13 +7,11 @@
     <div>
         <a href="https://crates.io/crates/mod-cli" alt="ModCLI on Crates.io"><img alt="Crates.io" src="https://img.shields.io/crates/v/mod-cli"></a>
         <span>&nbsp;</span>
-        <a href="https://crates.io/crates/mod-cli" alt="Download ModCLI"><img alt="Crates.io Downloads" src="https://img.shields.io/crates/d/mod-cli"></a>
+        <a href="https://crates.io/crates/mod-cli" alt="Download ModCLI"><img alt="Crates.io Downloads" src="https://img.shields.io/crates/d/mod-cli?color=%230099ff"></a>
         <span>&nbsp;</span>
         <a href="https://docs.rs/mod-cli" title="ModCLI Documentation"><img alt="docs.rs" src="https://img.shields.io/docsrs/mod-cli"></a>
         <span>&nbsp;</span>
         <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/jamesgober/mod-cli?color=%23347d39" alt="last commit badge">
-        <span>&nbsp;</span>
-        <img alt="GitHub" src="https://img.shields.io/github/license/jamesgober/mod-cli">
     </div>
 </div>
 <div>
@@ -47,7 +45,7 @@
 <br>
 <h2>Status</h2>
 
-> **Pre-release (v0.3.8)**  
+> **Pre-release (v0.4.0)**  
 > Active development — core is stable, features are evolving.  
 > Production use is possible, but interfaces may still evolve until 1.0.
 
