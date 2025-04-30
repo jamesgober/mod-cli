@@ -1,32 +1,112 @@
-use crossterm::style::Stylize;
-use std::{thread, time::Duration};
+use std::{fs::File, io::{self, BufRead}, path::Path, thread, time::Duration};
+use crate::output::style::build;
+use crate::output::themes::current_theme;
 
-/// Prints multi-line text with optional delay
-pub fn print_multiline(lines: &[&str], delay_ms: Option<u64>) {
-    for line in lines {
-        println!("{}", line);
-        if let Some(ms) = delay_ms {
-            thread::sleep(Duration::from_millis(ms));
-        }
+/// Prints a single line with optional delay (ms)
+pub fn line(text: &str, delay_ms: u64) {
+    println!("{}", text);
+    if delay_ms > 0 {
+        thread::sleep(Duration::from_millis(delay_ms));
     }
 }
 
-/// Prints a success message
-pub fn print_success(msg: &str) {
-    println!("{}", msg.green().bold());
+/// Prints text without newline
+pub fn write(text: &str) {
+    print!("{}", text);
 }
 
-/// Prints a warning message
-pub fn print_warning(msg: &str) {
-    println!("{}", msg.yellow().bold());
+/// Prints just a newline
+pub fn end() {
+    println!();
 }
 
-/// Prints an error message
-pub fn print_error(msg: &str) {
-    println!("{}", msg.red().bold());
+/// Scrolls through a multi-line string with optional delay
+pub fn scroll(multiline: &str, delay_ms: u64) {
+    for text_line in multiline.lines() {
+        line(text_line, delay_ms);
+    }
 }
 
-/// Prints a status/info message
-pub fn print_status(msg: &str) {
-    println!("{}", msg.cyan());
+/// Prints each line from a file with optional delay
+pub fn file(path: &str, delay_ms: u64) {
+    if let Ok(lines) = read_lines(path) {
+        for text_line in lines.flatten() {
+            line(&text_line, delay_ms);
+        }
+    } else {
+        error("Failed to open file");
+    }
+}
+
+// Reads lines from a file, returns an iterator
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path> {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
+
+// --- Message Shortcodes ---
+
+pub fn debug(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("DEBUG:").color(theme.get_log_color("debug")).space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn info(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("INFO:").color(theme.get_log_color("info")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn warn(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn error(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("ERROR:").color(theme.get_log_color("error")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn success(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("SUCCESS:").color(theme.get_log_color("success")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn status(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("STATUS ").color(theme.get_log_color("info")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn deprecated(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("DEPRECATED:").color(theme.get_log_color("warn")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
+}
+
+pub fn unknown(msg: &str) {
+    let theme = current_theme();
+    let styled = build()
+        .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
+        .part(msg).get();
+    line(&styled, 0);
 }
