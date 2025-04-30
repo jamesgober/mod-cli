@@ -39,7 +39,7 @@
 
 <!-- 0.3.8 | Functional CLI With Styles
 ============================================
-Styles, Colors, Gradients, Themes, Custom Commands
+Styles, Colors, Gradients, Themes, Animations, Custom Commands
 ============================================ -->
 ## [0.3.8] - 2025-04-29 
 <div>
