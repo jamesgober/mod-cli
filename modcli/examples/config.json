@@ -5,5 +5,6 @@
     "banner": "Welcome to My CLI",
     "welcome": ["Welcome to the Interactive Console!", "Type 'exit' or 'quit' to leave."],
     "goodbye": ["Thanks for playing!", "CLI shutting down..."],
-    "line_delay": 50
+    "line_delay": 50,
+    "no_command_message": "⚠️ No command specified. Type `help` or `--help` for a list of available commands."
 }

@@ -10,6 +10,7 @@ pub struct CliConfig {
     pub welcome: Option<Vec<String>>,
     pub goodbye: Option<Vec<String>>,
     pub line_delay: Option<u64>,
+    pub no_command_message: Option<String>,
 }
 
 impl CliConfig {

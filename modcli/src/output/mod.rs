@@ -4,8 +4,8 @@ pub mod themes;
 pub mod style;
 pub mod print;
 pub mod hook;
-pub mod table;
 pub mod progress;
+pub mod table;
 
 // Expose public API
 pub use colors::{

@@ -6,7 +6,8 @@ pub fn run_interactive_console(config: &CliConfig) {
     // Show welcome message, scroll line-by-line with optional delay
     if let Some(welcome) = &config.welcome {
         let welcome_text = welcome.join("\n");
-        print::scroll(&welcome_text, config.line_delay.unwrap_or(0));
+        let welcome_lines: Vec<&str> = welcome_text.lines().collect();
+        print::scroll(&welcome_lines, config.line_delay.unwrap_or(0));
     }
 
     // Set prompt prefix or default to "Mod > "
@@ -18,12 +19,15 @@ pub fn run_interactive_console(config: &CliConfig) {
             break;
         }
 
-        print::line(&format!("You typed: {}", input), 0);
+        let response = format!("You typed: {}", input);
+        let response_lines: Vec<&str> = response.lines().collect();
+        print::scroll(&response_lines, 0);
     }
 
     // Show goodbye message, scroll line-by-line with optional delay
     if let Some(goodbye) = &config.goodbye {
         let goodbye_text = goodbye.join("\n");
-        print::scroll(&goodbye_text, config.line_delay.unwrap_or(0));
+        let goodbye_lines: Vec<&str> = goodbye_text.lines().collect();
+        print::scroll(&goodbye_lines, config.line_delay.unwrap_or(0));
     }
 }
