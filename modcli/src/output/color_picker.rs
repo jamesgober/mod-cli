@@ -1,5 +1,11 @@
 use crossterm::style::{Color, Stylize};
 
+/*
+    DEPRECATED: This module is deprecated and will be removed in future versions.
+    Use the `colors` module for color management.
+*/
+
+
 /// Deprecated: Use `colors::list()` instead.
 pub fn list_named_colors() -> Vec<(&'static str, Color)> {
     vec![
