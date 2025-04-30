@@ -1,29 +1,33 @@
+use crossterm::style::Color;
+use std::time::Duration;
+
 use modcli::ModCli;
 use modcli::config::CliConfig;
 use modcli::loader::sources::JsonFileSource;
-use modcli::output::input::console::run_interactive_console;
 use modcli::output::{
-    print_multiline, print_status, print_success, print_warning, print_error,
-    gradient::print_gradient_line,
-    color_picker::get_color_by_name,
+    themes::apply_theme,
+    gradient,
+    colors,
+    print,
+    build,
     progress::{
         ProgressBar, 
         ProgressStyle,
         show_progress_bar,
         show_percent_progress,
-        show_spinner,
+        //show_spinner,
     },
-    themes::{
-        apply_theme,
-        RED, ORANGE,
-    },
+    RED, BLUE, ORANGE, YELLOW, GREEN,
 };
+use modcli::output::input::console::run_interactive_console;
+
+
 //use modcli::output::table::render_table;
 //use modcli::output::input::{prompt_text, prompt_password, prompt_confirm};
 //use modcli::output::input::prompt_text_with_validation;
 
-use crossterm::style::{Color, Stylize};
-//use std::time::Duration;
+
+
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -40,11 +44,11 @@ fn main() {
         apply_theme(theme.as_str());
     }
 
-    // Print startup banner
     if let Some(banner) = &config.banner {
-        let lines: Vec<&str> = banner.lines().collect();
-        print_multiline(&lines, None);
+        let delay = config.line_delay.unwrap_or(0);
+        print::scroll(banner, delay);
     }
+    
 
 
 
@@ -72,6 +76,10 @@ cli_login_form();
  println!("Starting spinner...");
 show_spinner("Loading", 20, 100);
 
+
+*/
+
+// Progress Bar Demo
 println!("Progress bar test:");
 show_progress_bar("Installing", 30, 1500);
 
@@ -80,7 +88,7 @@ for i in (0..=100).step_by(10) {
     std::thread::sleep(Duration::from_millis(100));
 }
 println!();
-*/
+
 
 /*
 // === Prompt Demo ===
@@ -113,40 +121,55 @@ println!("----------------\n");
 
  // ###############################################
 
+let gradient_text = gradient::two_color("Command Line Interface", RED, ORANGE);
+print::line(&gradient_text, 0);
 
- print_gradient_line("James Gober", RED, ORANGE);
+let gradient_multi = gradient::multi_color("Glorious Text", vec![RED, ORANGE, YELLOW, GREEN, BLUE]);
+let style_built = build()
+    .part(&gradient_multi).space()
+    .part("Working!").bold().get();
 
- // 🌈 Gradient Demo
- print_gradient_line(
-     "Gradient Text Test!",
-     Color::Rgb { r: 255, g: 0, b: 0 },
-     Color::Rgb { r: 0, g: 0, b: 255 },
- );
+print::line(&style_built, 0);
+
+let gradient_rgb = gradient::two_color(
+    "Gradient using RGB", 
+    Color::Rgb { r: 255, g: 0, b: 0 },
+    Color::Rgb { r: 0, g: 0, b: 255 },
+);
+print::line(&gradient_rgb, 0);
+
  
  // 📦 Progress Bar Demo
- let mut bar = ProgressBar::new(30, ProgressStyle::default());
+ let mut bar: ProgressBar = ProgressBar::new(30, ProgressStyle::default());
  bar.set_label("Loading");
  bar.start(2000); // 2 second animation
  
+
  // 🎯 Named Color Demo
- if let Some(teal) = get_color_by_name("teal") {
-     println!("{}", "Color Demo: (Teal)".with(teal));
- }
+ let teal = colors::get("teal"); // always returns a Color (or fallback)
+ let demo = build()
+     .part("Color Demo:").space()
+     .part("Teal").color(teal).bold().get();
+
+ print::line(&demo, 0);
+
 
 
 // ###############################################
 
 
 // ⚠ Output Hooks Demo
-print_status("CLI started");
-print_success("Success: Test");
-print_warning("Warning: Test");
-print_error("Error: Test");
+print::status("CLI started");
+print::debug("Debug message");
+print::info("Information ");
+print::warn("Warn message");
+print::error("Error message");
+print::success("Success message");
 
 
 // ###############################################
 
- 
+
 
     if args.is_empty() {
         println!("No args provided.");
