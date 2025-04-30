@@ -1,4 +1,5 @@
 use crossterm::style::{Color, Stylize};
+use crate::output::hook;
 
 /*
     DEPRECATED: This module is deprecated and will be removed in future versions.
@@ -8,6 +9,7 @@ use crossterm::style::{Color, Stylize};
 
 /// Deprecated: Use `colors::list()` instead.
 pub fn list_named_colors() -> Vec<(&'static str, Color)> {
+    hook::deprecated("color_picker::list_named_colors(), use colors::list() instead.");
     vec![
         ("Red", Color::Red),
         ("Green", Color::Green),
@@ -41,7 +43,7 @@ pub fn list_named_colors() -> Vec<(&'static str, Color)> {
 
 /// Deprecated: Use `colors::print()` instead.
 pub fn print_color_swatch() {
-    println!("[Deprecated] Color Swatch:");
+    hook::deprecated("color_picker::print_color_swatch(), use colors::print() instead.");
     for (name, color) in list_named_colors() {
         println!("{}", format!("{:<15}", name).with(color));
     }
@@ -49,6 +51,7 @@ pub fn print_color_swatch() {
 
  /// Deprecated: Use `colors::get(name: &str)` instead.
 pub fn get_color_by_name(name: &str) -> Option<Color> {
+    hook::deprecated("color_picker::get_color_by_name(), use colors::get(name) instead.");
     list_named_colors()
         .into_iter()
         .find(|(n, _)| n.eq_ignore_ascii_case(name))
