@@ -1,5 +1,6 @@
 use crossterm::style::{Color, Stylize};
 
+/// Deprecated: Use `colors::list()` instead.
 pub fn list_named_colors() -> Vec<(&'static str, Color)> {
     vec![
         ("Red", Color::Red),
@@ -32,15 +33,15 @@ pub fn list_named_colors() -> Vec<(&'static str, Color)> {
     ]
 }
 
-
+/// Deprecated: Use `colors::print()` instead.
 pub fn print_color_swatch() {
-    println!("Color Swatch:");
+    println!("[Deprecated] Color Swatch:");
     for (name, color) in list_named_colors() {
         println!("{}", format!("{:<15}", name).with(color));
     }
 }
 
- 
+ /// Deprecated: Use `colors::get(name: &str)` instead.
 pub fn get_color_by_name(name: &str) -> Option<Color> {
     list_named_colors()
         .into_iter()
