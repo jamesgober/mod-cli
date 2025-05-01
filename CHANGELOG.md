@@ -4,7 +4,7 @@
         <strong>CHANGELOG</strong>
         <sup>
             <br><sub>ModCLI</sub><br>
-            <sup><suP>0.3.8</sup></sup>
+            <sup><suP>0.5.0</sup></sup>
         </sup>
     </h1>
 </div>
@@ -20,31 +20,46 @@
 </div>
 
 ## [Unreleased]
-<div>
-<!-- 
-    <h3>Added</h3>
-    <ul>
-        <li></li>
-    </ul>
-    <hr>
--->
-    <br><br>
-<div>
+<br><br>
 
 
 <!-- 0.5.0 | CLI Framework
 ============================================
-Enhanced design, output, and functionality.
+Enhanced design, interactive shell, and functionality.
 ============================================ -->
+## [0.5.0] - 2025-04-30 
+<div>
+    <h3>Added</h3>
+    <ul>
+        <li>Added interactive console via <code>shell</code>.</li>
+        <li>Added <code>shell</code> start command.</li>
+        <li>Added Internal <code>shell</code> commands.</li>
+        <li>Added Custom <code>shell</code> Command Support.</li>
+        <li>Added newline method to Output/Print.</li>
+        <li>Added <code>set_path</code> support for custom config.</li>
+        <li>Added config designated paths (default).</li>
+        <li>Added concrete <i>embedded config</i> settings at compile-time.</li>
+        <li>Added <code>force_shell</code> setting.</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>    
+        <li>Refactored config module.</li>
+        <li>Refactored example config file.</li>
+        <li>Updated config format.</li>
+        <li>Refactored ModCli Class.</li>
+    </ul>
+    <h3>Removed</h3>
+    <ul>
+        <li>Command: <code>echo</code>.</li>
+        <li>Command: <code>benchmark</code>.</li>
+        <li>Removed <code>Bin/Shell</code>.</li>
+        <li>Removed <code>Output/Input/Console</code>.</li>
+        <li>Removed empty &amp; unused files.</li>
+    </ul>
+    <hr><br><br>
+<div>
 
-
-<!-- 0.4.5 | Enhanced CLI
-============================================
-Enhanced Output, Visual Improvements, Test Ready.
-============================================ -->
-
-
-<!-- 0.4.0 | Enhanced CLI
+<!-- 0.4.0 | CLI Framework
 ============================================
 Enhanced Output, Visual Improvements, Test Ready.
 ============================================ -->
