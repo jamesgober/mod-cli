@@ -1,3 +1,4 @@
+/*
 use crate::command::Command;
 
 /// An example custom hardcoded command.
@@ -23,3 +24,4 @@ impl Command for CustomCommand {
         }
     }
 }
+*/

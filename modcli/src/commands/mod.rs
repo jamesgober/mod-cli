@@ -1,11 +1,11 @@
 pub mod ping;
-pub mod echo;
 pub mod hello;
+pub mod shell;
 pub mod help;
-pub mod benchmark;
+pub mod framework;
 
 pub use ping::PingCommand;
-pub use echo::EchoCommand;
 pub use hello::HelloCommand;
+pub use shell::ShellCommand;
 pub use help::HelpCommand;
-pub use benchmark::BenchmarkCommand;
+pub use framework::FrameworkCommand;
