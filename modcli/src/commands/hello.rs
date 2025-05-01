@@ -1,5 +1,4 @@
 use crate::command::Command;
-use crate::output::hook;
 
 pub struct HelloCommand;
 
@@ -21,13 +20,6 @@ impl Command for HelloCommand {
     }
 
     fn execute(&self, args: &[String]) {
-        hook::info("CLI started");
-        hook::status("Checking mood...");
-        hook::success("You seem ready!");
-        hook::warn("But don’t get cocky.");
-        hook::error("Just kidding. You're good. 😎");
-        hook::unknown("Unknown command. Try 'help'.");
-        hook::deprecated("This command is deprecated.");
         if let Some(name) = args.get(0) {
             println!("Hello, {}!", name);
         } else {
