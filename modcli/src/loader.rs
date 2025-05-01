@@ -2,7 +2,7 @@
 //pub mod custom;
 
 #[cfg(feature = "custom-commands")]
-use crate::custom::CustomCommand;
+//use crate::custom::CustomCommand;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
@@ -13,11 +13,12 @@ use crate::loader::plugins::PluginLoader;
 #[cfg(feature = "internal-commands")]
 use crate::commands::{
     PingCommand, 
-    EchoCommand, 
     HelloCommand, 
-    HelpCommand, 
-    BenchmarkCommand
+    ShellCommand,
+    HelpCommand,
+    FrameworkCommand
 };
+use crate::output::hook;
 
 use std::collections::HashMap;
 use crate::command::Command;
@@ -25,6 +26,7 @@ use crate::loader::sources::CommandSource;
 pub mod sources;
 
 pub struct CommandRegistry {
+    prefix: String,
     commands: HashMap<String, Box<dyn Command>>,
 }
 impl CommandRegistry {
@@ -32,6 +34,7 @@ impl CommandRegistry {
     /// Creates a new command registry
     pub fn new() -> Self {
         let mut reg = Self {
+            prefix: String::new(),
             commands: HashMap::new(),
         };
 
@@ -44,17 +47,27 @@ impl CommandRegistry {
         reg
     }
 
+    /// Sets the command prefix
+    pub fn set_prefix(&mut self, prefix: &str) {
+        self.prefix = prefix.to_string();
+    }
+
+    /// Gets the command prefix
+    pub fn get_prefix(&self) -> &str {
+        &self.prefix
+    }
  
+    /// Gets a command by name
     pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
         self.commands.get(name)
     }
 
- 
+    /// Gets a command by name with prefix
     pub fn register(&mut self, cmd: Box<dyn Command>) {
         self.commands.insert(cmd.name().to_string(), cmd);
     }
 
- 
+    /// Registers a command with an alias
     #[cfg(feature = "plugins")]
     pub fn load_plugins(&mut self, path: &str) {
         let loader = PluginLoader::new(path);
@@ -68,7 +81,7 @@ impl CommandRegistry {
             if command.name() == "help" {
                 // Special case for help: render help output with registry context
                 if args.len() > 1 {
-                    println!("Invalid usage: Too many arguments. Usage: help [command]");
+                    hook::error("Invalid usage: Too many arguments. Usage: help [command]");
                     return;
                 }
 
@@ -85,7 +98,8 @@ impl CommandRegistry {
                             );
                         }
                     } else {
-                        println!("Unknown command: {}", query);
+                        let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", query);
+                        hook::unknown(&unknown);
                     }
                     return;
                 }
@@ -103,14 +117,17 @@ impl CommandRegistry {
             } else {
                 // Normal command execution
                 if let Err(err) = command.validate(args) {
-                    eprintln!("Invalid usage: {}", err);
+                    let err_msg = format!("Invalid usage: {}", err);
+                    hook::error(&err_msg);
+                    command.execute(args);
                     return;
                 }
 
                 command.execute(args);
             }
         } else {
-            eprintln!("Unknown command: {}", cmd);
+            let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", cmd);
+            hook::unknown(&unknown);
         }
     }
 
@@ -118,10 +135,10 @@ impl CommandRegistry {
     #[cfg(feature = "internal-commands")]
     pub fn load_internal_commands(&mut self) {
         self.register(Box::new(PingCommand));
-        self.register(Box::new(EchoCommand));
         self.register(Box::new(HelloCommand));
+        self.register(Box::new(ShellCommand));
+        self.register(Box::new(FrameworkCommand));
         self.register(Box::new(HelpCommand::new()));
-        self.register(Box::new(BenchmarkCommand::new()));
     }
 
 
@@ -139,7 +156,7 @@ impl CommandRegistry {
 
     #[cfg(feature = "custom-commands")]
     pub fn load_custom_commands(&mut self) {
-        self.register(Box::new(CustomCommand));
+       //self.register(Box::new(CustomCommand));
     }
 
 }

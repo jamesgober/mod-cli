@@ -1,49 +1,70 @@
+//use modcli::output::hook;
 use modcli::ModCli;
 use modcli::config::CliConfig;
 use modcli::loader::sources::JsonFileSource;
-use modcli::output::{
-    themes::apply_theme,
-    print,
-};
+use modcli::console::run_shell;
+use modcli::output::{themes::apply_theme, print};
+use modcli::config::MessageConfig;
 
 fn main() {
+    // Load config file
+    let config = CliConfig::load(None);
+
+    // Grab CLI settings
+    let _cli_name = config.modcli.name.as_deref().unwrap_or("mod-cli");
+    let cli_prefix = config.modcli.prefix.as_deref().unwrap_or("mod");
+    let force_shell = config.modcli.force_shell.unwrap_or(false);
+
+    // Grab CLI args
     let args: Vec<String> = std::env::args().skip(1).collect();
 
-    // Load config file
-    let config = CliConfig::load("examples/config.json");
-
     // Apply theme if defined
-    if let Some(theme) = &config.theme {
-        apply_theme(theme.as_str());
+    if let Some(theme) = &config.modcli.theme {
+        apply_theme(theme);
     }
 
-    if let Some(banner) = &config.banner {
-        let delay = config.line_delay.unwrap_or(0);
+    // Show banner if defined
+    if let Some(banner) = &config.modcli.banner {
+        let delay = config.modcli.delay.unwrap_or(0);
         print::scroll(&banner.lines().collect::<Vec<&str>>(), delay);
     }
 
-    if args.is_empty() {
-        let msg = &config.no_command_message.unwrap_or_else(|| {
-            "⚠️ No command given. Try `help`.".to_string()
-        });
-        print::status(&msg);
+    // CLI messages
+    let default_msg_config = MessageConfig::default();
+    let msg_config = config.modcli.messages.as_ref().unwrap_or(&default_msg_config);
+    let msg_no_command = msg_config
+        .no_command
+        .as_deref()
+        .unwrap_or("⚠️ No command given. Try `help`.");
+
+    // No args and not forcing shell? Show no-command message
+    if args.is_empty() && !force_shell {
+        print::status(&msg_no_command);
         return;
     }
 
-    // Init CLI
+    // Create and configure CLI
     let mut cli = ModCli::new();
+    cli.set_prefix(cli_prefix);
 
-    // Load commands from external JSON source
-    let source = JsonFileSource::new("examples/commands.json");
-    cli.registry.load_from(Box::new(source));
+    // Load external JSON commands
+    //let source = JsonFileSource::new("examples/commands.json");
+    //cli.registry.load_from(Box::new(source));
 
-    // Enforce strict argument count if enabled in config
-    if let Some(strict) = config.strict_args {
-        if strict && args.len() > 1 {
+    // If force_shell is enabled OR user explicitly passed "shell"
+    if force_shell || (args.len() == 1 && args[0] == "shell") {
+        run_shell(&config);
+        return;
+    }
+
+    // Enforce strict argument mode (1 command only)
+    if let Some(true) = config.modcli.strict {
+        if args.len() > 1 {
             eprintln!("Too many arguments. Strict mode is enabled.");
             return;
         }
     }
 
+    // Now safely run the CLI with args
     cli.run(args);
 }
