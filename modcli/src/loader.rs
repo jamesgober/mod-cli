@@ -67,6 +67,11 @@ impl CommandRegistry {
         self.commands.insert(cmd.name().to_string(), cmd);
     }
 
+    /// Returns all registered commands (read-only)
+    pub fn all(&self) -> impl Iterator<Item = &Box<dyn Command>> {
+        self.commands.values()
+    }
+
     /// Registers a command with an alias
     #[cfg(feature = "plugins")]
     pub fn load_plugins(&mut self, path: &str) {
