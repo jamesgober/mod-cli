@@ -1,10 +1,25 @@
 {
-    "theme": "default",
-    "strict_args": false,
-    "prompt_prefix": "Mod >",
-    "banner": "Welcome to My CLI",
-    "welcome": ["Welcome to the Interactive Console!", "Type 'exit' or 'quit' to leave."],
-    "goodbye": ["Thanks for playing!", "CLI shutting down..."],
-    "line_delay": 50,
-    "no_command_message": "⚠️ No command specified. Type `help` or `--help` for a list of available commands."
-}
+    "modcli": {
+      "name"  : "mod-cli",
+      "prefix": "mod",
+      "banner": "Welcome to ModCLI",
+      "delay" : 0,
+      "theme" : "default",
+      "strict": false,
+      "force_shell": false,
+      "shell": {
+        "prompt": "Mod >",
+        "welcome": [
+          "Welcome to the Interactive Console!",
+          "Type 'exit' or 'quit' to leave."
+        ],
+        "goodbye": [
+          "Console shutting down..."
+        ]
+      },
+      "messages": {
+        "no_command": "⚠️ No command specified. Type `help` or `--help` for a list of available commands.",
+        "not_found": "⚠️ Command not found. Type `help` or `--help` for a list of available commands."
+      }
+    }
+  }
