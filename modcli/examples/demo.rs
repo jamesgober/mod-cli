@@ -8,8 +8,13 @@ impl Command for HelloCommand {
         "hello"
     }
 
+    fn help(&self) -> Option<&str> {
+        Some("Prints a greeting. Usage: hello [name]")
+    }
+
     fn execute(&self, args: &[String]) {
-        println!("Hello, {}!", args.get(0).unwrap_or(&"world".to_string()));
+        let target = args.get(0).map(String::as_str).unwrap_or("world");
+        println!("👋 Hello, {}!", target);
     }
 }
 
@@ -19,9 +24,25 @@ fn main() {
     let mut registry = CommandRegistry::new();
     registry.register(Box::new(HelloCommand));
 
-    if let Some((cmd, cmd_args)) = args.split_first() {
-        registry.execute(cmd, cmd_args);
-    } else {
-        println!("No command given");
+    match args.split_first() {
+        Some((cmd, rest)) => {
+            if cmd == "help" {
+                println!("Available commands:");
+                for command in registry.all() {
+                    if !command.hidden() {
+                        println!(
+                            "  {:<10} {}",
+                            command.name(),
+                            command.help().unwrap_or("No description")
+                        );
+                    }
+                }
+            } else {
+                registry.execute(cmd, rest);
+            }
+        }
+        None => {
+            println!("No command given. Try: `demo hello` or `demo help`");
+        }
     }
 }
