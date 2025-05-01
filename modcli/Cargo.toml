@@ -75,7 +75,7 @@ path = "examples/demo.rs"
 # 📦 FEATURES
 #####################################################
 [features]
-default = ["internal-commands"]
+default = ["internal-commands", "custom-commands"]
 plugins = []
 interactive = []  # Opt-in for interactive features
 internal-commands = []
