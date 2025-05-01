@@ -12,10 +12,17 @@ pub fn write(text: &str) {
     print!("{}", text);
 }
 
+
+/// Prints just a newline
+pub fn newline() {
+    println!();
+}
+
 /// Prints just a newline
 pub fn end() {
     println!();
 }
+
 
 /// Scrolls through a multi-line string with optional delay
 pub fn scroll(multiline: &[&str], delay_ms: u64) {
@@ -53,7 +60,7 @@ where P: AsRef<Path> {
 pub fn debug(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("DEBUG:").color(theme.get_log_color("debug")).space()
+        .part("Debug:").color(theme.get_log_color("debug")).space()
         .part(msg).get();
     line(&styled);
 }
@@ -61,7 +68,7 @@ pub fn debug(msg: &str) {
 pub fn info(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("INFO:").color(theme.get_log_color("info")).bold().space()
+        .part("Info:").color(theme.get_log_color("info")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -69,7 +76,7 @@ pub fn info(msg: &str) {
 pub fn warn(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
+        .part("Warning:").color(theme.get_log_color("warn")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -77,7 +84,7 @@ pub fn warn(msg: &str) {
 pub fn error(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("ERROR:").color(theme.get_log_color("error")).bold().space()
+        .part("Error:").color(theme.get_log_color("error")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -85,7 +92,7 @@ pub fn error(msg: &str) {
 pub fn success(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("SUCCESS:").color(theme.get_log_color("success")).bold().space()
+        .part("Success:").color(theme.get_log_color("success")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -93,7 +100,7 @@ pub fn success(msg: &str) {
 pub fn status(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("STATUS ").color(theme.get_log_color("info")).bold().space()
+        .part("Status:").color(theme.get_log_color("status")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -101,7 +108,7 @@ pub fn status(msg: &str) {
 pub fn deprecated(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("DEPRECATED:").color(theme.get_log_color("warn")).bold().space()
+        .part("Deprecated:").color(theme.get_log_color("notice")).bold().space()
         .part(msg).get();
     line(&styled);
 }
@@ -109,7 +116,7 @@ pub fn deprecated(msg: &str) {
 pub fn unknown(msg: &str) {
     let theme = current_theme();
     let styled = build()
-        .part("WARNING:").color(theme.get_log_color("warn")).bold().space()
+        .part("Unknown Command:").color(theme.get_log_color("notice")).bold().space()
         .part(msg).get();
     line(&styled);
 }

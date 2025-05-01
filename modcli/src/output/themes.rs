@@ -39,6 +39,8 @@ fn log_defaults(base: Color) -> HashMap<&'static str, Color> {
     map.insert("debug", COLOR_DEBUG);
     map.insert("info", COLOR_INFO);
     map.insert("trace", COLOR_TRACE);
+    map.insert("notice", COLOR_NOTICE);
+    map.insert("status", COLOR_STATUS);
     map.insert("default", base);
     map
 }

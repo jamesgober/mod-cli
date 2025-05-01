@@ -34,11 +34,13 @@ pub const DARK_BROWN:    Color = Color::Rgb { r: 101, g: 67, b: 33 };
 
 /// Color constants for different log levels
 pub const COLOR_DEBUG:   Color = GREY;
+pub const COLOR_STATUS:  Color = CYAN;
 pub const COLOR_INFO:    Color = LIGHT_BLUE;
 pub const COLOR_WARNING: Color = ORANGE;
 pub const COLOR_ERROR:   Color = RED;
 pub const COLOR_TRACE:   Color = LIGHT_GREY;
 pub const COLOR_SUCCESS: Color = GREEN;
+pub const COLOR_NOTICE:  Color = Color::Rgb { r: (255), g: (90), b: (0) };
 
 /// Returns a list of named colors
 pub fn list() -> Vec<(&'static str, Color)> {
