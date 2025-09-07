@@ -183,8 +183,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - name: Run benchmarks (quick)
-        run: cargo bench -- --quick
+      - name: Run benchmarks
+        run: cargo bench
       - name: Upload benchmark reports
         if: always()
         uses: actions/upload-artifact@v4
