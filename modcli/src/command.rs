@@ -4,7 +4,6 @@
 /// ```no_run
 /// use modcli::command::Command;
 /// use modcli::ModCli;
-use crate::loader::CommandRegistry;
 ///
 /// struct Hello;
 ///
@@ -15,13 +14,13 @@ use crate::loader::CommandRegistry;
 ///     fn execute(&self, _args: &[String]) { println!("Hello!"); }
 /// }
 ///
-/// fn main() {
-///     let mut cli = ModCli::new();
-///     cli.registry.register(Box::new(Hello));
-///     let args = vec!["hello".to_string()];
-///     cli.run(args);
-/// }
+/// let mut cli = ModCli::new();
+/// cli.registry.register(Box::new(Hello));
+/// let args = vec!["hello".to_string()];
+/// cli.run(args);
 /// ```
+use crate::loader::CommandRegistry;
+
 pub trait Command {
     fn name(&self) -> &str;
 
