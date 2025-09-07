@@ -148,9 +148,8 @@ impl CommandRegistry {
             // Execute with registry context (help and others can leverage it)
             command.execute_with(args, self);
         } else {
-            let unknown = format!(
-                "[{cmd}]. Type `help` or `--help` for a list of available commands."
-            );
+            let unknown =
+                format!("[{cmd}]. Type `help` or `--help` for a list of available commands.");
             hook::unknown(&unknown);
         }
     }

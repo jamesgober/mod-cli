@@ -15,28 +15,44 @@ impl PluginLoader {
     pub fn load_plugins(&self) -> Vec<Box<dyn Command>> {
         let mut plugins = vec![];
 
+        // Determine the platform-specific extension we should load
+        #[cfg(target_os = "linux")]
+        let allowed_ext = "so";
+        #[cfg(target_os = "macos")]
+        let allowed_ext = "dylib";
+        #[cfg(target_os = "windows")]
+        let allowed_ext = "dll";
+
         if let Ok(entries) = fs::read_dir(&self.path) {
             for entry in entries.flatten() {
                 let path = entry.path();
-                // Support platform-specific dynamic library extensions
-                let is_dynlib = match path.extension().and_then(|s| s.to_str()) {
-                    Some("so") => true,    // Linux, many Unixes
-                    Some("dylib") => true, // macOS
-                    Some("dll") => true,   // Windows
-                    _ => false,
-                };
+                let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
 
-                if is_dynlib {
+                // Only try to load the native extension for this platform
+                if ext == allowed_ext {
                     unsafe {
-                        let lib = Library::new(&path).expect("Failed to load plugin library");
-
-                        let func: Symbol<fn() -> Box<dyn Command>> = lib
-                            .get(b"register_command")
-                            .expect("Plugin missing register_command");
-
-                        let command = func();
-                        plugins.push(command);
-                        std::mem::forget(lib); // keep plugin alive
+                        match Library::new(&path) {
+                            Ok(lib) => {
+                                match lib
+                                    .get::<Symbol<fn() -> Box<dyn Command>>>(b"register_command")
+                                {
+                                    Ok(func) => {
+                                        let command = func();
+                                        plugins.push(command);
+                                        std::mem::forget(lib); // keep plugin alive
+                                    }
+                                    Err(err) => {
+                                        eprintln!(
+                                            "[plugin] missing register_command in {}: {err}",
+                                            path.display()
+                                        );
+                                    }
+                                }
+                            }
+                            Err(err) => {
+                                eprintln!("[plugin] skipping {}: {}", path.display(), err);
+                            }
+                        }
                     }
                 }
             }
