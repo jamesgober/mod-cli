@@ -6,9 +6,8 @@
 all-features = true
 
 [advisories]
-# Keep config version-agnostic: only use stable keys
-vulnerability = "deny"
-unsound = "deny"
+# Use new schema version and default policies
+version = 2
 ignore = []
 
 [licenses]
