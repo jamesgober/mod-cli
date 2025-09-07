@@ -1,4 +1,5 @@
 use crate::command::Command;
+use crate::output::hook;
 use libloading::{Library, Symbol};
 use std::fs;
 use std::path::PathBuf;
@@ -26,6 +27,11 @@ impl PluginLoader {
         if let Ok(entries) = fs::read_dir(&self.path) {
             for entry in entries.flatten() {
                 let path = entry.path();
+                if let Ok(metadata) = path.metadata() {
+                    if !metadata.is_file() {
+                        continue;
+                    }
+                }
                 let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
 
                 // Only try to load the native extension for this platform
@@ -42,15 +48,19 @@ impl PluginLoader {
                                         std::mem::forget(lib); // keep plugin alive
                                     }
                                     Err(err) => {
-                                        eprintln!(
+                                        hook::warn(&format!(
                                             "[plugin] missing register_command in {}: {err}",
                                             path.display()
-                                        );
+                                        ));
                                     }
                                 }
                             }
                             Err(err) => {
-                                eprintln!("[plugin] skipping {}: {}", path.display(), err);
+                                hook::warn(&format!(
+                                    "[plugin] skipping {}: {}",
+                                    path.display(),
+                                    err
+                                ));
                             }
                         }
                     }

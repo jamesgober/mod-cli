@@ -12,10 +12,30 @@
 
 ## [Unreleased]
 
+### Added
+- Introduced structured error variants in `modcli/src/error.rs`:
+  - `ConfigParse(serde_json::Error)` for JSON configuration parsing failures.
+  - `InvalidUsage(String)` to represent argument/validation issues from commands.
+  - `UnknownCommand(String)` for unresolved commands after prefix/alias routing.
+- Added `CommandRegistry::try_execute()` returning `Result<(), ModCliError>` for programmatic error handling while keeping existing `execute()` user-facing behavior.
+- Minor performance hinting: added `#[inline(always)]` to hot-path helpers in `modcli/src/output/gradient.rs`.
+- Optional diagnostics: added `tracing-logs` feature with `tracing` + `tracing-subscriber` integration via `output::hook` (emits tracing events alongside themed console output when enabled).
+- Added regression tests in `tests/error_regressions.rs` covering unknown command, invalid usage, and JSON loader failure modes.
 
+### Changed
+- `modcli/src/config.rs::parse()` now preserves original `serde_json` errors via `ConfigParse` instead of stringifying, improving diagnostics.
+- `modcli/src/loader/plugins.rs` now uses themed logging (`hook::warn`) instead of `eprintln!` for consistent, centralized messaging.
+- `modcli/src/loader.rs` `execute()` now delegates to `try_execute()` and logs structured errors uniformly via `output::hook`.
+- Module declarations normalized in `modcli/src/lib.rs` (moved `pub mod error;` to group with other modules).
+- `modcli/bin/modcli.rs` now uses `CommandRegistry::try_execute()` and maps failures to non-zero exit codes (usage → `2`, unknown command → `127`, other errors → `1`).
+- `modcli/src/loader/plugins.rs` only attempts to load regular files (skips directories/symlinks) to avoid erroneous plugin loads.
 
-
-
+### Fixed
+- Removed panicking `expect()` calls in `modcli/src/loader/sources.rs`; I/O/JSON errors are now logged via `hook::error` and fail gracefully (no crash), returning an empty command list.
+- Hardened CLI exit codes in `modcli/bin/tool.rs`:
+  - Strict mode violations now exit with code `2`.
+  - Missing shell config maps to exit code `2`; other shell errors map to `1`.
+- Resolved duplicated `#[cfg(feature = "custom-commands")]` attribute in `modcli/src/loader.rs` flagged by clippy.
 
 
 

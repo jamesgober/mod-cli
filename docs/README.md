@@ -26,6 +26,33 @@
 ## Overview
 
 
+### Error Handling and Exit Codes
+
+The framework surfaces structured errors internally and provides user-friendly messages by default. For programmatic flows, use `CommandRegistry::try_execute(cmd, args)` which returns a `Result<(), ModCliError>`.
+
+Exit code policy for bundled binaries:
+
+- 0: Success.
+- 1: Runtime errors (I/O, plugin failures, unexpected conditions).
+- 2: Usage/configuration errors (invalid arguments, strict-mode violations, missing shell config).
+- 127: Unknown command.
+
+Configuration parsing errors preserve the original `serde_json` error via `ModCliError::ConfigParse`, improving diagnostics.
+
+
+### Optional Diagnostics with Tracing
+
+Enable the `tracing-logs` feature to emit structured tracing events alongside themed console output through `output::hook`.
+
+Feature flags:
+
+```toml
+[features]
+tracing-logs = ["dep:tracing", "dep:tracing-subscriber"]
+```
+
+When enabled, you can configure logging with `RUST_LOG` and a tracing subscriber in your application. The provided binaries do not initialize a global subscriber, leaving control to the application.
+
 
 
 

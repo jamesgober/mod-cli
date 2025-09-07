@@ -1,4 +1,5 @@
 use modcli::ModCli;
+use modcli::error::ModCliError;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -40,5 +41,27 @@ fn main() {
         vec![]
     };
 
-    cli.run(cli_args);
+    if cli_args.is_empty() {
+        eprintln!("No command provided.");
+        std::process::exit(2);
+    }
+
+    let cmd = cli_args[0].clone();
+    let rest = cli_args[1..].to_vec();
+
+    match cli.registry.try_execute(&cmd, &rest) {
+        Ok(()) => {}
+        Err(ModCliError::InvalidUsage(msg)) => {
+            eprintln!("Invalid usage: {msg}");
+            std::process::exit(2);
+        }
+        Err(ModCliError::UnknownCommand(name)) => {
+            eprintln!("Unknown command: {name}");
+            std::process::exit(127);
+        }
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(1);
+        }
+    }
 }

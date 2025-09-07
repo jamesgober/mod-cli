@@ -1,7 +1,5 @@
-#[cfg(feature = "custom-commands")]
-//pub mod custom;
-#[cfg(feature = "custom-commands")]
-//use crate::custom::CustomCommand;
+// pub mod custom; // feature = "custom-commands"
+// use crate::custom::CustomCommand; // feature = "custom-commands"
 #[cfg(feature = "plugins")]
 pub mod plugins;
 
@@ -13,6 +11,7 @@ use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand, 
 use crate::output::hook;
 
 use crate::command::Command;
+use crate::error::ModCliError;
 use std::collections::HashMap;
 
 #[cfg(feature = "json-loader")]
@@ -121,6 +120,20 @@ impl CommandRegistry {
 
     /// Resolves and executes a command by name or alias, with optional prefix routing.
     pub fn execute(&self, cmd: &str, args: &[String]) {
+        if let Err(err) = self.try_execute(cmd, args) {
+            match err {
+                ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
+                ModCliError::UnknownCommand(name) => hook::unknown(&format!(
+                    "[{name}]. Type `help` or `--help` for a list of available commands."
+                )),
+                other => hook::error(&format!("{other}")),
+            }
+        }
+    }
+
+    /// Resolves and executes a command by name or alias, with optional prefix routing.
+    /// Returns a structured error instead of printing/logging directly.
+    pub fn try_execute(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
         // Handle optional prefix routing: `<prefix>:<command>`
         let mut token = cmd.to_string();
         if !self.prefix.is_empty() {
@@ -141,16 +154,13 @@ impl CommandRegistry {
             let command = &self.commands[&name];
             // Validate before execute
             if let Err(err) = command.validate(args) {
-                let err_msg = format!("Invalid usage: {err}");
-                hook::error(&err_msg);
-                return;
+                return Err(ModCliError::InvalidUsage(err));
             }
             // Execute with registry context (help and others can leverage it)
             command.execute_with(args, self);
+            Ok(())
         } else {
-            let unknown =
-                format!("[{cmd}]. Type `help` or `--help` for a list of available commands.");
-            hook::unknown(&unknown);
+            Err(ModCliError::UnknownCommand(cmd.to_string()))
         }
     }
 

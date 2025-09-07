@@ -65,7 +65,6 @@ impl Default for ModCliSection {
     }
 }
 
-
 impl CliConfig {
     /// Loads config from: custom path > project root > examples/ > embedded
     pub fn load(_unused: Option<&str>) -> &'static CliConfig {
@@ -76,7 +75,9 @@ impl CliConfig {
                     if let Ok(cfg) = parse(&data) {
                         return cfg;
                     } else {
-                        hook::error("Invalid config format at custom path; falling back to defaults.");
+                        hook::error(
+                            "Invalid config format at custom path; falling back to defaults.",
+                        );
                     }
                 }
             }
@@ -101,7 +102,9 @@ impl CliConfig {
             match parse(RAW_CONFIG) {
                 Ok(cfg) => cfg,
                 Err(_) => {
-                    hook::error("Embedded example config failed to parse; using built-in defaults.");
+                    hook::error(
+                        "Embedded example config failed to parse; using built-in defaults.",
+                    );
                     CliConfig::default()
                 }
             }
@@ -135,8 +138,7 @@ impl CliConfig {
 }
 
 fn parse(data: &str) -> Result<CliConfig, ModCliError> {
-    serde_json::from_str::<CliConfig>(data)
-        .map_err(|e| ModCliError::Other(format!("Failed to parse CLI config JSON: {e}")))
+    serde_json::from_str::<CliConfig>(data).map_err(ModCliError::from)
 }
 
 pub fn set_path(path: &str) {

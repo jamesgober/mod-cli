@@ -107,6 +107,7 @@ plugins = []
 internal-commands = []
 custom-commands = []
 json-loader = []
+tracing-logs = ["dep:tracing", "dep:tracing-subscriber"]
 
 
 
@@ -131,6 +132,8 @@ crossterm = { version = "0.27.0", features = ["event-stream"] }
 colorgrad = "0.6.0"
 colored = "2.1.0"
 console = "0.15"
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 
 
 

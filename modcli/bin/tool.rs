@@ -4,6 +4,7 @@ use modcli::ModCli;
 //use modcli::loader::sources::JsonFileSource;
 use modcli::config::MessageConfig;
 use modcli::console::run_shell;
+use modcli::error::ModCliError;
 use modcli::output::{print, themes::apply_theme};
 
 fn main() {
@@ -57,15 +58,24 @@ fn main() {
 
     // If force_shell is enabled OR user explicitly passed "shell"
     if force_shell || (args.len() == 1 && args[0] == "shell") {
-        let _ = run_shell(config);
-        return;
+        match run_shell(config) {
+            Ok(()) => return,
+            Err(ModCliError::MissingShellConfig) => {
+                eprintln!("Shell configuration missing. Set modcli.shell or disable shell mode.");
+                std::process::exit(2);
+            }
+            Err(e) => {
+                eprintln!("Shell error: {e}");
+                std::process::exit(1);
+            }
+        }
     }
 
     // Enforce strict argument mode (1 command only)
     if let Some(true) = config.modcli.strict {
         if args.len() > 1 {
             eprintln!("Too many arguments. Strict mode is enabled.");
-            return;
+            std::process::exit(2);
         }
     }
 

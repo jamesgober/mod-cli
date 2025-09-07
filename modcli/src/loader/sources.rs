@@ -1,4 +1,5 @@
 use crate::command::Command;
+use crate::output::hook;
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
@@ -68,8 +69,24 @@ impl JsonFileSource {
 impl CommandSource for JsonFileSource {
     fn load_commands(&self) -> Vec<Box<dyn Command>> {
         let path = Path::new(&self.path);
-        let data = fs::read_to_string(path).expect("Failed to read JSON");
-        let defs: Vec<JsonCommand> = serde_json::from_str(&data).expect("Invalid JSON");
+        let data = match fs::read_to_string(path) {
+            Ok(s) => s,
+            Err(e) => {
+                hook::error(&format!(
+                    "Failed to read JSON file '{}': {e}",
+                    path.display()
+                ));
+                return vec![];
+            }
+        };
+
+        let defs: Vec<JsonCommand> = match serde_json::from_str(&data) {
+            Ok(d) => d,
+            Err(e) => {
+                hook::error(&format!("Invalid JSON in '{}': {e}", path.display()));
+                return vec![];
+            }
+        };
 
         defs.into_iter()
             .map(|cmd| {

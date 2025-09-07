@@ -45,13 +45,13 @@
 pub mod command;
 pub mod config;
 pub mod console;
+pub mod error;
 pub mod input;
 pub mod loader;
 pub mod output;
 pub mod parser;
 pub mod shell_commands;
 pub mod shell_extensions;
-pub mod error;
 
 pub use crate::command::Command as CliCustom;
 use crate::loader::CommandRegistry;

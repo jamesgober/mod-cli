@@ -28,6 +28,7 @@ pub fn generate(text: &str, start: Color, end: Color) -> String {
 /// This function is a convenience function that calls the `generate` function
 /// with the provided text and colors.
 /// It returns the generated gradient string.
+#[inline(always)]
 pub fn two_color(text: &str, start: Color, end: Color) -> String {
     generate(text, start, end)
 }
@@ -95,6 +96,7 @@ pub fn multi_color(text: &str, colors: Vec<Color>) -> String {
 /// The functions use pattern matching to check the color type.
 /// Get the red component of a color.
 /// This function extracts the red component from a Color.
+#[inline(always)]
 fn get_r(c: &Color) -> u8 {
     match c {
         Color::Rgb { r, .. } => *r,
@@ -104,6 +106,7 @@ fn get_r(c: &Color) -> u8 {
 
 /// Get the green component of a color.
 /// This function extracts the green component from a Color.
+#[inline(always)]
 fn get_g(c: &Color) -> u8 {
     match c {
         Color::Rgb { g, .. } => *g,
@@ -113,6 +116,7 @@ fn get_g(c: &Color) -> u8 {
 
 /// Get the blue component of a color.
 /// This function extracts the blue component from a Color.
+#[inline(always)]
 fn get_b(c: &Color) -> u8 {
     match c {
         Color::Rgb { b, .. } => *b,
@@ -125,6 +129,7 @@ fn get_b(c: &Color) -> u8 {
 /// It takes the start and end values, the current step, and the total number of steps.
 /// The interpolation is done using a linear formula.
 /// The result is rounded to the nearest integer and returned as a u8.
+#[inline(always)]
 fn interpolate(start: u8, end: u8, step: usize, total: usize) -> u8 {
     let start_f = start as f32;
     let end_f = end as f32;
