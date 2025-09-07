@@ -8,6 +8,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Depend on the local mod-cli crate in this repository
-mod-cli = { path = "../../../modcli", package = "mod-cli" }
+mod-cli = { path = "../../..", package = "mod-cli" }
 
 [workspace]
