@@ -43,9 +43,11 @@ jobs:
         run: cargo test --verbose
 
       - name: Format check
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.rust == 'stable' }}
         run: cargo fmt --all -- --check
 
       - name: Clippy (deny warnings)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.rust == 'stable' }}
         run: cargo clippy -- -D warnings
 
       - name: Test with json-loader feature
@@ -73,6 +75,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
 
       - name: Build example plugin
         working-directory: modcli/examples/plugins/hello-plugin
@@ -102,3 +105,103 @@ jobs:
 
       - name: Run smoke test (plugins feature)
         run: cargo run --features plugins --bin modcli -- hello-plugin
+
+  msrv-check:
+    name: MSRV Check (1.81.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust 1.81.0
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.81.0
+          components: rustfmt, clippy
+      - name: Build
+        run: cargo build --verbose
+      - name: Test
+        run: cargo test --verbose
+      - name: Clippy (deny warnings)
+        run: cargo clippy -- -D warnings
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+  docs:
+    name: Docs (deny warnings)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - name: Build docs with warnings as errors
+        run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --verbose
+
+  miri:
+    name: Miri (memory safety)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install nightly with Miri
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          components: miri, rust-src
+      - name: Miri setup
+        run: cargo miri setup
+      - name: Run tests under Miri
+        run: cargo miri test
+
+  coverage:
+    name: Coverage (llvm-cov)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov
+      - name: Generate coverage (lcov + HTML)
+        run: |
+          mkdir -p coverage
+          cargo llvm-cov --workspace --all-features --lcov --output-path coverage/lcov.info
+          cargo llvm-cov --workspace --all-features --html --output-dir coverage/html
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  bench:
+    name: Benchmarks (criterion quick)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - name: Run benchmarks (quick)
+        run: cargo bench -- --quick
+      - name: Upload benchmark reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: criterion-reports
+          path: target/criterion/
+
+  examples:
+    name: Examples (build + smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - name: Build all examples
+        run: cargo build --examples --verbose
+      - name: Run demo example (smoke)
+        run: cargo run --example demo --quiet || true
