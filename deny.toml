@@ -9,9 +9,10 @@ all-features = true
 # Policy for advisories (cargo-deny v0.18.x schema)
 vulnerability = "deny"
 unsound = "deny"
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
+# Scope-based policies for non-fatal classes
+unmaintained = "workspace"
+yanked = "workspace"
+notice = "workspace"
 ignore = []
 
 [licenses]
