@@ -1,5 +1,5 @@
-use modcli::ModCli;
 use modcli::error::ModCliError;
+use modcli::ModCli;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();

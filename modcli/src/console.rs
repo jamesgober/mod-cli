@@ -2,10 +2,10 @@ use crate::config::CliConfig;
 use crate::error::{ModCliError, Result};
 use crate::input::prompt_text;
 use crate::output::{hook, print};
+use crate::parser::parse_line;
 use crate::shell_commands::dispatch;
 use crate::shell_extensions::dispatch_shell_command;
 use crate::ModCli;
-use crate::parser::parse_line;
 
 pub fn run_shell(config: &CliConfig) -> Result<()> {
     // Get shell configuration
