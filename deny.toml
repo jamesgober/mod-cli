@@ -19,6 +19,9 @@ allow = [
   "BSD-2-Clause",
   "ISC",
   "Zlib",
+  # Added to satisfy current dependency tree
+  "MPL-2.0",        # colored v2.x
+  "Unicode-3.0",    # unicode-ident v1.x (with MIT/Apache)
 ]
 # Optional: minimum confidence for license detection (0.0 - 1.0)
 confidence-threshold = 0.8
