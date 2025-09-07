@@ -6,13 +6,9 @@
 all-features = true
 
 [advisories]
-# Policy for advisories (cargo-deny v0.18.x schema)
+# Keep config version-agnostic: only use stable keys
 vulnerability = "deny"
 unsound = "deny"
-# Non-fatal classes: warn (per current CI cargo-deny expectations)
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
 ignore = []
 
 [licenses]
