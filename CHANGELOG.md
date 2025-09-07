@@ -13,6 +13,16 @@
 ## [Unreleased]
 
 
+
+
+
+
+
+
+<br>
+
+
+## [0.5.3] - 2025-09-07 
 ### Added
 - Added `docs/README.md` section.
 - Added `docs/API.md` section.
@@ -44,8 +54,6 @@
 
 ### Fixed
 - Validation no longer executes the command when `validate()` returns an error (prevents side-effects on invalid input).
-
-
 
 
 
@@ -204,7 +212,8 @@ Initial Commit
 
 <!--
  PRE-RELEASE =========================================================== -->
-[Unreleased]: https://github.com/jamesgober/mod-cli/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/jamesgober/mod-cli/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/jamesgober/mod-cli/compare/v0.5.0...v0.5.3
 [0.5.0]: https://github.com/jamesgober/mod-cli/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/jamesgober/mod-cli/compare/v0.3.8...v0.4.0
 [0.3.8]: https://github.com/jamesgober/mod-cli/compare/v0.3.0...v0.3.8
