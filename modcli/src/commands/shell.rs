@@ -23,6 +23,6 @@ impl Command for ShellCommand {
 
     fn execute(&self, _args: &[String]) {
         let config = CliConfig::load(None);
-        run_shell(&config);
+        run_shell(config);
     }
 }

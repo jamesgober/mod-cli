@@ -20,8 +20,8 @@ impl Command for HelloCommand {
     }
 
     fn execute(&self, args: &[String]) {
-        if let Some(name) = args.get(0) {
-            println!("Hello, {}!", name);
+        if let Some(name) = args.first() {
+            println!("Hello, {name}!");
         } else {
             println!("Hello!");
         }

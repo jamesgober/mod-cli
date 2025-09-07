@@ -180,6 +180,6 @@ pub fn get(name: &str) -> Color {
 pub fn print() {
     println!("Available Colors:");
     for (name, color) in list() {
-        println!("{}", format!("{:<20}", name).with(color));
+        println!("{}", format!("{name:<20}").with(color));
     }
 }

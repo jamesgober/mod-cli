@@ -3,7 +3,7 @@ use std::io::{self, Write};
 
 /// Prompts for a secure password (no echo)
 pub fn prompt_password(prompt: &str) -> String {
-    print!("{}: ", prompt);
+    print!("{prompt}: ");
     io::stdout().flush().unwrap();
 
     match read_password() {

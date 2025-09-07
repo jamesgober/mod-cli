@@ -93,7 +93,6 @@ pub fn multi_color(text: &str, colors: Vec<Color>) -> String {
 /// If the color is not an RGB color, it returns 255.
 /// This is useful for interpolating colors in the gradient.
 /// The functions use pattern matching to check the color type.
-
 /// Get the red component of a color.
 /// This function extracts the red component from a Color.
 fn get_r(c: &Color) -> u8 {

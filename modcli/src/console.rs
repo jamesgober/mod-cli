@@ -42,7 +42,7 @@ pub fn run_shell(config: &CliConfig) {
     // Loop for shell commands
     loop {
         // Get input
-        let input = prompt_text(&prompt);
+        let input = prompt_text(prompt);
         let trimmed = input.trim();
 
         // Check for exit commands

@@ -24,7 +24,7 @@ impl Theme {
     }
 
     pub fn reset() {
-        let _ = write!(stdout(), "{}", ResetColor);
+        let _ = write!(stdout(), "{ResetColor}");
         let _ = stdout().flush();
     }
 

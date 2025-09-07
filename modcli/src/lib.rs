@@ -3,12 +3,9 @@
 //! # Quick Start
 //! ```no_run
 //! use modcli::ModCli;
-//!
-//! fn main() {
-//!     let args: Vec<String> = std::env::args().skip(1).collect();
-//!     let mut cli = ModCli::new();
-//!     cli.run(args);
-//! }
+//! let args: Vec<String> = std::env::args().skip(1).collect();
+//! let mut cli = ModCli::new();
+//! cli.run(args);
 //! ```
 //!
 //! # Features
@@ -23,32 +20,26 @@
 //! use modcli::ModCli;
 //! #[cfg(feature = "json-loader")]
 //! use modcli::loader::sources::JsonFileSource;
-//!
-//! fn main() {
-//!     let mut cli = ModCli::new();
-//!     #[cfg(feature = "json-loader")]
-//!     {
-//!         let source = JsonFileSource::new("modcli/examples/commands.json");
-//!         cli.registry.load_from(Box::new(source));
-//!     }
-//!     let args: Vec<String> = std::env::args().skip(1).collect();
-//!     cli.run(args);
+//! let mut cli = ModCli::new();
+//! #[cfg(feature = "json-loader")]
+//! {
+//!     let source = JsonFileSource::new("modcli/examples/commands.json");
+//!     cli.registry.load_from(Box::new(source));
 //! }
+//! let args: Vec<String> = std::env::args().skip(1).collect();
+//! cli.run(args);
 //! ```
 //!
 //! ## Plugins (feature: `plugins`)
 //! ```no_run
 //! use modcli::ModCli;
-//!
-//! fn main() {
-//!     let mut cli = ModCli::new();
-//!     #[cfg(feature = "plugins")]
-//!     {
-//!         cli.registry.load_plugins("./plugins");
-//!     }
-//!     let args: Vec<String> = std::env::args().skip(1).collect();
-//!     cli.run(args);
+//! let mut cli = ModCli::new();
+//! #[cfg(feature = "plugins")]
+//! {
+//!     cli.registry.load_plugins("./plugins");
 //! }
+//! let args: Vec<String> = std::env::args().skip(1).collect();
+//! cli.run(args);
 //! ```
 
 pub mod command;
@@ -75,16 +66,19 @@ pub mod custom;
 /// Typical usage:
 /// ```no_run
 /// use modcli::ModCli;
-///
-/// fn main() {
-///     let args: Vec<String> = std::env::args().skip(1).collect();
-///     let mut cli = ModCli::new();
-///     cli.run(args);
-/// }
+/// let args: Vec<String> = std::env::args().skip(1).collect();
+/// let mut cli = ModCli::new();
+/// cli.run(args);
 /// ```
 pub struct ModCli {
     pub registry: CommandRegistry,
     config: Option<config::CliConfig>,
+}
+
+impl Default for ModCli {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ModCli {

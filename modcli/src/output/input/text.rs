@@ -10,7 +10,7 @@ where
 {
     let mut input = String::new();
     loop {
-        print!("{}: ", message);
+        print!("{message}: ");
         stdout().flush().unwrap();
         input.clear();
         stdin().read_line(&mut input).unwrap();
@@ -19,7 +19,7 @@ where
         match validator(trimmed) {
             Ok(_) => return trimmed.to_string(),
             Err(err) => {
-                println!("Invalid input: {}", err);
+                println!("Invalid input: {err}");
             }
         }
     }

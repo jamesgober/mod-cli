@@ -5,6 +5,12 @@ use crate::output::hook;
 /// Built-in help command (execution handled by registry internally)
 pub struct HelpCommand;
 
+impl Default for HelpCommand {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HelpCommand {
     pub fn new() -> Self {
         Self
@@ -40,7 +46,7 @@ impl Command for HelpCommand {
             let query = &args[0];
             if let Some(target) = registry.get(query) {
                 if target.hidden() {
-                    println!("No help available for '{}'", query);
+                    println!("No help available for '{query}'");
                 } else {
                     println!(
                         "{} - {}",
@@ -50,8 +56,7 @@ impl Command for HelpCommand {
                 }
             } else {
                 let unknown = format!(
-                    "[{}]. Type `help` or `--help` for a list of available commands.",
-                    query
+                    "[{query}]. Type `help` or `--help` for a list of available commands."
                 );
                 hook::unknown(&unknown);
             }

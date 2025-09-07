@@ -43,6 +43,13 @@ pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
 }
+
+impl Default for CommandRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CommandRegistry {
     /// Creates a new command registry
     pub fn new() -> Self {
@@ -75,8 +82,8 @@ impl CommandRegistry {
 
     /// Gets a command by name
     /// Gets a command by its primary name.
-    pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
-        self.commands.get(name)
+    pub fn get(&self, name: &str) -> Option<&dyn Command> {
+        self.commands.get(name).map(|b| b.as_ref())
     }
 
     /// Gets a command by name with prefix
@@ -134,7 +141,7 @@ impl CommandRegistry {
             let command = &self.commands[&name];
             // Validate before execute
             if let Err(err) = command.validate(args) {
-                let err_msg = format!("Invalid usage: {}", err);
+                let err_msg = format!("Invalid usage: {err}");
                 hook::error(&err_msg);
                 return;
             }
@@ -142,8 +149,7 @@ impl CommandRegistry {
             command.execute_with(args, self);
         } else {
             let unknown = format!(
-                "[{}]. Type `help` or `--help` for a list of available commands.",
-                cmd
+                "[{cmd}]. Type `help` or `--help` for a list of available commands."
             );
             hook::unknown(&unknown);
         }
@@ -167,6 +173,10 @@ impl CommandRegistry {
 
     pub fn len(&self) -> usize {
         self.commands.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.commands.is_empty()
     }
 
     #[cfg(feature = "custom-commands")]

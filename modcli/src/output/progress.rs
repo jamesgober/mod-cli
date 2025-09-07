@@ -95,12 +95,12 @@ impl ProgressBar {
         print!("\r");
 
         if let Some(ref label) = self.label {
-            print!("{} {}", label, bar);
+            print!("{label} {bar}");
         } else {
-            print!("{}", bar);
+            print!("{bar}");
         }
 
-        print!("{}", percent);
+        print!("{percent}");
         stdout().flush().unwrap();
     }
 }
@@ -115,21 +115,21 @@ pub fn show_progress_bar(label: &str, total_steps: usize, duration_ms: u64) {
 
 pub fn show_percent_progress(label: &str, percent: usize) {
     let clamped = percent.clamp(0, 100);
-    print!("\r{}: {:>3}% complete", label, clamped);
+    print!("\r{label}: {clamped:>3}% complete");
     stdout().flush().unwrap();
 }
 
 pub fn show_spinner(label: &str, cycles: usize, delay_ms: u64) {
-    let spinner = vec!['|', '/', '-', '\\'];
+    let spinner = ['|', '/', '-', '\\'];
     let mut stdout = stdout();
-    print!("{} ", label);
+    print!("{label} ");
 
     for i in 0..cycles {
         let frame = spinner[i % spinner.len()];
-        print!("\r{} {}", label, frame);
+        print!("\r{label} {frame}");
         stdout.flush().unwrap();
         thread::sleep(Duration::from_millis(delay_ms));
     }
 
-    println!("{} ✓", label);
+    println!("{label} ✓");
 }

@@ -43,7 +43,7 @@ fn main() {
 
     // No args and not forcing shell? Show no-command message
     if args.is_empty() && !force_shell {
-        print::status(&msg_no_command);
+        print::status(msg_no_command);
         return;
     }
 
@@ -57,7 +57,7 @@ fn main() {
 
     // If force_shell is enabled OR user explicitly passed "shell"
     if force_shell || (args.len() == 1 && args[0] == "shell") {
-        run_shell(&config);
+        run_shell(config);
         return;
     }
 

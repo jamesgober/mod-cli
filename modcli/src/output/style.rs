@@ -47,6 +47,12 @@ pub struct OutputBuilder {
     default_bg: Option<Color>,
 }
 
+impl Default for OutputBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OutputBuilder {
     pub fn new() -> Self {
         Self {

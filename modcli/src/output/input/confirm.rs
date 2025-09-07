@@ -4,11 +4,11 @@ use std::io::{self, Write};
 pub fn prompt_confirm(question: &str) -> bool {
     let mut input = String::new();
     loop {
-        print!("{} [y/n]: ", question);
+        print!("{question} [y/n]: ");
         io::stdout().flush().unwrap();
 
         input.clear();
-        if let Err(_) = io::stdin().read_line(&mut input) {
+        if io::stdin().read_line(&mut input).is_err() {
             println!("Error reading input. Try again.");
             continue;
         }

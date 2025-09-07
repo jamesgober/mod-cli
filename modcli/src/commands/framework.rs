@@ -16,7 +16,7 @@ impl Command for FrameworkCommand {
 
     // Command hidden
     fn hidden(&self) -> bool {
-        return true;
+        true
     }
 
     // Command validate

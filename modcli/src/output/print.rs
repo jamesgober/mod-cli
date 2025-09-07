@@ -10,12 +10,12 @@ use std::{
 
 /// Prints a single line with optional delay (ms)
 pub fn line(text: &str) {
-    println!("{}", text);
+    println!("{text}");
 }
 
 /// Prints text without newline
 pub fn write(text: &str) {
-    print!("{}", text);
+    print!("{text}");
 }
 
 /// Prints just a newline
@@ -41,7 +41,7 @@ pub fn scroll(multiline: &[&str], delay_ms: u64) {
 /// Prints each line from a file with optional delay
 pub fn file(path: &str, delay_ms: u64) {
     if let Ok(lines) = read_lines(path) {
-        for text_line in lines.flatten() {
+        for text_line in lines.map_while(Result::ok) {
             line(&text_line);
             if delay_ms > 0 {
                 thread::sleep(Duration::from_millis(delay_ms));

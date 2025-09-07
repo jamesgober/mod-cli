@@ -60,7 +60,7 @@ pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style
 
     // Header Row
     print!("{}", border.vertical);
-    for (_i, h) in headers.iter().enumerate() {
+    for h in headers.iter() {
         print!("{}{}", pad_cell(h, col_width), border.vertical);
     }
     println!();
@@ -101,7 +101,7 @@ fn pad_cell(cell: &str, width: usize) -> String {
     let truncated = truncate_to_width(cell, width);
     let visual = measure_text_width(&truncated);
     let pad = width.saturating_sub(visual);
-    format!("{}{}", truncated, " ".repeat(pad))
+    format!("{truncated}{}", " ".repeat(pad))
 }
 
 /// Best-effort truncate that respects visual width using `console::measure_text_width`.
@@ -119,7 +119,7 @@ fn truncate_to_width(cell: &str, width: usize) -> String {
     // Reserve room for ellipsis
     let target = width.saturating_sub(1);
     for ch in cell.chars() {
-        let next = format!("{}{}", out, ch);
+        let next = format!("{out}{ch}");
         if measure_text_width(&next) > target {
             break;
         }

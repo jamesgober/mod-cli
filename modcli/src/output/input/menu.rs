@@ -8,7 +8,7 @@ use std::io::{stdout, Write};
 
 pub fn interactive_menu() -> Option<usize> {
     let mut stdout = stdout();
-    let options = vec!["🍕 Pizza", "🍔 Burger", "🌮 Taco", "❌ Exit"];
+    let options = ["🍕 Pizza", "🍔 Burger", "🌮 Taco", "❌ Exit"];
     let mut selected = 0;
 
     terminal::enable_raw_mode().unwrap();
@@ -20,9 +20,9 @@ pub fn interactive_menu() -> Option<usize> {
         println!("\nPick your poison:\n");
         for (i, option) in options.iter().enumerate() {
             if i == selected {
-                println!("  > {}", option); // Highlighted
+                println!("  > {option}"); // Highlighted
             } else {
-                println!("    {}", option); // Normal
+                println!("    {option}"); // Normal
             }
         }
 
@@ -31,9 +31,7 @@ pub fn interactive_menu() -> Option<usize> {
         if let Event::Key(key_event) = event::read().unwrap() {
             match key_event.code {
                 KeyCode::Up => {
-                    if selected > 0 {
-                        selected -= 1;
-                    }
+                    selected = selected.saturating_sub(1);
                 }
                 KeyCode::Down => {
                     if selected < options.len() - 1 {

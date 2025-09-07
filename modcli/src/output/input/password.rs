@@ -9,14 +9,14 @@ where
     F: Fn(&str) -> Result<(), &str>,
 {
     loop {
-        print!("{}: ", message);
+        print!("{message}: ");
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
         let password = read_password().unwrap();
 
         match validator(password.trim()) {
             Ok(_) => return password.trim().to_string(),
             Err(err) => {
-                println!("Invalid password: {}", err);
+                println!("Invalid password: {err}");
             }
         }
     }
