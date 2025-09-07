@@ -6,8 +6,12 @@
 all-features = true
 
 [advisories]
-# Deny advisories at or above this severity (low/medium/high/critical)
-severity-threshold = "low"
+# Policy for advisories (cargo-deny v0.18.x schema)
+vulnerability = "deny"
+unsound = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
 ignore = []
 
 [licenses]
