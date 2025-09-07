@@ -1,12 +1,14 @@
-use std::io::{self, Write};
 use crate::output::print;
+use std::io::{self, Write};
 
 /// Prompts the user to confirm an action (yes/no).
 pub fn prompt_confirm(question: &str) -> bool {
     let mut input = String::new();
     loop {
         print!("{question} [y/n]: ");
-        if let Err(e) = io::stdout().flush() { print::warn(&format!("flush failed: {e}")); }
+        if let Err(e) = io::stdout().flush() {
+            print::warn(&format!("flush failed: {e}"));
+        }
 
         input.clear();
         if let Err(e) = io::stdin().read_line(&mut input) {

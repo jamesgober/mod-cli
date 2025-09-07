@@ -22,7 +22,9 @@ where
 {
     loop {
         print!("{message}: ");
-        if let Err(e) = std::io::Write::flush(&mut std::io::stdout()) { print::warn(&format!("flush failed: {e}")); }
+        if let Err(e) = std::io::Write::flush(&mut std::io::stdout()) {
+            print::warn(&format!("flush failed: {e}"));
+        }
         let password = match read_password() {
             Ok(p) => p,
             Err(e) => {

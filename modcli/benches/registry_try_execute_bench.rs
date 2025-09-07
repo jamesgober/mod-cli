@@ -4,16 +4,26 @@ use modcli::loader::CommandRegistry;
 
 struct Nop;
 impl Command for Nop {
-    fn name(&self) -> &str { "nop" }
-    fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
+    fn name(&self) -> &str {
+        "nop"
+    }
+    fn validate(&self, _args: &[String]) -> Result<(), String> {
+        Ok(())
+    }
     fn execute(&self, _args: &[String]) {}
 }
 
 struct NopAlias;
 impl Command for NopAlias {
-    fn name(&self) -> &str { "primary" }
-    fn aliases(&self) -> &[&str] { &["alias", "a"] }
-    fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
+    fn name(&self) -> &str {
+        "primary"
+    }
+    fn aliases(&self) -> &[&str] {
+        &["alias", "a"]
+    }
+    fn validate(&self, _args: &[String]) -> Result<(), String> {
+        Ok(())
+    }
     fn execute(&self, _args: &[String]) {}
 }
 

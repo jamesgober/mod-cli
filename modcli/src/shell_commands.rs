@@ -1,5 +1,5 @@
-use std::sync::{Mutex, OnceLock};
 use crate::output::hook;
+use std::sync::{Mutex, OnceLock};
 
 /// Shell command struct with metadata
 #[derive(Clone)]

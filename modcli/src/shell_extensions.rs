@@ -1,5 +1,5 @@
 use crate::config::CliConfig;
-use crate::output::{build, print, hook};
+use crate::output::{build, hook, print};
 use std::io::{self, Write};
 
 pub fn dispatch_shell_command(input: &str, config: &CliConfig) -> bool {
@@ -32,5 +32,7 @@ pub fn dispatch_shell_command(input: &str, config: &CliConfig) -> bool {
 
 fn clear_screen() {
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-    if let Err(e) = io::stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
+    if let Err(e) = io::stdout().flush() {
+        hook::warn(&format!("flush failed: {e}"));
+    }
 }

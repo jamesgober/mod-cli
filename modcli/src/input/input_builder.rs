@@ -1,6 +1,6 @@
+use crate::output::hook;
 use rpassword::read_password;
 use std::io::{stdin, stdout, Write};
-use crate::output::hook;
 
 /// Prompt for plain text input with optional default fallback
 pub fn prompt_text(prompt: &str, default: Option<&str>) -> String {
@@ -8,7 +8,9 @@ pub fn prompt_text(prompt: &str, default: Option<&str>) -> String {
         "{prompt}{} ",
         default.map_or(String::new(), |d| format!(" [{d}]"))
     );
-    if let Err(e) = stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
+    if let Err(e) = stdout().flush() {
+        hook::warn(&format!("flush failed: {e}"));
+    }
 
     let mut input = String::new();
     if let Err(e) = stdin().read_line(&mut input) {
@@ -28,7 +30,9 @@ pub fn prompt_text(prompt: &str, default: Option<&str>) -> String {
 pub fn confirm(prompt: &str, default_yes: bool) -> bool {
     let yes_hint = if default_yes { "[Y/n]" } else { "[y/N]" };
     print!("{prompt} {yes_hint} ");
-    if let Err(e) = stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
+    if let Err(e) = stdout().flush() {
+        hook::warn(&format!("flush failed: {e}"));
+    }
 
     let mut input = String::new();
     if let Err(e) = stdin().read_line(&mut input) {
@@ -48,6 +52,8 @@ pub fn confirm(prompt: &str, default_yes: bool) -> bool {
 /// Prompt for a hidden password
 pub fn prompt_password(prompt: &str) -> String {
     print!("{prompt} ");
-    if let Err(e) = stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
+    if let Err(e) = stdout().flush() {
+        hook::warn(&format!("flush failed: {e}"));
+    }
     read_password().unwrap_or_default()
 }

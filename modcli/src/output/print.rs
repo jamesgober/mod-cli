@@ -34,10 +34,16 @@ pub fn end() {
 
 /// Scrolls through a multi-line string with optional delay
 pub fn scroll(multiline: &[&str], delay_ms: u64) {
-    let delay = if delay_ms > 0 { Some(Duration::from_millis(delay_ms)) } else { None };
+    let delay = if delay_ms > 0 {
+        Some(Duration::from_millis(delay_ms))
+    } else {
+        None
+    };
     for text_line in multiline {
         line(text_line);
-        if let Some(d) = delay { thread::sleep(d); }
+        if let Some(d) = delay {
+            thread::sleep(d);
+        }
     }
 }
 

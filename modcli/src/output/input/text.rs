@@ -1,5 +1,5 @@
-use std::io::{stdin, stdout, Write};
 use crate::output::print;
+use std::io::{stdin, stdout, Write};
 
 /// Prompts for free-form text and returns the trimmed input.
 ///
@@ -22,7 +22,9 @@ where
     let mut input = String::new();
     loop {
         print!("{message}: ");
-        if let Err(e) = stdout().flush() { print::warn(&format!("flush failed: {e}")); }
+        if let Err(e) = stdout().flush() {
+            print::warn(&format!("flush failed: {e}"));
+        }
         input.clear();
         if let Err(e) = stdin().read_line(&mut input) {
             print::error(&format!("Error reading input: {e}. Try again."));
