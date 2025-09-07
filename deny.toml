@@ -6,8 +6,10 @@
 all-features = true
 
 [advisories]
-# Fail on vulnerabilities; use tool defaults for other advisory classes
-vulnerability = "deny"
+# Deny advisories at or above this severity (low/medium/high/critical)
+severity-threshold = "low"
+# Treat these classes as informational (do not fail the job)
+informational = ["unmaintained", "yanked", "notice"]
 ignore = []
 
 [licenses]
@@ -20,8 +22,8 @@ allow = [
   "ISC",
   "Zlib",
 ]
-# Deny copyleft by default
-copyleft = "warn"
+# Optional: minimum confidence for license detection (0.0 - 1.0)
+confidence-threshold = 0.8
 
 [licenses.private]
 # Treat private workspace members as private
