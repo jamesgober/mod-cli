@@ -42,9 +42,7 @@ pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
     #[cfg(feature = "dispatch-cache")]
-    cache_token: Option<String>,
-    #[cfg(feature = "dispatch-cache")]
-    cache_primary: Option<String>,
+    cache: std::sync::Mutex<Option<(String, String)>>,
 }
 
 impl Default for CommandRegistry {
@@ -61,9 +59,7 @@ impl CommandRegistry {
             commands: HashMap::new(),
             aliases: HashMap::new(),
             #[cfg(feature = "dispatch-cache")]
-            cache_token: None,
-            #[cfg(feature = "dispatch-cache")]
-            cache_primary: None,
+            cache: std::sync::Mutex::new(None),
         };
 
         #[cfg(feature = "custom-commands")]
@@ -192,14 +188,16 @@ impl CommandRegistry {
         };
 
         #[cfg(feature = "dispatch-cache")]
-        if let (Some(t), Some(p)) = (&self.cache_token, &self.cache_primary) {
-            if t == token {
-                if let Some(command) = self.commands.get(p.as_str()) {
-                    if let Err(err) = command.validate(args) {
-                        return Err(ModCliError::InvalidUsage(err));
+        if let Ok(guard) = self.cache.lock() {
+            if let Some((ref t, ref p)) = *guard {
+                if t == token {
+                    if let Some(command) = self.commands.get(p.as_str()) {
+                        if let Err(err) = command.validate(args) {
+                            return Err(ModCliError::InvalidUsage(err));
+                        }
+                        command.execute_with(args, self);
+                        return Ok(());
                     }
-                    command.execute_with(args, self);
-                    return Ok(());
                 }
             }
         }
@@ -211,12 +209,8 @@ impl CommandRegistry {
             }
             command.execute_with(args, self);
             #[cfg(feature = "dispatch-cache")]
-            {
-                // update cache
-                // SAFETY: token is derived from &str cmd, store owned copies
-                let reg = unsafe { &mut *(self as *const _ as *mut CommandRegistry) };
-                reg.cache_token = Some(token.to_string());
-                reg.cache_primary = Some(token.to_string());
+            if let Ok(mut guard) = self.cache.lock() {
+                *guard = Some((token.to_string(), token.to_string()));
             }
             return Ok(());
         }
@@ -228,10 +222,8 @@ impl CommandRegistry {
                 }
                 command.execute_with(args, self);
                 #[cfg(feature = "dispatch-cache")]
-                {
-                    let reg = unsafe { &mut *(self as *const _ as *mut CommandRegistry) };
-                    reg.cache_token = Some(token.to_string());
-                    reg.cache_primary = Some(primary.clone());
+                if let Ok(mut guard) = self.cache.lock() {
+                    *guard = Some((token.to_string(), primary.clone()));
                 }
                 return Ok(());
             }
