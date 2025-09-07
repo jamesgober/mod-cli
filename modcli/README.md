@@ -304,7 +304,7 @@ use modcli::output::{
     },
     ORANGE
 };
-use modcli::output::input::console::run_interactive_console;
+use modcli::console::run_shell;
 
 
  let mut bar = ProgressBar::new(10, ProgressStyle {
@@ -512,7 +512,7 @@ use modcli::console::run_shell;
 
 fn main() {
     let config = CliConfig::load(None);
-    run_shell(&config);
+    run_shell(config);
 }
 ```
 

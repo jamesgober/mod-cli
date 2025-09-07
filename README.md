@@ -413,7 +413,7 @@ use modcli::output::{
     },
     ORANGE
 };
-use modcli::output::input::console::run_interactive_console;
+use modcli::console::run_shell;
 
 
  let mut bar = ProgressBar::new(10, ProgressStyle {
