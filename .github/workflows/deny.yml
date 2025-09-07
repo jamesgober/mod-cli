@@ -15,6 +15,6 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-deny
-        run: cargo install cargo-deny --version 0.13.10 --locked
+        run: cargo install cargo-deny --locked
       - name: Run cargo-deny checks
         run: cargo deny check all
