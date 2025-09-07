@@ -1,4 +1,5 @@
 use std::sync::{Mutex, OnceLock};
+use crate::output::hook;
 
 /// Shell command struct with metadata
 #[derive(Clone)]
@@ -13,11 +14,11 @@ static HOOKS: OnceLock<Mutex<Vec<ShellCommand>>> = OnceLock::new();
 
 /// Register a new shell-only command from a parent application
 pub fn register(cmd: ShellCommand) {
-    HOOKS
-        .get_or_init(|| Mutex::new(Vec::new()))
-        .lock()
-        .unwrap()
-        .push(cmd);
+    let mtx = HOOKS.get_or_init(|| Mutex::new(Vec::new()));
+    match mtx.lock() {
+        Ok(mut v) => v.push(cmd),
+        Err(e) => hook::warn(&format!("shell command registry poisoned: {e}")),
+    }
 }
 
 /// Dispatches shell input to registered handlers.
@@ -25,10 +26,14 @@ pub fn register(cmd: ShellCommand) {
 pub fn dispatch(input: &str) -> bool {
     let input = input.trim();
     if let Some(cmds) = HOOKS.get() {
-        for cmd in cmds.lock().unwrap().iter() {
-            if cmd.name == input || cmd.aliases.contains(&input) {
-                return (cmd.handler)(input);
+        if let Ok(guard) = cmds.lock() {
+            for cmd in guard.iter() {
+                if cmd.name == input || cmd.aliases.contains(&input) {
+                    return (cmd.handler)(input);
+                }
             }
+        } else {
+            hook::warn("shell command registry poisoned when dispatching");
         }
     }
     false
@@ -37,8 +42,10 @@ pub fn dispatch(input: &str) -> bool {
 /// Returns all registered shell commands (for dynamic help)
 pub fn list() -> Vec<ShellCommand> {
     if let Some(cmds) = HOOKS.get() {
-        cmds.lock().unwrap().clone()
-    } else {
-        vec![]
+        if let Ok(guard) = cmds.lock() {
+            return guard.clone();
+        }
+        hook::warn("shell command registry poisoned when listing");
     }
+    vec![]
 }

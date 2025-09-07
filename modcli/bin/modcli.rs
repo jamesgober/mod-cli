@@ -26,6 +26,7 @@ fn main() {
     }
 
     // Default command execution
+    #[allow(unused_mut)]
     let mut cli = ModCli::new();
 
     // Auto-load plugins from ./plugins when feature enabled

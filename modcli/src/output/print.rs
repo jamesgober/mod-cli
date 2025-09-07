@@ -9,36 +9,49 @@ use std::{
 };
 
 /// Prints a single line with optional delay (ms)
+#[inline(always)]
 pub fn line(text: &str) {
     println!("{text}");
 }
 
 /// Prints text without newline
+#[inline(always)]
 pub fn write(text: &str) {
     print!("{text}");
 }
 
 /// Prints just a newline
+#[inline(always)]
 pub fn newline() {
     println!();
 }
 
 /// Prints just a newline
+#[inline(always)]
 pub fn end() {
     println!();
 }
 
 /// Scrolls through a multi-line string with optional delay
 pub fn scroll(multiline: &[&str], delay_ms: u64) {
+    let delay = if delay_ms > 0 { Some(Duration::from_millis(delay_ms)) } else { None };
     for text_line in multiline {
         line(text_line);
-        if delay_ms > 0 {
-            std::thread::sleep(std::time::Duration::from_millis(delay_ms));
-        }
+        if let Some(d) = delay { thread::sleep(d); }
     }
 }
 
-/// Prints each line from a file with optional delay
+/// Prints each line from a file with optional delay.
+///
+/// Behavior:
+/// - On open/read failure, logs a themed error via `print::error` and returns (no panic).
+/// - `delay_ms` controls a fixed delay between lines.
+///
+/// Example (ignore in doctest):
+/// ```ignore
+/// use modcli::output::print;
+/// print::file("./examples/banner.txt", 0);
+/// ```
 pub fn file(path: &str, delay_ms: u64) {
     if let Ok(lines) = read_lines(path) {
         for text_line in lines.map_while(Result::ok) {

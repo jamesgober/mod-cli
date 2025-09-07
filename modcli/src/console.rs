@@ -5,6 +5,7 @@ use crate::output::{hook, print};
 use crate::shell_commands::dispatch;
 use crate::shell_extensions::dispatch_shell_command;
 use crate::ModCli;
+use crate::parser::parse_line;
 
 pub fn run_shell(config: &CliConfig) -> Result<()> {
     // Get shell configuration
@@ -62,15 +63,11 @@ pub fn run_shell(config: &CliConfig) -> Result<()> {
             continue;
         }
 
-        // Parse input into command and args
-        let parts: Vec<String> = trimmed.split_whitespace().map(String::from).collect();
-
-        if parts.is_empty() {
+        // Parse input into command and args using robust parser (handles quotes/escaping)
+        let (cmd, args) = parse_line(trimmed);
+        if cmd.is_empty() {
             continue;
         }
-
-        let cmd = parts[0].clone();
-        let args = parts[1..].to_vec();
 
         // Execute command
         cli.run([cmd].into_iter().chain(args).collect());

@@ -5,17 +5,25 @@ use crossterm::{
     terminal::{self, ClearType},
 };
 use std::io::{stdout, Write};
+use crate::output::{print, hook};
 
 pub fn interactive_menu() -> Option<usize> {
     let mut stdout = stdout();
     let options = ["🍕 Pizza", "🍔 Burger", "🌮 Taco", "❌ Exit"];
     let mut selected = 0;
 
-    terminal::enable_raw_mode().unwrap();
-    execute!(stdout, terminal::Clear(ClearType::All)).unwrap();
+    if let Err(e) = terminal::enable_raw_mode() {
+        hook::error(&format!("failed to enable raw mode: {e}"));
+        return None;
+    }
+    if let Err(e) = execute!(stdout, terminal::Clear(ClearType::All)) {
+        hook::warn(&format!("failed to clear terminal: {e}"));
+    }
 
     loop {
-        execute!(stdout, cursor::MoveTo(0, 0)).unwrap();
+        if let Err(e) = execute!(stdout, cursor::MoveTo(0, 0)) {
+            hook::warn(&format!("failed to move cursor: {e}"));
+        }
 
         println!("\nPick your poison:\n");
         for (i, option) in options.iter().enumerate() {
@@ -26,9 +34,9 @@ pub fn interactive_menu() -> Option<usize> {
             }
         }
 
-        stdout.flush().unwrap();
-
-        if let Event::Key(key_event) = event::read().unwrap() {
+        if let Err(e) = stdout.flush() { hook::warn(&format!("flush failed: {e}")); }
+        match event::read() {
+            Ok(Event::Key(key_event)) => {
             match key_event.code {
                 KeyCode::Up => {
                     selected = selected.saturating_sub(1);
@@ -39,14 +47,19 @@ pub fn interactive_menu() -> Option<usize> {
                     }
                 }
                 KeyCode::Enter => {
-                    terminal::disable_raw_mode().unwrap();
+                    if let Err(e) = terminal::disable_raw_mode() { hook::warn(&format!("disable raw mode failed: {e}")); }
                     return Some(selected);
                 }
                 KeyCode::Esc => {
-                    terminal::disable_raw_mode().unwrap();
+                    if let Err(e) = terminal::disable_raw_mode() { hook::warn(&format!("disable raw mode failed: {e}")); }
                     return None;
                 }
                 _ => {}
+            }
+            }
+            Ok(_) => {}
+            Err(e) => {
+                print::warn(&format!("event read failed: {e}"));
             }
         }
     }

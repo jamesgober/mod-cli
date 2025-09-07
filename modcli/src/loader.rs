@@ -119,6 +119,21 @@ impl CommandRegistry {
     }
 
     /// Resolves and executes a command by name or alias, with optional prefix routing.
+    ///
+    /// Behavior:
+    /// - Applies optional prefix routing (e.g., `tool:hello`).
+    /// - Resolves aliases to primary command names.
+    /// - Validates args via `Command::validate()` and logs a themed error on failure.
+    /// - Executes the command via `execute_with()`.
+    /// - Prints user-facing messages via `output::hook` and does not return an error.
+    ///
+    /// Example (illustrative):
+    /// ```ignore
+    /// use modcli::loader::CommandRegistry;
+    /// let reg = CommandRegistry::new();
+    /// // Will log an unknown command message via output hooks
+    /// reg.execute("does-not-exist", &vec![]);
+    /// ```
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Err(err) = self.try_execute(cmd, args) {
             match err {
@@ -133,6 +148,25 @@ impl CommandRegistry {
 
     /// Resolves and executes a command by name or alias, with optional prefix routing.
     /// Returns a structured error instead of printing/logging directly.
+    ///
+    /// Error mapping:
+    /// - `InvalidUsage(String)`: when `validate()` returns an error string.
+    /// - `UnknownCommand(String)`: command not found after alias/prefix resolution.
+    ///
+    /// Examples (illustrative):
+    ///
+    /// ```ignore
+    /// use modcli::loader::CommandRegistry;
+    /// // Assume `reg` has commands registered
+    /// let reg = CommandRegistry::new();
+    /// // Success
+    /// let _ = reg.try_execute("help", &vec![]);
+    /// // Error mapping (unknown)
+    /// match reg.try_execute("does-not-exist", &vec![]) {
+    ///     Err(modcli::error::ModCliError::UnknownCommand(name)) => assert_eq!(name, "does-not-exist"),
+    ///     _ => {}
+    /// }
+    /// ```
     pub fn try_execute(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
         // Handle optional prefix routing: `<prefix>:<command>`
         let mut token = cmd.to_string();

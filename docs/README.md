@@ -22,6 +22,90 @@
     </sup>
 </div>
 <br>
+ 
+## Using Features
+
+The crate exposes several feature flags to tailor functionality and surface area:
+
+- `json-loader`: Enables loading commands from JSON files (see `modcli/examples/commands.json`).
+- `plugins`: Enables dynamic plugin loading via `libloading` (platform `.so`/`.dylib`/`.dll`).
+- `internal-commands`: Includes built-in helper commands for the framework.
+- `custom-commands`: Enables custom commands module re-exports for ergonomic APIs.
+- `tracing-logs`: Emits `tracing` events from `output::hook` while still printing themed console output.
+
+Enable features in your application’s Cargo.toml:
+
+```toml
+[dependencies]
+mod-cli = { version = "*", features = ["json-loader", "plugins", "internal-commands", "custom-commands"] }
+```
+
+## Feature Matrix
+
+| Feature             | Default | Description                                                                 |
+|---------------------|:-------:|-----------------------------------------------------------------------------|
+| `internal-commands` |   on    | Includes built-in helper commands to assist framework usage.               |
+| `custom-commands`   |   on    | Enables ergonomic re-exports for user-defined commands.                    |
+| `json-loader`       |   off   | Load commands from JSON sources (see `modcli/examples/commands.json`).     |
+| `plugins`           |   off   | Dynamic plugin loading via `libloading` (platform `.so`/`.dylib`/`.dll`).  |
+| `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.         |
+
+## Contributing Performance
+
+When micro-benchmarks are available (Criterion recommended):
+
+```console
+$ cargo bench
+```
+
+Tips:
+- Run with `--features json-loader,plugins,internal-commands,custom-commands` to stress more code paths.
+- Use `perf`/`dtrace`/`Instruments` or `cargo-flamegraph` to profile hotspots.
+- Focus on command dispatch, output building, and print paths.
+
+## Profiling Quickstart
+
+- Linux (perf):
+  - `sudo perf record -- cargo bench`
+  - `sudo perf report`
+
+- macOS (Instruments):
+  - `cargo bench` and attach Instruments (Time Profiler) to the benchmark process.
+
+- macOS (dtrace):
+  - `sudo dtrace -n 'profile-997 /pid==$PID/ { @[ustack()] = count(); }' -c "cargo bench"`
+
+- Flamegraph (all platforms with support):
+  - `cargo install flamegraph`
+  - `cargo flamegraph --bench <bench-name>`
+
+
+## Error Code Mapping
+
+The `modcli` binary maps errors to exit codes for shell/automation friendliness:
+
+- 0: Success.
+- 1: Runtime errors (I/O, plugin errors, unexpected conditions).
+- 2: Usage/configuration errors (invalid args, strict-mode violations, missing shell config).
+- 127: Unknown command.
+
+Example:
+
+```console
+$ modcli --version
+v0.5.3
+
+$ modcli unknown
+Unknown command: unknown
+$ echo $?
+127
+
+$ modcli  # no command
+No command provided.
+$ echo $?
+2
+```
+
 
 ## Overview
 
@@ -52,6 +136,66 @@ tracing-logs = ["dep:tracing", "dep:tracing-subscriber"]
 ```
 
 When enabled, you can configure logging with `RUST_LOG` and a tracing subscriber in your application. The provided binaries do not initialize a global subscriber, leaving control to the application.
+
+
+#### Example: initialize tracing (feature-gated)
+
+```rust
+// Cargo.toml (enable the feature in your binary crate)
+// [dependencies]
+// mod-cli = { version = "*", features = ["tracing-logs"] }
+
+#[cfg(feature = "tracing-logs")]
+fn init_tracing() {
+    use tracing_subscriber::{fmt, EnvFilter};
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    fmt()
+        .with_env_filter(filter)
+        .with_target(true)
+        .with_level(true)
+        .init();
+}
+
+fn main() {
+    #[cfg(feature = "tracing-logs")]
+    init_tracing();
+
+    // ... rest of your app
+}
+```
+
+Notes:
+- Use `RUST_LOG=modcli=debug` to see framework events.
+- Hooks print themed console output regardless; tracing emits structured events when the feature is enabled.
+
+
+## Security Considerations
+
+The framework is designed with conservative defaults and explicit feature gates. Use the following guidance when building secure CLI applications:
+
+1) Plugins (feature: `plugins`)
+
+- Only load plugins from trusted locations. The loader restricts to regular files with platform extensions (`.so`, `.dylib`, `.dll`).
+- Consider a plugin discovery allowlist (directory or hash/signature) in your app.
+- Prefer versioned/ABI-stable registration symbols if you control both sides; today the loader expects `register_command`.
+- Run with least privilege (drop permissions before loading, if possible) and consider containerization/sandboxing for untrusted plugins.
+
+2) Input validation and secrets
+
+- All interactive input paths avoid panics and log with themed hooks; errors do not expose sensitive data.
+- Password prompts never echo and return empty strings on I/O error — validate inputs and re-prompt as needed.
+- Sanitize/validate arguments before execution. Use `Command::validate()` to block invalid inputs early.
+
+3) Unsafe code policy
+
+- Avoid `unsafe` in application code; the framework limits `unsafe` to the plugin loader where it is required for dynamic loading.
+- Use feature gates (`plugins`, `json-loader`, etc.) to minimize exposed surface when not needed.
+
+4) Operational guidance
+
+- Set strict argument handling in config when appropriate (usage errors exit with code `2`).
+- Capture logs with `tracing-logs` for auditability in development and staging.
+- Keep dependencies updated, and use `cargo deny`/`cargo audit` in CI (example workflows included).
 
 
 

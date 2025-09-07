@@ -21,6 +21,12 @@
 - Minor performance hinting: added `#[inline(always)]` to hot-path helpers in `modcli/src/output/gradient.rs`.
 - Optional diagnostics: added `tracing-logs` feature with `tracing` + `tracing-subscriber` integration via `output::hook` (emits tracing events alongside themed console output when enabled).
 - Added regression tests in `tests/error_regressions.rs` covering unknown command, invalid usage, and JSON loader failure modes.
+- Added parser edge-case tests in `tests/parser_edge_tests.rs` for nested quotes and escaped backslashes/spaces.
+- Added shell extensions tests in `tests/shell_extensions_tests.rs` and print tests in `tests/print_tests.rs`.
+- Added rustdoc examples for `parser::parse_line()` and loader APIs (`execute`, `try_execute`).
+- Docs: Added "Using Features", "Contributing Performance", and tracing initialization example in `docs/README.md`.
+- Docs: Added "Error Code Mapping" section for `bin/modcli.rs` exit codes.
+- Benchmarks: Added `parser_bench.rs` for `parser::parse_line()` (simple/quoted/escaped cases).
 
 ### Changed
 - `modcli/src/config.rs::parse()` now preserves original `serde_json` errors via `ConfigParse` instead of stringifying, improving diagnostics.
@@ -29,6 +35,10 @@
 - Module declarations normalized in `modcli/src/lib.rs` (moved `pub mod error;` to group with other modules).
 - `modcli/bin/modcli.rs` now uses `CommandRegistry::try_execute()` and maps failures to non-zero exit codes (usage → `2`, unknown command → `127`, other errors → `1`).
 - `modcli/src/loader/plugins.rs` only attempts to load regular files (skips directories/symlinks) to avoid erroneous plugin loads.
+- `modcli/src/console.rs` shell input parsing now uses robust `parser::parse_line()` (supports quotes/escaping).
+- `modcli/src/output/input/menu.rs` hardened to avoid unwraps and handle terminal errors gracefully.
+- `modcli/src/output/progress.rs` made resilient to stdout flush errors (no unwraps), logs via hooks.
+- `modcli/src/shell_commands.rs` now handles poisoned mutex locks gracefully with warnings instead of panicking.
 
 ### Fixed
 - Removed panicking `expect()` calls in `modcli/src/loader/sources.rs`; I/O/JSON errors are now logged via `hook::error` and fail gracefully (no crash), returning an empty command list.
@@ -36,6 +46,7 @@
   - Strict mode violations now exit with code `2`.
   - Missing shell config maps to exit code `2`; other shell errors map to `1`.
 - Resolved duplicated `#[cfg(feature = "custom-commands")]` attribute in `modcli/src/loader.rs` flagged by clippy.
+- Removed remaining unwraps in interactive UI paths (menu, progress), ensuring no runtime panics in production paths.
 
 
 

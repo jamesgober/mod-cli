@@ -1,5 +1,6 @@
 use crossterm::style::{Color, Stylize};
 use std::io::{stdout, Write};
+use crate::output::hook;
 use std::thread;
 use std::time::Duration;
 
@@ -101,7 +102,7 @@ impl ProgressBar {
         }
 
         print!("{percent}");
-        stdout().flush().unwrap();
+        if let Err(e) = stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
     }
 }
 
@@ -116,7 +117,7 @@ pub fn show_progress_bar(label: &str, total_steps: usize, duration_ms: u64) {
 pub fn show_percent_progress(label: &str, percent: usize) {
     let clamped = percent.clamp(0, 100);
     print!("\r{label}: {clamped:>3}% complete");
-    stdout().flush().unwrap();
+    if let Err(e) = stdout().flush() { hook::warn(&format!("flush failed: {e}")); }
 }
 
 pub fn show_spinner(label: &str, cycles: usize, delay_ms: u64) {
@@ -127,7 +128,7 @@ pub fn show_spinner(label: &str, cycles: usize, delay_ms: u64) {
     for i in 0..cycles {
         let frame = spinner[i % spinner.len()];
         print!("\r{label} {frame}");
-        stdout.flush().unwrap();
+        if let Err(e) = stdout.flush() { hook::warn(&format!("flush failed: {e}")); }
         thread::sleep(Duration::from_millis(delay_ms));
     }
 
