@@ -1,6 +1,6 @@
 use serde::Deserialize;
-use std::sync::OnceLock;
 use std::fs;
+use std::sync::OnceLock;
 
 static CONFIG: OnceLock<CliConfig> = OnceLock::new();
 static CONFIG_PATH: OnceLock<String> = OnceLock::new();
@@ -56,16 +56,16 @@ impl CliConfig {
                     return parse(&data);
                 }
             }
-    
+
             // Fallbacks...
             if let Ok(data) = fs::read_to_string("config.json") {
                 return parse(&data);
             }
-    
+
             if let Ok(data) = fs::read_to_string("examples/config.json") {
                 return parse(&data);
             }
-    
+
             parse(RAW_CONFIG)
         })
     }

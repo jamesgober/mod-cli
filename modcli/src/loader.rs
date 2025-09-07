@@ -1,9 +1,7 @@
 #[cfg(feature = "custom-commands")]
 //pub mod custom;
-
 #[cfg(feature = "custom-commands")]
 //use crate::custom::CustomCommand;
-
 #[cfg(feature = "plugins")]
 pub mod plugins;
 
@@ -11,17 +9,11 @@ pub mod plugins;
 use crate::loader::plugins::PluginLoader;
 
 #[cfg(feature = "internal-commands")]
-use crate::commands::{
-    PingCommand, 
-    HelloCommand, 
-    ShellCommand,
-    HelpCommand,
-    FrameworkCommand
-};
+use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand, ShellCommand};
 use crate::output::hook;
 
-use std::collections::HashMap;
 use crate::command::Command;
+use std::collections::HashMap;
 
 #[cfg(feature = "json-loader")]
 use crate::loader::sources::CommandSource;
@@ -52,7 +44,6 @@ pub struct CommandRegistry {
     aliases: HashMap<String, String>,
 }
 impl CommandRegistry {
-
     /// Creates a new command registry
     pub fn new() -> Self {
         let mut reg = Self {
@@ -81,7 +72,7 @@ impl CommandRegistry {
     pub fn get_prefix(&self) -> &str {
         &self.prefix
     }
- 
+
     /// Gets a command by name
     /// Gets a command by its primary name.
     pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
@@ -93,11 +84,7 @@ impl CommandRegistry {
     pub fn register(&mut self, cmd: Box<dyn Command>) {
         // capture name/aliases before moving the command
         let name = cmd.name().to_string();
-        let alias_list: Vec<String> = cmd
-            .aliases()
-            .iter()
-            .map(|a| a.to_string())
-            .collect();
+        let alias_list: Vec<String> = cmd.aliases().iter().map(|a| a.to_string()).collect();
 
         self.commands.insert(name.clone(), cmd);
 
@@ -154,11 +141,13 @@ impl CommandRegistry {
             // Execute with registry context (help and others can leverage it)
             command.execute_with(args, self);
         } else {
-            let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", cmd);
+            let unknown = format!(
+                "[{}]. Type `help` or `--help` for a list of available commands.",
+                cmd
+            );
             hook::unknown(&unknown);
         }
     }
-
 
     #[cfg(feature = "internal-commands")]
     pub fn load_internal_commands(&mut self) {
@@ -169,8 +158,6 @@ impl CommandRegistry {
         self.register(Box::new(HelpCommand::new()));
     }
 
-
-
     #[cfg(feature = "json-loader")]
     pub fn load_from(&mut self, source: Box<dyn CommandSource>) {
         for cmd in source.load_commands() {
@@ -178,14 +165,12 @@ impl CommandRegistry {
         }
     }
 
-
     pub fn len(&self) -> usize {
         self.commands.len()
     }
 
     #[cfg(feature = "custom-commands")]
     pub fn load_custom_commands(&mut self) {
-       //self.register(Box::new(CustomCommand));
+        //self.register(Box::new(CustomCommand));
     }
-
 }

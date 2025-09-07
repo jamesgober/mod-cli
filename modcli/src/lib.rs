@@ -51,25 +51,24 @@
 //! }
 //! ```
 
-pub mod loader;
-pub mod config;
-pub mod input;
-pub mod output;
 pub mod command;
-pub mod parser;
+pub mod config;
 pub mod console;
-pub mod shell_extensions;
+pub mod input;
+pub mod loader;
+pub mod output;
+pub mod parser;
 pub mod shell_commands;
+pub mod shell_extensions;
 
-use crate::loader::CommandRegistry;
 pub use crate::command::Command as CliCustom;
+use crate::loader::CommandRegistry;
 
 #[cfg(feature = "internal-commands")]
 pub mod commands;
 
 #[cfg(feature = "custom-commands")]
 pub mod custom;
-
 
 /// Represents a CLI application and provides command registration and dispatch.
 ///

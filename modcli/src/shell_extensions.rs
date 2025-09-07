@@ -1,5 +1,5 @@
 use crate::config::CliConfig;
-use crate::output::{print, build};
+use crate::output::{build, print};
 use std::io::{self, Write};
 
 pub fn dispatch_shell_command(input: &str, config: &CliConfig) -> bool {
@@ -11,8 +11,11 @@ pub fn dispatch_shell_command(input: &str, config: &CliConfig) -> bool {
         "project" => {
             let project = config.modcli.name.as_deref().unwrap_or("Unknown");
             let msg = build()
-                .part("Current Project: ").bold()
-                .part(project).underline().get();
+                .part("Current Project: ")
+                .bold()
+                .part(project)
+                .underline()
+                .get();
             print::line(&msg);
             true
         }

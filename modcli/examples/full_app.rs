@@ -3,15 +3,21 @@
 //! - json-loader
 //! - plugins
 
-use modcli::ModCli;
 use modcli::command::Command;
-use modcli::output::{build, print, gradient, RED, ORANGE};
+use modcli::output::{build, gradient, print, ORANGE, RED};
+use modcli::ModCli;
 
 struct Greet;
 impl Command for Greet {
-    fn name(&self) -> &str { "greet" }
-    fn help(&self) -> Option<&str> { Some("Greets the user") }
-    fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
+    fn name(&self) -> &str {
+        "greet"
+    }
+    fn help(&self) -> Option<&str> {
+        Some("Greets the user")
+    }
+    fn validate(&self, _args: &[String]) -> Result<(), String> {
+        Ok(())
+    }
     fn execute(&self, args: &[String]) {
         let name = args.get(0).map(|s| s.as_str()).unwrap_or("world");
         let msg = build().part("Hello, ").space().part(name).bold().get();
@@ -29,7 +35,12 @@ fn main() {
     cli.registry.register(Box::new(Greet));
 
     // Styled + Gradient output demo
-    let stylish = build().part("Welcome to ").space().part("ModCLI").bold().get();
+    let stylish = build()
+        .part("Welcome to ")
+        .space()
+        .part("ModCLI")
+        .bold()
+        .get();
     print::line(&stylish);
     let rainbow = gradient::two_color("Gradient demo", RED, ORANGE);
     print::line(&rainbow);

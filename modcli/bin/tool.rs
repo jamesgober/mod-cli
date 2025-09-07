@@ -1,10 +1,10 @@
 //use modcli::output::hook;
-use modcli::ModCli;
 use modcli::config::CliConfig;
+use modcli::ModCli;
 //use modcli::loader::sources::JsonFileSource;
-use modcli::console::run_shell;
-use modcli::output::{themes::apply_theme, print};
 use modcli::config::MessageConfig;
+use modcli::console::run_shell;
+use modcli::output::{print, themes::apply_theme};
 
 fn main() {
     // Load config file
@@ -31,7 +31,11 @@ fn main() {
 
     // CLI messages
     let default_msg_config = MessageConfig::default();
-    let msg_config = config.modcli.messages.as_ref().unwrap_or(&default_msg_config);
+    let msg_config = config
+        .modcli
+        .messages
+        .as_ref()
+        .unwrap_or(&default_msg_config);
     let msg_no_command = msg_config
         .no_command
         .as_deref()

@@ -1,8 +1,8 @@
-use crossterm::style::{Color, SetForegroundColor, SetBackgroundColor, ResetColor};
+use crate::output::colors::*;
+use crossterm::style::{Color, ResetColor, SetBackgroundColor, SetForegroundColor};
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 use std::sync::OnceLock;
-use crate::output::colors::*;
 
 #[derive(Clone)]
 pub struct Theme {
@@ -14,7 +14,12 @@ pub struct Theme {
 
 impl Theme {
     pub fn apply(&self) {
-        let _ = write!(stdout(), "{}{}", SetForegroundColor(self.fg), SetBackgroundColor(self.bg));
+        let _ = write!(
+            stdout(),
+            "{}{}",
+            SetForegroundColor(self.fg),
+            SetBackgroundColor(self.bg)
+        );
         let _ = stdout().flush();
     }
 
@@ -27,7 +32,6 @@ impl Theme {
         self.log_styles.get(key).copied().unwrap_or(self.fg)
     }
 }
-
 
 static THEME: OnceLock<Theme> = OnceLock::new();
 
@@ -84,13 +88,10 @@ pub fn apply_theme(name: &str) {
 }
 
 pub fn current_theme() -> Theme {
-    THEME
-        .get()
-        .cloned()
-        .unwrap_or_else(|| Theme {
-            name: "default".into(),
-            fg: WHITE,
-            bg: BLACK,
-            log_styles: log_defaults(WHITE),
-        })
+    THEME.get().cloned().unwrap_or_else(|| Theme {
+        name: "default".into(),
+        fg: WHITE,
+        bg: BLACK,
+        log_styles: log_defaults(WHITE),
+    })
 }

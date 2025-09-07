@@ -29,30 +29,29 @@
 //! ## Tables
 //! ```no_run
 //! use modcli::output::table::{render_table, TableMode, TableStyle};
-//! let headers = ["Name", "Age"]; 
+//! let headers = ["Name", "Age"];
 //! let rows = vec![ vec!["Alice", "29"], vec!["Bob", "35"] ];
 //! render_table(&headers, &rows, TableMode::Flex, TableStyle::Rounded);
 //! ```
-pub mod gradient;
 pub mod colors;
-pub mod themes;
-pub mod style;
-pub mod print;
+pub mod gradient;
 pub mod hook;
+pub mod print;
 pub mod progress;
+pub mod style;
 pub mod table;
+pub mod themes;
 
 // Expose public API
 pub use colors::{
-    RED, BLUE, GREEN, YELLOW, CYAN, MAGENTA, WHITE, BLACK, GREY, PINK, PURPLE, 
-    TEAL, ORANGE, BROWN, LIGHT_BLUE, LIGHT_GREEN, LIGHT_YELLOW, LIGHT_CYAN, 
-    LIGHT_MAGENTA, LIGHT_GREY, DARK_GREY, DARK_BLUE, DARK_ORANGE, DARK_PINK, 
-    DARK_PURPLE, DARK_TEAL, DARK_BROWN
+    BLACK, BLUE, BROWN, CYAN, DARK_BLUE, DARK_BROWN, DARK_GREY, DARK_ORANGE, DARK_PINK,
+    DARK_PURPLE, DARK_TEAL, GREEN, GREY, LIGHT_BLUE, LIGHT_CYAN, LIGHT_GREEN, LIGHT_GREY,
+    LIGHT_MAGENTA, LIGHT_YELLOW, MAGENTA, ORANGE, PINK, PURPLE, RED, TEAL, WHITE, YELLOW,
+};
+pub use progress::{
+    show_percent_progress, show_progress_bar, show_spinner, ProgressBar, ProgressStyle,
 };
 pub use style::build;
-pub use progress::{
-    ProgressBar, ProgressStyle, show_progress_bar, show_percent_progress, show_spinner
-};
 
 // Compile the input submodule crate-visibly; public access is via `modcli::input::*` re-exports
 pub(crate) mod input;

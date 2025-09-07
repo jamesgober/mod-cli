@@ -1,9 +1,13 @@
-use std::io::{stdin, stdout, Write};
 use rpassword::read_password;
+use std::io::{stdin, stdout, Write};
 
 /// Prompt for plain text input with optional default fallback
 pub fn prompt_text(prompt: &str, default: Option<&str>) -> String {
-    print!("{}{} ", prompt, default.map_or(String::new(), |d| format!(" [{}]", d)));
+    print!(
+        "{}{} ",
+        prompt,
+        default.map_or(String::new(), |d| format!(" [{}]", d))
+    );
     stdout().flush().unwrap();
 
     let mut input = String::new();

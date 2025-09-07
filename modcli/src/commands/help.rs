@@ -49,7 +49,10 @@ impl Command for HelpCommand {
                     );
                 }
             } else {
-                let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", query);
+                let unknown = format!(
+                    "[{}]. Type `help` or `--help` for a list of available commands.",
+                    query
+                );
                 hook::unknown(&unknown);
             }
             return;

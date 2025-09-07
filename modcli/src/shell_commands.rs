@@ -13,8 +13,10 @@ static HOOKS: OnceLock<Mutex<Vec<ShellCommand>>> = OnceLock::new();
 
 /// Register a new shell-only command from a parent application
 pub fn register(cmd: ShellCommand) {
-    HOOKS.get_or_init(|| Mutex::new(Vec::new()))
-        .lock().unwrap()
+    HOOKS
+        .get_or_init(|| Mutex::new(Vec::new()))
+        .lock()
+        .unwrap()
         .push(cmd);
 }
 

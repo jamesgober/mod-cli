@@ -1,5 +1,5 @@
-use terminal_size::{terminal_size, Width};
 use console::measure_text_width;
+use terminal_size::{terminal_size, Width};
 
 pub enum TableMode {
     Flex,
@@ -14,7 +14,9 @@ pub enum TableStyle {
 }
 
 pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style: TableStyle) {
-    let term_width = terminal_size().map(|(Width(w), _)| w as usize).unwrap_or(80);
+    let term_width = terminal_size()
+        .map(|(Width(w), _)| w as usize)
+        .unwrap_or(80);
     let col_count = headers.len().max(1);
     let padding = 1;
     let total_padding = (col_count - 1) * padding;
@@ -25,11 +27,15 @@ pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style
             let border_space = col_count + 1; // ┏┃┃┃┓ = 4 columns + 2 sides = 5 chars
             let usable = term_width.saturating_sub(border_space);
             usable / col_count
-        },
+        }
         TableMode::Flex => {
-            let content_max = headers.iter()
+            let content_max = headers
+                .iter()
                 .map(|h| measure_text_width(h))
-                .chain(rows.iter().flat_map(|r| r.iter().map(|c| measure_text_width(c))))
+                .chain(
+                    rows.iter()
+                        .flat_map(|r| r.iter().map(|c| measure_text_width(c))),
+                )
                 .max()
                 .unwrap_or(10);
             content_max.min((term_width.saturating_sub(total_padding)) / col_count)

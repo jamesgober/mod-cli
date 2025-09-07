@@ -1,7 +1,7 @@
+use crate::command::Command;
+use libloading::{Library, Symbol};
 use std::fs;
 use std::path::PathBuf;
-use libloading::{Library, Symbol};
-use crate::command::Command;
 
 pub struct PluginLoader {
     path: PathBuf,
@@ -20,9 +20,9 @@ impl PluginLoader {
                 let path = entry.path();
                 // Support platform-specific dynamic library extensions
                 let is_dynlib = match path.extension().and_then(|s| s.to_str()) {
-                    Some("so") => true,      // Linux, many Unixes
-                    Some("dylib") => true,   // macOS
-                    Some("dll") => true,     // Windows
+                    Some("so") => true,    // Linux, many Unixes
+                    Some("dylib") => true, // macOS
+                    Some("dll") => true,   // Windows
                     _ => false,
                 };
 
@@ -30,8 +30,9 @@ impl PluginLoader {
                     unsafe {
                         let lib = Library::new(&path).expect("Failed to load plugin library");
 
-                        let func: Symbol<fn() -> Box<dyn Command>> =
-                            lib.get(b"register_command").expect("Plugin missing register_command");
+                        let func: Symbol<fn() -> Box<dyn Command>> = lib
+                            .get(b"register_command")
+                            .expect("Plugin missing register_command");
 
                         let command = func();
                         plugins.push(command);

@@ -2,9 +2,4 @@ pub mod input_builder;
 pub mod secure;
 
 // Unified input API re-exports
-pub use crate::output::input::{
-    prompt_text,
-    prompt_password,
-    prompt_confirm,
-    interactive_menu,
-};
+pub use crate::output::input::{interactive_menu, prompt_confirm, prompt_password, prompt_text};

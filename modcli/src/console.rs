@@ -1,12 +1,11 @@
 use crate::config::CliConfig;
 use crate::input::prompt_text;
 use crate::output::print;
-use crate::ModCli;
-use crate::shell_extensions::dispatch_shell_command;
 use crate::shell_commands::dispatch;
+use crate::shell_extensions::dispatch_shell_command;
+use crate::ModCli;
 
 pub fn run_shell(config: &CliConfig) {
-
     // Get shell configuration
     let sconf = if let Some(sconf) = &config.modcli.shell {
         sconf
@@ -35,7 +34,7 @@ pub fn run_shell(config: &CliConfig) {
 
     // Initialize ModCLI
     let mut cli = ModCli::new();
-   
+
     // Optionally re-load commands if needed
     // let source = crate::loader::sources::JsonFileSource::new("examples/commands.json");
     // cli.registry.load_from(Box::new(source));
@@ -50,7 +49,7 @@ pub fn run_shell(config: &CliConfig) {
         if matches!(trimmed, "exit" | "quit") {
             break;
         }
-        
+
         // Check internal shell commands
         if dispatch_shell_command(trimmed, config) {
             continue;
@@ -62,10 +61,7 @@ pub fn run_shell(config: &CliConfig) {
         }
 
         // Parse input into command and args
-        let parts: Vec<String> = trimmed
-            .split_whitespace()
-            .map(String::from)
-            .collect();
+        let parts: Vec<String> = trimmed.split_whitespace().map(String::from).collect();
 
         if parts.is_empty() {
             continue;

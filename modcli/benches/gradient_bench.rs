@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use modcli::output::{gradient, RED, ORANGE, BLUE, GREEN, YELLOW};
+use modcli::output::{gradient, BLUE, GREEN, ORANGE, RED, YELLOW};
 
 fn bench_gradient(c: &mut Criterion) {
     let text = "The quick brown fox jumps over the lazy dog";

@@ -1,5 +1,5 @@
-use modcli::loader::CommandRegistry;
 use modcli::command::Command;
+use modcli::loader::CommandRegistry;
 
 struct HelloCommand;
 

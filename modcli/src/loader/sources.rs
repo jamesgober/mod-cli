@@ -1,7 +1,7 @@
 use crate::command::Command;
+use serde::Deserialize;
 use std::fs;
 use std::path::Path;
-use serde::Deserialize;
 
 pub trait CommandSource {
     fn load_commands(&self) -> Vec<Box<dyn Command>>;

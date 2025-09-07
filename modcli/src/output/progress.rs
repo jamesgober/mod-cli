@@ -1,7 +1,7 @@
+use crossterm::style::{Color, Stylize};
 use std::io::{stdout, Write};
 use std::thread;
 use std::time::Duration;
-use crossterm::style::{Stylize, Color};
 
 /// Customizable style for the progress bar
 #[derive(Clone)]
@@ -93,7 +93,7 @@ impl ProgressBar {
             bar = bar.with(color).to_string();
         }
         print!("\r");
-    
+
         if let Some(ref label) = self.label {
             print!("{} {}", label, bar);
         } else {

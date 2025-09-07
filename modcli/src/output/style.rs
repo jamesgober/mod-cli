@@ -57,9 +57,7 @@ impl OutputBuilder {
     }
 
     pub fn base(self) -> BaseStyleBuilder {
-        BaseStyleBuilder {
-            builder: self,
-        }
+        BaseStyleBuilder { builder: self }
     }
 
     pub fn part(self, text: &str) -> StyledPartBuilder {
@@ -140,7 +138,6 @@ impl StyledPartBuilder {
             },
         }
     }
-
 
     pub fn part(self, text: &str) -> Self {
         let mut builder = self.parent;
