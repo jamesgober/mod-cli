@@ -57,7 +57,7 @@ fn main() {
 
     // If force_shell is enabled OR user explicitly passed "shell"
     if force_shell || (args.len() == 1 && args[0] == "shell") {
-        run_shell(config);
+        let _ = run_shell(config);
         return;
     }
 

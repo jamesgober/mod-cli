@@ -1,16 +1,18 @@
 use crate::config::CliConfig;
+use crate::error::{ModCliError, Result};
 use crate::input::prompt_text;
-use crate::output::print;
+use crate::output::{hook, print};
 use crate::shell_commands::dispatch;
 use crate::shell_extensions::dispatch_shell_command;
 use crate::ModCli;
 
-pub fn run_shell(config: &CliConfig) {
+pub fn run_shell(config: &CliConfig) -> Result<()> {
     // Get shell configuration
     let sconf = if let Some(sconf) = &config.modcli.shell {
         sconf
     } else {
-        panic!("Shell configuration is missing");
+        hook::error("Shell configuration is missing. Set modcli.shell in your config or disable shell mode.");
+        return Err(ModCliError::MissingShellConfig);
     };
 
     // Set prompt prefix or default to "Mod > "
@@ -77,4 +79,6 @@ pub fn run_shell(config: &CliConfig) {
     if let Some((lines, delay)) = goodbye_message {
         print::scroll(&lines, delay);
     }
+
+    Ok(())
 }

@@ -2,16 +2,19 @@ use serde::Deserialize;
 use std::fs;
 use std::sync::OnceLock;
 
+use crate::error::ModCliError;
+use crate::output::hook;
+
 static CONFIG: OnceLock<CliConfig> = OnceLock::new();
 static CONFIG_PATH: OnceLock<String> = OnceLock::new();
 static RAW_CONFIG: &str = include_str!("../examples/config.json");
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, Default)]
 pub struct CliConfig {
     pub modcli: ModCliSection,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ModCliSection {
     pub name: Option<String>,
     pub prefix: Option<String>,
@@ -24,14 +27,14 @@ pub struct ModCliSection {
     pub messages: Option<MessageConfig>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ShellConfig {
     pub prompt: Option<String>,
     pub welcome: Option<Vec<String>>,
     pub goodbye: Option<Vec<String>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct MessageConfig {
     pub no_command: Option<String>,
     pub not_found: Option<String>,
@@ -46,6 +49,23 @@ impl Default for MessageConfig {
     }
 }
 
+impl Default for ModCliSection {
+    fn default() -> Self {
+        ModCliSection {
+            name: Some("mod-cli".into()),
+            prefix: None,
+            banner: None,
+            theme: None,
+            delay: None,
+            strict: None,
+            force_shell: None,
+            shell: None,
+            messages: Some(MessageConfig::default()),
+        }
+    }
+}
+
+
 impl CliConfig {
     /// Loads config from: custom path > project root > examples/ > embedded
     pub fn load(_unused: Option<&str>) -> &'static CliConfig {
@@ -53,20 +73,38 @@ impl CliConfig {
             // 👇 Custom override path if set
             if let Some(p) = CONFIG_PATH.get() {
                 if let Ok(data) = fs::read_to_string(p) {
-                    return parse(&data);
+                    if let Ok(cfg) = parse(&data) {
+                        return cfg;
+                    } else {
+                        hook::error("Invalid config format at custom path; falling back to defaults.");
+                    }
                 }
             }
 
             // Fallbacks...
             if let Ok(data) = fs::read_to_string("config.json") {
-                return parse(&data);
+                if let Ok(cfg) = parse(&data) {
+                    return cfg;
+                } else {
+                    hook::error("Invalid config.json format; trying examples/config.json.");
+                }
             }
 
             if let Ok(data) = fs::read_to_string("examples/config.json") {
-                return parse(&data);
+                if let Ok(cfg) = parse(&data) {
+                    return cfg;
+                } else {
+                    hook::error("Invalid examples/config.json format; using embedded defaults.");
+                }
             }
 
-            parse(RAW_CONFIG)
+            match parse(RAW_CONFIG) {
+                Ok(cfg) => cfg,
+                Err(_) => {
+                    hook::error("Embedded example config failed to parse; using built-in defaults.");
+                    CliConfig::default()
+                }
+            }
         })
     }
 
@@ -74,24 +112,31 @@ impl CliConfig {
     pub fn load_owned(path: Option<&str>) -> CliConfig {
         if let Some(p) = path {
             if let Ok(data) = fs::read_to_string(p) {
-                return parse(&data);
+                if let Ok(cfg) = parse(&data) {
+                    return cfg;
+                }
             }
         }
 
         if let Ok(data) = fs::read_to_string("config.json") {
-            return parse(&data);
+            if let Ok(cfg) = parse(&data) {
+                return cfg;
+            }
         }
 
         if let Ok(data) = fs::read_to_string("examples/config.json") {
-            return parse(&data);
+            if let Ok(cfg) = parse(&data) {
+                return cfg;
+            }
         }
 
-        parse(RAW_CONFIG)
+        parse(RAW_CONFIG).unwrap_or_default()
     }
 }
 
-fn parse(data: &str) -> CliConfig {
-    serde_json::from_str(data).expect("Failed to parse CLI config JSON")
+fn parse(data: &str) -> Result<CliConfig, ModCliError> {
+    serde_json::from_str::<CliConfig>(data)
+        .map_err(|e| ModCliError::Other(format!("Failed to parse CLI config JSON: {e}")))
 }
 
 pub fn set_path(path: &str) {
