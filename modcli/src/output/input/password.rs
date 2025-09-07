@@ -1,5 +1,5 @@
-use rpassword::read_password;
 use crate::output::print;
+use rpassword::read_password;
 
 /// Prompts the user for a password (no echo).
 ///
