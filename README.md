@@ -596,6 +596,8 @@ fn main() {
 
 
 
+
+
 <!--
 :: COPYRIGHT
 ============================================================================ -->
@@ -603,4 +605,4 @@ fn main() {
   <br>
   <h2></h2>
   <sup>COPYRIGHT <small>&copy;</small> 2025 <strong>JAMES GOBER.</strong></sup>
-</div># server-bootstrap
+</div>
