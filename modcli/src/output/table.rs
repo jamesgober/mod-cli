@@ -89,10 +89,38 @@ pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style
     println!("{}", border.bottom_right);
 }
 
+/// Truncates the cell to fit `width` characters visually, appending an ellipsis if needed,
+/// then pads with spaces to fill the column exactly.
 fn pad_cell(cell: &str, width: usize) -> String {
-    let visual = measure_text_width(cell);
+    let truncated = truncate_to_width(cell, width);
+    let visual = measure_text_width(&truncated);
     let pad = width.saturating_sub(visual);
-    format!("{}{}", cell, " ".repeat(pad))
+    format!("{}{}", truncated, " ".repeat(pad))
+}
+
+/// Best-effort truncate that respects visual width using `console::measure_text_width`.
+/// If the content exceeds `width`, it trims to `width-1` and appends '…'.
+fn truncate_to_width(cell: &str, width: usize) -> String {
+    if width == 0 {
+        return String::new();
+    }
+    let visual = measure_text_width(cell);
+    if visual <= width {
+        return cell.to_string();
+    }
+
+    let mut out = String::new();
+    // Reserve room for ellipsis
+    let target = width.saturating_sub(1);
+    for ch in cell.chars() {
+        let next = format!("{}{}", out, ch);
+        if measure_text_width(&next) > target {
+            break;
+        }
+        out.push(ch);
+    }
+    out.push('…');
+    out
 }
 
 struct BorderSet {

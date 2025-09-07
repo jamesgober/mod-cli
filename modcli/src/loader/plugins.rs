@@ -18,7 +18,15 @@ impl PluginLoader {
         if let Ok(entries) = fs::read_dir(&self.path) {
             for entry in entries.flatten() {
                 let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("so") {
+                // Support platform-specific dynamic library extensions
+                let is_dynlib = match path.extension().and_then(|s| s.to_str()) {
+                    Some("so") => true,      // Linux, many Unixes
+                    Some("dylib") => true,   // macOS
+                    Some("dll") => true,     // Windows
+                    _ => false,
+                };
+
+                if is_dynlib {
                     unsafe {
                         let lib = Library::new(&path).expect("Failed to load plugin library");
 

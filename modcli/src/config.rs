@@ -69,6 +69,25 @@ impl CliConfig {
             parse(RAW_CONFIG)
         })
     }
+
+    /// Owned config loader (non-global). Prefer this in library code for better testability.
+    pub fn load_owned(path: Option<&str>) -> CliConfig {
+        if let Some(p) = path {
+            if let Ok(data) = fs::read_to_string(p) {
+                return parse(&data);
+            }
+        }
+
+        if let Ok(data) = fs::read_to_string("config.json") {
+            return parse(&data);
+        }
+
+        if let Ok(data) = fs::read_to_string("examples/config.json") {
+            return parse(&data);
+        }
+
+        parse(RAW_CONFIG)
+    }
 }
 
 fn parse(data: &str) -> CliConfig {

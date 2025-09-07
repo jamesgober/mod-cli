@@ -31,6 +31,22 @@
 
 <br>
 
+## Documentation on docs.rs
+
+The full API documentation is available on docs.rs:
+
+- https://docs.rs/mod-cli
+
+Docs are built with the following features enabled to maximize example coverage:
+
+- `json-loader`
+- `plugins`
+- `internal-commands`
+- `custom-commands`
+
+When browsing examples, note that some snippets are feature-gated and only compile/run when the corresponding feature is enabled.
+
+
 <!-- FOOT COPYRIGHT
 ################################################# -->
 <div align="center">

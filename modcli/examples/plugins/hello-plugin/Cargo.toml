@@ -1,0 +1,13 @@
+[package]
+name = "hello-plugin"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Depend on the local mod-cli crate in this repository
+mod-cli = { path = "../../../modcli", package = "mod-cli" }
+
+[workspace]

@@ -1,0 +1,10 @@
+/Users/james/Development/Rust/mod-cli/modcli/examples/plugins/hello-plugin/target/release/deps/csscolorparser-fc9101b9589df5fe.d: /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/lib.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/color.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/mod.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/named_colors.rs
+
+/Users/james/Development/Rust/mod-cli/modcli/examples/plugins/hello-plugin/target/release/deps/libcsscolorparser-fc9101b9589df5fe.rlib: /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/lib.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/color.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/mod.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/named_colors.rs
+
+/Users/james/Development/Rust/mod-cli/modcli/examples/plugins/hello-plugin/target/release/deps/libcsscolorparser-fc9101b9589df5fe.rmeta: /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/lib.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/color.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/mod.rs /Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/named_colors.rs
+
+/Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/lib.rs:
+/Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/color.rs:
+/Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/mod.rs:
+/Users/james/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/csscolorparser-0.6.2/src/parser/named_colors.rs:

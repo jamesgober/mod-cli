@@ -22,12 +22,34 @@ use crate::output::hook;
 
 use std::collections::HashMap;
 use crate::command::Command;
+
+#[cfg(feature = "json-loader")]
 use crate::loader::sources::CommandSource;
+
+#[cfg(feature = "json-loader")]
 pub mod sources;
 
+/// Registry for commands and optional alias/prefix routing.
+///
+/// # Example
+/// ```no_run
+/// use modcli::loader::CommandRegistry;
+/// use modcli::command::Command;
+///
+/// struct Echo;
+/// impl Command for Echo {
+///     fn name(&self) -> &str { "echo" }
+///     fn execute(&self, args: &[String]) { println!("{}", args.join(" ")) }
+/// }
+///
+/// let mut reg = CommandRegistry::new();
+/// reg.register(Box::new(Echo));
+/// reg.execute("echo", &["hi".into()]);
+/// ```
 pub struct CommandRegistry {
     prefix: String,
     commands: HashMap<String, Box<dyn Command>>,
+    aliases: HashMap<String, String>,
 }
 impl CommandRegistry {
 
@@ -36,6 +58,7 @@ impl CommandRegistry {
         let mut reg = Self {
             prefix: String::new(),
             commands: HashMap::new(),
+            aliases: HashMap::new(),
         };
 
         #[cfg(feature = "custom-commands")]
@@ -48,26 +71,47 @@ impl CommandRegistry {
     }
 
     /// Sets the command prefix
+    /// Sets an optional prefix used for routing commands of the form `prefix:cmd`.
     pub fn set_prefix(&mut self, prefix: &str) {
         self.prefix = prefix.to_string();
     }
 
     /// Gets the command prefix
+    /// Returns the configured prefix (empty string if not set).
     pub fn get_prefix(&self) -> &str {
         &self.prefix
     }
  
     /// Gets a command by name
+    /// Gets a command by its primary name.
     pub fn get(&self, name: &str) -> Option<&Box<dyn Command>> {
         self.commands.get(name)
     }
 
     /// Gets a command by name with prefix
+    /// Registers a command and records its aliases for reverse lookup.
     pub fn register(&mut self, cmd: Box<dyn Command>) {
-        self.commands.insert(cmd.name().to_string(), cmd);
+        // capture name/aliases before moving the command
+        let name = cmd.name().to_string();
+        let alias_list: Vec<String> = cmd
+            .aliases()
+            .iter()
+            .map(|a| a.to_string())
+            .collect();
+
+        self.commands.insert(name.clone(), cmd);
+
+        // map each alias -> primary name
+        for alias in alias_list {
+            // avoid alias clobbering existing command names
+            if !self.commands.contains_key(&alias) {
+                self.aliases.insert(alias, name.clone());
+            }
+        }
     }
 
     /// Returns all registered commands (read-only)
+    /// Returns an iterator over all registered commands.
     pub fn all(&self) -> impl Iterator<Item = &Box<dyn Command>> {
         self.commands.values()
     }
@@ -81,55 +125,34 @@ impl CommandRegistry {
         }
     }
 
+    /// Resolves and executes a command by name or alias, with optional prefix routing.
     pub fn execute(&self, cmd: &str, args: &[String]) {
-        if let Some(command) = self.commands.get(cmd) {
-            if command.name() == "help" {
-                // Special case for help: render help output with registry context
-                if args.len() > 1 {
-                    hook::error("Invalid usage: Too many arguments. Usage: help [command]");
-                    return;
-                }
-
-                if args.len() == 1 {
-                    let query = &args[0];
-                    if let Some(target) = self.commands.get(query) {
-                        if target.hidden() {
-                            println!("No help available for '{}'", query);
-                        } else {
-                            println!(
-                                "{} - {}",
-                                target.name(),
-                                target.help().unwrap_or("No description.")
-                            );
-                        }
-                    } else {
-                        let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", query);
-                        hook::unknown(&unknown);
-                    }
-                    return;
-                }
-
-                println!("Help:");
-                for command in self.commands.values() {
-                    if !command.hidden() {
-                        println!(
-                            "  {:<12} {}",
-                            command.name(),
-                            command.help().unwrap_or("No description")
-                        );
-                    }
-                }
-            } else {
-                // Normal command execution
-                if let Err(err) = command.validate(args) {
-                    let err_msg = format!("Invalid usage: {}", err);
-                    hook::error(&err_msg);
-                    command.execute(args);
-                    return;
-                }
-
-                command.execute(args);
+        // Handle optional prefix routing: `<prefix>:<command>`
+        let mut token = cmd.to_string();
+        if !self.prefix.is_empty() {
+            let expect = format!("{}:", self.prefix);
+            if token.starts_with(&expect) {
+                token = token[expect.len()..].to_string();
             }
+        }
+
+        // resolve command by direct name or alias
+        let resolved_name = if self.commands.contains_key(&token) {
+            Some(token.clone())
+        } else {
+            self.aliases.get(&token).cloned()
+        };
+
+        if let Some(name) = resolved_name {
+            let command = &self.commands[&name];
+            // Validate before execute
+            if let Err(err) = command.validate(args) {
+                let err_msg = format!("Invalid usage: {}", err);
+                hook::error(&err_msg);
+                return;
+            }
+            // Execute with registry context (help and others can leverage it)
+            command.execute_with(args, self);
         } else {
             let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", cmd);
             hook::unknown(&unknown);
@@ -148,6 +171,7 @@ impl CommandRegistry {
 
 
 
+    #[cfg(feature = "json-loader")]
     pub fn load_from(&mut self, source: Box<dyn CommandSource>) {
         for cmd in source.load_commands() {
             self.register(cmd);

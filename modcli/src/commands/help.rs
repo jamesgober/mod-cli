@@ -1,4 +1,6 @@
 use crate::command::Command;
+use crate::loader::CommandRegistry;
+use crate::output::hook;
 
 /// Built-in help command (execution handled by registry internally)
 pub struct HelpCommand;
@@ -30,7 +32,38 @@ impl Command for HelpCommand {
         }
     }
 
-    fn execute(&self, _args: &[String]) {
-        // Do nothing — real logic is handled inside registry.execute()
+    fn execute(&self, _args: &[String]) {}
+
+    fn execute_with(&self, args: &[String], registry: &CommandRegistry) {
+        // validate() already ensures args.len() <= 1
+        if args.len() == 1 {
+            let query = &args[0];
+            if let Some(target) = registry.get(query) {
+                if target.hidden() {
+                    println!("No help available for '{}'", query);
+                } else {
+                    println!(
+                        "{} - {}",
+                        target.name(),
+                        target.help().unwrap_or("No description.")
+                    );
+                }
+            } else {
+                let unknown = format!("[{}]. Type `help` or `--help` for a list of available commands.", query);
+                hook::unknown(&unknown);
+            }
+            return;
+        }
+
+        println!("Help:");
+        for command in registry.all() {
+            if !command.hidden() {
+                println!(
+                    "  {:<12} {}",
+                    command.name(),
+                    command.help().unwrap_or("No description")
+                );
+            }
+        }
     }
 }

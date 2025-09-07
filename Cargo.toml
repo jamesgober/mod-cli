@@ -1,10 +1,11 @@
+#####################################################
 # ¸_____¸_____¸  
-#  ╲__¸ ┊ ¸__╱   
-# ¸_  ┊ ┊ ┊ ___  James Gober
-# ┊ [_┊ ┊ ┊_] ┊  Contact@JamesGober.com
+#  ╲__¸ ┊ ¸__╱   James Gober 
+# ¸_  ┊ ┊ ┊ ___  Software Performance Engineer
+# ┊ [_┊ ┊ ┊_] ┊  code@jamesgober.dev
 # ┊_____A_____┊  https://JamesGober.com
-# JAMES ⬡ GOBER   
-# ===================================================
+# JAMES ⬡ GOBER  - - - - - - - - - - - - - - - - - -
+#####################################################
 [workspace]
 members = [
     "modcli"

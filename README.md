@@ -11,6 +11,8 @@
         <span>&nbsp;</span>
         <a href="https://docs.rs/mod-cli" title="ModCLI Documentation"><img alt="docs.rs" src="https://img.shields.io/docsrs/mod-cli"></a>
         <span>&nbsp;</span>
+        <a href="https://github.com/jamesgober/mod-cli/actions/workflows/ci.yml" title="CI Status"><img alt="CI" src="https://github.com/jamesgober/mod-cli/actions/workflows/ci.yml/badge.svg"></a>
+        <span>&nbsp;</span>
         <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/jamesgober/mod-cli?color=%23347d39" alt="last commit badge">
     </div>
 </div>
@@ -21,6 +23,13 @@
         A fully customizable and feature-rich system for registering commands, styling output, and running interactive shells with zero bloat. Built to speed up CLI development and get powerful tools running fast—without rewriting the basics.
     </p>
 </div>
+<h2>Documentation</h2>
+<p>
+    Full API docs are available on <a href="https://docs.rs/mod-cli" title="Docs.rs: mod-cli">docs.rs</a>.
+    Docs are built with features enabled for maximum example coverage (<code>json-loader</code>, <code>plugins</code>, <code>internal-commands</code>, <code>custom-commands</code>).
+    Some examples are feature-gated and compile/run only when the corresponding feature is enabled.
+    <br>
+</p>
 <h2>Key Features</h2>
 <li>
     <strong>Custom Commands</strong> - Define your own commands with execution logic.
@@ -67,6 +76,27 @@ Add the library to your `Cargo.toml` with features:
 mod-cli = { version = "0.5.0", features = ["plugins"] }
 ```
 
+Example plugin included in this repo:
+- Path: `modcli/examples/plugins/hello-plugin/`
+- Build (from that directory):
+  - macOS: `cargo build --release` → produces `target/release/libhello_plugin.dylib`
+  - Linux: `cargo build --release` → produces `target/release/libhello_plugin.so`
+  - Windows: `cargo build --release` → produces `target\release\hello_plugin.dll`
+
+Copy the built library into a `plugins/` directory alongside your binary and run with the `plugins` feature enabled.
+
+Enable the JSON loader feature:
+```toml
+[dependencies]
+mod-cli = { version = "0.5.0", features = ["json-loader"] }
+```
+
+Enable multiple features:
+```toml
+[dependencies]
+mod-cli = { version = "0.5.0", features = ["plugins", "json-loader"] }
+```
+
 <br>
 <h3>Feature Flags</h3>
 
@@ -76,6 +106,85 @@ mod-cli = { version = "0.5.0", features = ["plugins"] }
 | `custom-commands`      | Enables CLI custom command creation.                  |
 | `json-loader`          | Enables external command loading from JSON config     |
 | `plugins`              | Enables plugin support for dynamic runtime command injection |
+
+
+### JSON Command Source (feature: `json-loader`)
+
+```rust
+//! Enable with: features = ["json-loader"]
+use modcli::ModCli;
+#[cfg(feature = "json-loader")]
+use modcli::loader::sources::JsonFileSource;
+
+fn main() {
+    let mut cli = ModCli::new();
+
+    #[cfg(feature = "json-loader")]
+    {
+        // Load commands from a JSON file at runtime
+        let source = JsonFileSource::new("examples/commands.json");
+        cli.registry.load_from(Box::new(source));
+    }
+
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    cli.run(args);
+}
+```
+
+Example JSON (`examples/commands.json`):
+```json
+[
+  { "name": "greet", "aliases": ["hi"], "help": "Greets user" },
+  { "name": "version", "help": "Show version" }
+]
+```
+
+
+### Writing a Plugin (feature: `plugins`)
+
+```rust
+// In your plugin crate (cdylib), expose a C-ABI symbol that returns a command
+// Cargo.toml for the plugin:
+// [lib]
+// crate-type = ["cdylib"]
+
+use modcli::command::Command;
+
+struct MyPluginCmd;
+
+impl Command for MyPluginCmd {
+    fn name(&self) -> &str { "plugged" }
+    fn help(&self) -> Option<&str> { Some("Plugin-provided command") }
+    fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
+    fn execute(&self, _args: &[String]) { println!("Hello from plugin!"); }
+}
+
+#[no_mangle]
+pub extern "C" fn register_command() -> Box<dyn Command> {
+    Box::new(MyPluginCmd)
+}
+```
+
+Host app loading plugins:
+```rust
+//! Enable with: features = ["plugins"]
+use modcli::ModCli;
+#[cfg(feature = "plugins")]
+use modcli::loader::CommandRegistry;
+
+fn main() {
+    let mut cli = ModCli::new();
+
+    #[cfg(feature = "plugins")]
+    {
+        // Load all dynamic libraries from ./plugins directory
+        cli.registry.load_plugins("./plugins");
+    }
+
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    cli.run(args);
+}
+```
 
 
 <hr><br>

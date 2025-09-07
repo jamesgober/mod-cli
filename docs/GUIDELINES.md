@@ -340,3 +340,15 @@ println!("p95 latency: {}", metrics.p95().as_millis());
 **Remember**: Every line of code should make the library faster, simpler, or more reliable. If it doesn't do any of these, it doesn't belong.
 
 *This document is the source of truth for all development decisions. When in doubt, optimize for simplicity and performance.*
+
+
+
+
+
+
+<!-- FOOT COPYRIGHT
+################################################# -->
+<div align="center">
+  <h2></h2>
+  <sup>COPYRIGHT <small>&copy;</small> 2025 <strong>JAMES GOBER.</strong></sup>
+</div>

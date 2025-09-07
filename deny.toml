@@ -1,0 +1,43 @@
+# cargo-deny configuration
+# See: https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+# Skip dev graph duplication in checks
+all-features = true
+
+[advisories]
+# Deny any vulnerability advisories
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
+ignore = []
+
+[licenses]
+# Allowed licenses list (adjust as needed)
+allow = [
+  "Apache-2.0",
+  "MIT",
+  "BSD-3-Clause",
+  "BSD-2-Clause",
+  "ISC",
+  "Zlib",
+]
+# Deny copyleft by default
+copyleft = "warn"
+
+[licenses.private]
+# Treat private workspace members as private
+ignore = true
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# Example: disallow old log crates
+# deny = [ { name = "time", version = "<0.3" } ]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "warn"
+# Allow crates.io by default
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, 1.74.0]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache target
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-target-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build (default)
+        run: cargo build --verbose
+
+      - name: Test (default)
+        run: cargo test --verbose
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy -- -D warnings
+
+      - name: Test with json-loader feature
+        run: cargo test --features json-loader --verbose
+
+      - name: Doctests (default)
+        run: cargo test --doc --verbose
+
+      - name: Doctests (json-loader + plugins)
+        run: cargo test --doc --features json-loader,plugins --verbose
+
+      - name: Build docs (no-deps)
+        run: cargo doc --no-deps --verbose
+
+  plugin-smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Build example plugin
+        working-directory: modcli/examples/plugins/hello-plugin
+        run: cargo build --release --verbose
+
+      - name: Prepare plugin folder (Unix)
+        if: matrix.os != 'windows-latest'
+        run: mkdir -p plugins
+
+      - name: Prepare plugin folder (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          if (-not (Test-Path "plugins")) { New-Item -ItemType Directory -Path "plugins" | Out-Null }
+
+      - name: Copy plugin (macOS/Linux)
+        if: matrix.os == 'macos-latest'
+        run: cp modcli/examples/plugins/hello-plugin/target/release/libhello_plugin.dylib plugins/
+
+      - name: Copy plugin (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: cp modcli/examples/plugins/hello-plugin/target/release/libhello_plugin.so plugins/
+
+      - name: Copy plugin (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Copy-Item modcli/examples/plugins/hello-plugin/target/release/hello_plugin.dll plugins/
+
+      - name: Run smoke test (plugins feature)
+        run: cargo run --features plugins --bin modcli -- hello-plugin

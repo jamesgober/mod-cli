@@ -1,23 +1,28 @@
+#####################################################
 # ¸_____¸_____¸  
-#  ╲__¸ ┊ ¸__╱   
-# ¸_  ┊ ┊ ┊ ___  James Gober
-# ┊ [_┊ ┊ ┊_] ┊  Contact@JamesGober.com
+#  ╲__¸ ┊ ¸__╱   James Gober 
+# ¸_  ┊ ┊ ┊ ___  Software Performance Engineer
+# ┊ [_┊ ┊ ┊_] ┊  code@jamesgober.dev
 # ┊_____A_____┊  https://JamesGober.com
-# JAMES ⬡ GOBER   
-# ===================================================
+# JAMES ⬡ GOBER  - - - - - - - - - - - - - - - - - -
+#####################################################
 [package] 
 name = "mod-cli"
 version = "0.5.0"
+
+# Minimum Supported Rust Version (MSRV)
 edition = "2021"
-readme  = "README.md"
+
+# License
 license = "Apache-2.0"
 
-homepage      = "https://github.com/jamesgober/mod-cli"
-repository    = "https://github.com/jamesgober/mod-cli"
-documentation = "https://docs.rs/mod-cli"
+# Readme
+readme = "README.md"
 
+# Description
 description   = "A fully customizable, feature-rich CLI framework for Rust. Define commands, prefixes, styled output, and more—built for flexibility and speed."
 
+# Keywords (5 total)
 keywords = [
     "cli",
     "framework",
@@ -26,6 +31,7 @@ keywords = [
     "modular",
 ]
 
+# Categories (5 total)
 categories = [
     "command-line-interface", 
     "command-line-utilities", 
@@ -33,9 +39,27 @@ categories = [
     "development-tools",
 ]
 
+# Links
+homepage      = "https://github.com/jamesgober/mod-cli"
+repository    = "https://github.com/jamesgober/mod-cli"
+documentation = "https://docs.rs/mod-cli"
+
+# Authors
 authors = [
-    "James Gober <contact@jamesgober.com>"
+    "James Gober <code@jamesgober.dev>"
 ]
+
+
+
+#####################################################
+# 📦 FEATURES
+#####################################################
+[package.metadata.docs.rs]
+# Build docs with these features to maximize example coverage
+features = ["json-loader", "plugins", "internal-commands", "custom-commands"]
+all-features = false
+no-default-features = false
+
 
 
 
@@ -45,6 +69,8 @@ authors = [
 [lib]
 name = "modcli"
 path = "src/lib.rs"
+
+
 
 
 #####################################################
@@ -59,6 +85,8 @@ name = "modcli"
 path = "bin/modcli.rs"
 
 
+
+
 #####################################################
 # EXAMPLES
 #####################################################
@@ -67,15 +95,19 @@ name = "demo"
 path = "examples/demo.rs"
 
 
+
+
 #####################################################
 # 📦 FEATURES
 #####################################################
 [features]
 default = ["internal-commands", "custom-commands"]
 plugins = []
-interactive = []  # Opt-in for interactive features
 internal-commands = []
-custom-commands=[]
+custom-commands = []
+json-loader = []
+
+
 
 
 #####################################################
@@ -98,7 +130,7 @@ crossterm = { version = "0.27.0", features = ["event-stream"] }
 colorgrad = "0.6.0"
 colored = "2.1.0"
 console = "0.15"
-clap = { version = "4.5.4", features = ["derive"] }
+
 
 
 
@@ -108,3 +140,4 @@ clap = { version = "4.5.4", features = ["derive"] }
 [dev-dependencies]
 tokio = { version = "1.0", features = ["rt-multi-thread"] }
 once_cell = "1.19"
+criterion = { version = "0.5", features = ["html_reports"] }

@@ -27,6 +27,12 @@ fn main() {
     // Default command execution
     let mut cli = ModCli::new();
 
+    // Auto-load plugins from ./plugins when feature enabled
+    #[cfg(feature = "plugins")]
+    {
+        cli.registry.load_plugins("./plugins");
+    }
+
     // Skip program name and pass only actual arguments
     let cli_args = if args.len() > 1 {
         args[1..].to_vec()

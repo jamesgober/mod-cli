@@ -17,10 +17,33 @@
 - Added `docs/README.md` section.
 - Added `docs/API.md` section.
 - Added `docs/GUIDELINES.md` section.
+- Added alias matching in command registry (registers aliases and resolves them at runtime).
+- Added `json-loader` feature flag to gate JSON command source loading.
+- Added tests for alias resolution and validation guard in `CommandRegistry`.
+- Added example plugin crate: `modcli/examples/plugins/hello-plugin`.
+- Added GitHub Actions CI workflow (Linux/macOS) with matrix build/test, plugin smoke test, and `json-loader` feature tests.
+- Added MSRV (1.74.0) to CI matrix and enabled cargo caches for faster builds.
+- Added `cargo-audit` scheduled workflow.
+- Added `cargo-deny` workflow for license/advisory checks.
+- Added `examples/full_app.rs` demonstrating custom command, prefix routing, gradients, JSON loader, and plugin loading.
+- Added Criterion benchmarks for output builder, gradient generation, and table rendering.
 
 
 ### Changed
 - Reformatted CHANGELOG.md.
+- Refactored `CommandRegistry` to include an alias map for efficient alias resolution.
+- Plugin loader now supports platform-specific dynamic libraries: `.so` (Linux/Unix), `.dylib` (macOS), `.dll` (Windows).
+- README feature table updated to include `json-loader`.
+- Removed unused `clap` dependency to reduce bloat.
+- Removed unused `interactive` feature flag from `modcli/Cargo.toml`.
+- Unified input re-exports via `modcli::input::*` for a single ergonomic API surface.
+- Table renderer now truncates long cell content with an ellipsis and pads to column width.
+- Added crate-level and API rustdoc for `modcli::ModCli` and related items.
+- Removed `help` special-casing from `CommandRegistry` dispatcher; commands now support context-aware execution via `execute_with(&self, args, &CommandRegistry)` and `HelpCommand` owns its behavior.
+- Introduced owned configuration loading: `CliConfig::load_owned(path)` and `ModCli::with_owned_config(cfg)` to avoid global singletons in library/test usage; existing global loader retained for backward compatibility in the binary.
+
+### Fixed
+- Validation no longer executes the command when `validate()` returns an error (prevents side-effects on invalid input).
 
 
 

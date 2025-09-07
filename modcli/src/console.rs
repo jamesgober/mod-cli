@@ -1,5 +1,5 @@
 use crate::config::CliConfig;
-use crate::output::input::prompt_text;
+use crate::input::prompt_text;
 use crate::output::print;
 use crate::ModCli;
 use crate::shell_extensions::dispatch_shell_command;
