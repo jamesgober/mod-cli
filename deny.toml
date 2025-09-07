@@ -8,8 +8,6 @@ all-features = true
 [advisories]
 # Deny advisories at or above this severity (low/medium/high/critical)
 severity-threshold = "low"
-# Treat these classes as informational (do not fail the job)
-informational = ["unmaintained", "yanked", "notice"]
 ignore = []
 
 [licenses]
