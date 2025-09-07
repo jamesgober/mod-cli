@@ -1,6 +1,6 @@
+use crate::output::hook;
 use crossterm::style::{Color, Stylize};
 use std::io::{stdout, Write};
-use crate::output::hook;
 use std::thread;
 use std::time::Duration;
 
