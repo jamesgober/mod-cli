@@ -1,3 +1,4 @@
+use crate::output::{hook, print};
 use crossterm::{
     cursor,
     event::{self, Event, KeyCode},
@@ -5,7 +6,6 @@ use crossterm::{
     terminal::{self, ClearType},
 };
 use std::io::{stdout, Write};
-use crate::output::{print, hook};
 
 pub fn interactive_menu() -> Option<usize> {
     let mut stdout = stdout();
@@ -34,10 +34,11 @@ pub fn interactive_menu() -> Option<usize> {
             }
         }
 
-        if let Err(e) = stdout.flush() { hook::warn(&format!("flush failed: {e}")); }
+        if let Err(e) = stdout.flush() {
+            hook::warn(&format!("flush failed: {e}"));
+        }
         match event::read() {
-            Ok(Event::Key(key_event)) => {
-            match key_event.code {
+            Ok(Event::Key(key_event)) => match key_event.code {
                 KeyCode::Up => {
                     selected = selected.saturating_sub(1);
                 }
@@ -47,16 +48,19 @@ pub fn interactive_menu() -> Option<usize> {
                     }
                 }
                 KeyCode::Enter => {
-                    if let Err(e) = terminal::disable_raw_mode() { hook::warn(&format!("disable raw mode failed: {e}")); }
+                    if let Err(e) = terminal::disable_raw_mode() {
+                        hook::warn(&format!("disable raw mode failed: {e}"));
+                    }
                     return Some(selected);
                 }
                 KeyCode::Esc => {
-                    if let Err(e) = terminal::disable_raw_mode() { hook::warn(&format!("disable raw mode failed: {e}")); }
+                    if let Err(e) = terminal::disable_raw_mode() {
+                        hook::warn(&format!("disable raw mode failed: {e}"));
+                    }
                     return None;
                 }
                 _ => {}
-            }
-            }
+            },
             Ok(_) => {}
             Err(e) => {
                 print::warn(&format!("event read failed: {e}"));
