@@ -6,11 +6,8 @@
 all-features = true
 
 [advisories]
-# Deny any vulnerability advisories
+# Fail on vulnerabilities; use tool defaults for other advisory classes
 vulnerability = "deny"
-unmaintained = "warn"
-yanked = "warn"
-notice = "warn"
 ignore = []
 
 [licenses]
