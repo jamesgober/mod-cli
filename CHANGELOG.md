@@ -27,6 +27,7 @@
 - Docs: Added "Using Features", "Contributing Performance", and tracing initialization example in `docs/README.md`.
 - Docs: Added "Error Code Mapping" section for `bin/modcli.rs` exit codes.
 - Benchmarks: Added `parser_bench.rs` for `parser::parse_line()` (simple/quoted/escaped cases).
+- Benchmarks: Added `registry_try_execute_bench.rs` for dispatch (`try_execute`) across name/alias/prefix cases.
 
 ### Changed
 - `modcli/src/config.rs::parse()` now preserves original `serde_json` errors via `ConfigParse` instead of stringifying, improving diagnostics.

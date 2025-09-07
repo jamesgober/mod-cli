@@ -32,6 +32,7 @@ The crate exposes several feature flags to tailor functionality and surface area
 - `internal-commands`: Includes built-in helper commands for the framework.
 - `custom-commands`: Enables custom commands module re-exports for ergonomic APIs.
 - `tracing-logs`: Emits `tracing` events from `output::hook` while still printing themed console output.
+- `dispatch-cache`: Optional single-entry dispatch cache to accelerate repeated command invocations.
 
 Enable features in your application’s Cargo.toml:
 
@@ -49,6 +50,7 @@ mod-cli = { version = "*", features = ["json-loader", "plugins", "internal-comma
 | `json-loader`       |   off   | Load commands from JSON sources (see `modcli/examples/commands.json`).     |
 | `plugins`           |   off   | Dynamic plugin loading via `libloading` (platform `.so`/`.dylib`/`.dll`).  |
 | `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.         |
+| `dispatch-cache`    |   off   | Single-entry dispatch cache to speed repeated command invocations.         |
 
 ## Contributing Performance
 

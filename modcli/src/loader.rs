@@ -41,6 +41,10 @@ pub struct CommandRegistry {
     prefix: String,
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
+    #[cfg(feature = "dispatch-cache")]
+    cache_token: Option<String>,
+    #[cfg(feature = "dispatch-cache")]
+    cache_primary: Option<String>,
 }
 
 impl Default for CommandRegistry {
@@ -56,6 +60,10 @@ impl CommandRegistry {
             prefix: String::new(),
             commands: HashMap::new(),
             aliases: HashMap::new(),
+            #[cfg(feature = "dispatch-cache")]
+            cache_token: None,
+            #[cfg(feature = "dispatch-cache")]
+            cache_primary: None,
         };
 
         #[cfg(feature = "custom-commands")]
@@ -81,24 +89,25 @@ impl CommandRegistry {
 
     /// Gets a command by name
     /// Gets a command by its primary name.
+    #[inline(always)]
     pub fn get(&self, name: &str) -> Option<&dyn Command> {
         self.commands.get(name).map(|b| b.as_ref())
     }
 
     /// Gets a command by name with prefix
     /// Registers a command and records its aliases for reverse lookup.
+    #[inline(always)]
     pub fn register(&mut self, cmd: Box<dyn Command>) {
-        // capture name/aliases before moving the command
+        // capture name before moving the command
         let name = cmd.name().to_string();
-        let alias_list: Vec<String> = cmd.aliases().iter().map(|a| a.to_string()).collect();
-
         self.commands.insert(name.clone(), cmd);
 
-        // map each alias -> primary name
-        for alias in alias_list {
+        // map each alias -> primary name without intermediate Vec allocations
+        for &alias in self.commands[&name].aliases() {
             // avoid alias clobbering existing command names
-            if !self.commands.contains_key(&alias) {
-                self.aliases.insert(alias, name.clone());
+            if !self.commands.contains_key(alias) {
+                // store alias as owned String
+                self.aliases.insert(alias.to_string(), name.clone());
             }
         }
     }
@@ -134,6 +143,7 @@ impl CommandRegistry {
     /// // Will log an unknown command message via output hooks
     /// reg.execute("does-not-exist", &vec![]);
     /// ```
+    #[inline(always)]
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Err(err) = self.try_execute(cmd, args) {
             match err {
@@ -167,35 +177,67 @@ impl CommandRegistry {
     ///     _ => {}
     /// }
     /// ```
+    #[inline(always)]
     pub fn try_execute(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
-        // Handle optional prefix routing: `<prefix>:<command>`
-        let mut token = cmd.to_string();
-        if !self.prefix.is_empty() {
-            let expect = format!("{}:", self.prefix);
-            if token.starts_with(&expect) {
-                token = token[expect.len()..].to_string();
+        // Strip optional prefix `<prefix>:` without intermediate allocations
+        let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
+            let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
+            if maybe_prefix == self.prefix && rest_with_colon.as_bytes().first() == Some(&b':') {
+                &rest_with_colon[1..]
+            } else {
+                cmd
+            }
+        } else {
+            cmd
+        };
+
+        #[cfg(feature = "dispatch-cache")]
+        if let (Some(t), Some(p)) = (&self.cache_token, &self.cache_primary) {
+            if t == token {
+                if let Some(command) = self.commands.get(p.as_str()) {
+                    if let Err(err) = command.validate(args) {
+                        return Err(ModCliError::InvalidUsage(err));
+                    }
+                    command.execute_with(args, self);
+                    return Ok(());
+                }
             }
         }
 
-        // resolve command by direct name or alias
-        let resolved_name = if self.commands.contains_key(&token) {
-            Some(token.clone())
-        } else {
-            self.aliases.get(&token).cloned()
-        };
-
-        if let Some(name) = resolved_name {
-            let command = &self.commands[&name];
-            // Validate before execute
+        // Resolve command by direct name or alias with at most two lookups
+        if let Some(command) = self.commands.get(token) {
             if let Err(err) = command.validate(args) {
                 return Err(ModCliError::InvalidUsage(err));
             }
-            // Execute with registry context (help and others can leverage it)
             command.execute_with(args, self);
-            Ok(())
-        } else {
-            Err(ModCliError::UnknownCommand(cmd.to_string()))
+            #[cfg(feature = "dispatch-cache")]
+            {
+                // update cache
+                // SAFETY: token is derived from &str cmd, store owned copies
+                let reg = unsafe { &mut *(self as *const _ as *mut CommandRegistry) };
+                reg.cache_token = Some(token.to_string());
+                reg.cache_primary = Some(token.to_string());
+            }
+            return Ok(());
         }
+
+        if let Some(primary) = self.aliases.get(token) {
+            if let Some(command) = self.commands.get(primary.as_str()) {
+                if let Err(err) = command.validate(args) {
+                    return Err(ModCliError::InvalidUsage(err));
+                }
+                command.execute_with(args, self);
+                #[cfg(feature = "dispatch-cache")]
+                {
+                    let reg = unsafe { &mut *(self as *const _ as *mut CommandRegistry) };
+                    reg.cache_token = Some(token.to_string());
+                    reg.cache_primary = Some(primary.clone());
+                }
+                return Ok(());
+            }
+        }
+
+        Err(ModCliError::UnknownCommand(cmd.to_string()))
     }
 
     #[cfg(feature = "internal-commands")]

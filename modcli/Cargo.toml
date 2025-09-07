@@ -108,6 +108,7 @@ internal-commands = []
 custom-commands = []
 json-loader = []
 tracing-logs = ["dep:tracing", "dep:tracing-subscriber"]
+dispatch-cache = []
 
 
 
