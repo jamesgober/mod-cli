@@ -1,10 +1,11 @@
 #####################################################
-# ¸_____¸_____¸  
-#  ╲__¸ ┊ ¸__╱   James Gober 
-# ¸_  ┊ ┊ ┊ ___  Software Performance Engineer
-# ┊ [_┊ ┊ ┊_] ┊  code@jamesgober.dev
-# ┊_____A_____┊  https://JamesGober.com
-# JAMES ⬡ GOBER  - - - - - - - - - - - - - - - - - -
+# ▗▖  ▗▖ ▗▄▄▖ ▗▄▄▄ 
+# ▐▛▚▞▜▌▐▌  ▐▌▐▌  █
+# ▐▌  ▐▌▐▌  ▐▌▐▌  █
+# ▐▌  ▐▌▝▚▄▄▞▘▐▙▄▄▀ 
+# ┳┳┓┏┓┳┓  ┳┓┳┳┏┓┏┳┓
+# ┃┃┃┃┃┃┃  ┣┫┃┃┗┓ ┃ 
+# ┛ ┗┗┛┻┛  ┛┗┗┛┗┛ ┻ 
 #####################################################
 [package] 
 name = "mod-cli"
@@ -141,7 +142,7 @@ tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
-image = { version = "0.25", default-features = false, features = ["png", "jpeg"], optional = true }
+image = { version = "0.24", default-features = false, features = ["png", "jpeg"], optional = true }
 unicode-segmentation = "1.10"
 
 

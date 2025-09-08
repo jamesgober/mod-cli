@@ -1030,6 +1030,12 @@ pub fn form() -> FormBuilder {
     FormBuilder::new()
 }
 
+impl Default for FormBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // --- Raw-mode buttons row (left/right + hotkeys) ---
 
 pub struct RawButtonsInput<'a> {
