@@ -1,6 +1,6 @@
-use modcli::loader::CommandRegistry;
 use modcli::command::Command;
 use modcli::error::ModCliError;
+use modcli::loader::CommandRegistry;
 
 #[test]
 fn registry_try_execute_unknown_returns_error() {
@@ -16,10 +16,18 @@ fn registry_try_execute_unknown_returns_error() {
 struct InvalidCmd;
 
 impl Command for InvalidCmd {
-    fn name(&self) -> &str { "bad" }
-    fn help(&self) -> Option<&str> { Some("Always invalid") }
-    fn validate(&self, _args: &[String]) -> Result<(), String> { Err("invalid on purpose".into()) }
-    fn execute(&self, _args: &[String]) { panic!("should not execute on invalid") }
+    fn name(&self) -> &str {
+        "bad"
+    }
+    fn help(&self) -> Option<&str> {
+        Some("Always invalid")
+    }
+    fn validate(&self, _args: &[String]) -> Result<(), String> {
+        Err("invalid on purpose".into())
+    }
+    fn execute(&self, _args: &[String]) {
+        panic!("should not execute on invalid")
+    }
 }
 
 #[test]

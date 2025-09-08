@@ -1,5 +1,5 @@
-use modcli::ModCli;
 use modcli::output::{hook, print};
+use modcli::ModCli;
 
 fn main() {
     // Grab CLI args

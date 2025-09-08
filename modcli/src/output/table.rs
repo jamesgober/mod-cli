@@ -13,7 +13,12 @@ pub enum TableStyle {
     Heavy,
 }
 
-pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style: TableStyle) -> String {
+pub fn render_table(
+    headers: &[&str],
+    rows: &[Vec<&str>],
+    mode: TableMode,
+    style: TableStyle,
+) -> String {
     let term_width = terminal_size()
         .map(|(Width(w), _)| w as usize)
         .unwrap_or(80);
