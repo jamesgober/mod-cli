@@ -16,32 +16,21 @@
 </div>
 <br>
 
-
 ## Table of Contents
 - **[Installation](#installation)**
 - **[Feature Flags](#feature-flags)**
-- **[JSON Command Source](#json-command)**
-- **[Examples](#examples)**
 - **[Getting Started](#getting-started)**
   - **[Basic Usage](#basic-usage)**
   - **[Set a custom prefix](#set-custom-prefix)**
-  - **[Using named colors](#using-named-colors)**
-- **[Using Gradients](#using-gradients)**
-  - **[Two-color gradient](#two-color-gradient)**
-  - **[Three-color gradient](#three-color-gradient)**
-  - **[Multi-color gradient](#multi-color-gradient)**
-  - **[Using RGB with gradients](#using-rgb-with-gradients)**
 
-
-
-
-<br><br>
+<hr>
+<br>
 <h2 id="installation">Installation</h2>
 
-### Default Installation
+<br>
 
-#### Install Manually
 
+### Install Manually
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
@@ -50,69 +39,41 @@ mod-cli = "0.5.3"
 
 <br>
 
-#### Install via Terminal
+### Install via Terminal
 ```bash
 # Basic installation
 cargo add mod-cli
 ```
 
+<br>
 
 <hr>
-<br>
 <a href="#top">&uarr; <b>TOP</b></a>
+<br>
 <br>
 
 <h2 id="feature-flags">Feature Flags</h2>
 
-| Feature               | Description                                           |
-|------------------------|-------------------------------------------------------|
-| `internal-commands`    | Enables built-in test/dev commands like `ping`, `hello` |
-| `custom-commands`      | Enables CLI custom command creation.                  |
-| `json-loader`          | Enables external command loading from JSON config     |
-| `plugins`              | Enables plugin support for dynamic runtime command injection |
+| Feature               | Default | Description |
+|----------------------|:-------:|-------------|
+| `internal-commands`  |  on     | Enables built-in helper commands like `help`, `ping`, etc. |
+| `custom-commands`    |  on     | Enables ergonomic re-exports for user-defined commands. |
+| `json-loader`        |  off    | Enables loading commands from JSON sources. |
+| `plugins`            |  off    | Enables plugin support for dynamic runtime command injection (via libloading). |
+| `tracing-logs`       |  off    | Emits `tracing` events via `output::hook` alongside themed console output. |
+| `dispatch-cache`     |  off    | Optional single-entry dispatch cache to speed repeated command invocations. |
 
 
-
-<hr>
 <br>
+<hr>
 <a href="#top">&uarr; <b>TOP</b></a>
 <br>
-
-<h2 id="examples">Examples</h2>
-
-
-
-<hr>
-<br>
-<a href="#top">&uarr; <b>TOP</b></a>
 <br>
 
-<h2 id="json-command">JSON Command Source</h2>
-
-
-
-
-
-
-<hr>
-<br>
-<a href="#top">&uarr; <b>TOP</b></a>
-<br>
-
-<h2 id="examples">Examples</h2>
-
-
-
-
-
-
-<hr>
-<br>
-<a href="#top">&uarr; <b>TOP</b></a>
-<br>
 
 <h2 id="getting-started">Getting Started</h2>
 
+<br>
 
 <h2 id="basic-usage">Basic Usage</h2>
 
@@ -144,110 +105,14 @@ fn main() {
 }
 ```
 
+
+<!-- =============================================================== -->
+<br><hr><a href="#top">&uarr; <b>TOP</b></a><br><br>
+<!-- =============================================================== -->
+
+<!-- // COLORS -->
+<h2 id="colors-styles">Output Styles &a Colors</h2>
 <br>
-
-<h2 id="using-named-colors">Using named colors</h2>
-
-```rust
- let teal = colors::get("teal"); // always returns a Color (or fallback)
- let demo = build()
-     .part("Color Demo:").space()
-     .part("Teal").color(teal).bold().get();
-
- print::line(&demo, 0);
-
-```
-
-
-<hr>
-<br>
-<a href="#top">&uarr; <b>TOP</b></a>
-<br>
-
-<h2 id="using-gradients">Using Gradients</h2>
-
-<br>
-<h2 id="two-color-gradient">Two-color gradient</h2>
-
-```rust
-use modcli::output::{
-    gradient,
-    print,
-    RED, ORANGE
-};
-
-let gradient_text = gradient::two_color("Two color gradient", RED, ORANGE);
-print::line(&gradient_text);
-
-```
-
-<br>
-<h2 id="three-color-gradient">Three-color gradient</h2>
-
-```rust
-use modcli::output::{
-    gradient,
-    print,
-    BLUE, GREEN, YELLOW
-};
-
-let gradient_text = gradient::three_color("Three color gradient", BLUE, GREEN, YELLOW);
-print::line(&gradient_text);
-
-```
-
-<br>
-<h2 id="multi-color-gradient">Multi-color gradient</h2>
-
-```rust
-use modcli::output::{
-    gradient,
-    print,
-    RED, ORANGE, YELLOW, GREEN, BLUE
-};
-
-let gradient_text = gradient::multi_color("Multi-color gradient", vec![RED, ORANGE, YELLOW, GREEN, BLUE]);
-print::line(&gradient_text);
-
-```
-
-<br>
-<h2 id="using-rgb-with-gradients">Using RGB with gradients</h2>
-
-```rust
-use modcli::output::{
-    gradient,
-    print
-};
-
-let gradient_text = gradient::two_color(
-    "Gradient Output", 
-    Color::Rgb { r: 255, g: 0, b: 0 },
-    Color::Rgb { r: 0, g: 0, b: 255 },
-);
-print::line(&gradient_text);
-
-```
-
-
-
-
-
-<hr>
-<br>
-<a href="#top">&uarr; <b>TOP</b></a>
-<br>
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -12,6 +12,25 @@
 
 ## [Unreleased]
 
+### Changed
+- Core simplified for performance and security. Removed runtime configuration and plugin systems from the core crate; direct code configuration is now the default and only model. See `modcli/src/lib.rs` and `modcli/src/loader.rs`.
+- Table renderer now returns a `String` for composability and testability instead of printing directly. See `modcli/src/output/table.rs`.
+- Parser improvements for correctness and micro-optimizations: correct handling of escaped quotes and backslashes in and out of quoted segments; empty quoted segments now emit empty args. See `modcli/src/parser.rs`.
+- Unify user messaging via `output::hook` (status/error/unknown) in binaries and registry execution paths.
+- Binaries simplified to direct dispatch without config or shell. See `modcli/bin/tool.rs` and `modcli/bin/modcli.rs`.
+- Integration tests relocated from repository `tests/` to `modcli/tests/` so they run with the crate. Problematic tests that depended on removed features were disabled under `modcli/tests_disabled/`.
+- Dependencies trimmed and versions aligned for lean builds: `terminal_size = 0.3`, `once_cell = 1.19`, `rpassword = 7.3.x`. Removed heavy/unused deps.
+
+### Removed
+- Removed runtime native plugin loading from core; deleted plugin loader module and feature flags. Files archived under `modcli/attic/loader/plugins.rs`.
+- Removed JSON loader and config suite from core; deleted modules and feature flags. Files archived under `modcli/attic/`.
+- Removed internal shell command and shell runtime from core to eliminate dependency on config. Files archived under `modcli/attic/`.
+- Removed examples that referenced JSON/plugins (`examples/full_app.rs`, `examples/commands.json`) from the build; archived under `modcli/attic/examples/`.
+
+### Fixed
+- Parser edge cases that previously split tokens incorrectly across nested quotes and escaped spaces now pass comprehensive tests in `modcli/tests/parser_edge_tests.rs` and `modcli/tests/parser_tests.rs`.
+- Binaries now emit consistent, themed output for no-args and error paths and exit with appropriate codes.
+
 ### Added
 - Introduced structured error variants in `modcli/src/error.rs`:
   - `ConfigParse(serde_json::Error)` for JSON configuration parsing failures.

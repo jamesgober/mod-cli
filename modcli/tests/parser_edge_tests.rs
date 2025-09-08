@@ -16,7 +16,7 @@ fn parse_empty_quoted_segments() {
 
 #[test]
 fn parse_escaped_quotes_inside_quotes() {
-    let (cmd, args) = parse_line("say \"he\"\"llo\" 'it\'s fine'");
+    let (cmd, args) = parse_line(r#"say "he""llo" 'it\'s fine'"#);
     assert_eq!(cmd, "say");
     assert_eq!(args, vec!["he\"llo", "it's fine"]);
 }

@@ -1,9 +1,9 @@
+<h1 align="center">
+    <img width="120px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
+    <br><strong>MOD-CLI</strong><br>
+    <sub><sup><sup>CLI FRAMEWORK</sup></sup></sub>
+</h1>
 <div align="center">
-        <img width="120px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
-    <h1>
-        <strong>ModCLI</strong>
-        <sup><br><sup>RUST CLI FRAMEWORK</sup><br></sup>
-    </h1>
     <div>
         <a href="https://crates.io/crates/mod-cli" alt="ModCLI on Crates.io"><img alt="Crates.io" src="https://img.shields.io/crates/v/mod-cli"></a>
         <span>&nbsp;</span>
@@ -12,17 +12,17 @@
         <a href="https://docs.rs/mod-cli" title="ModCLI Documentation"><img alt="docs.rs" src="https://img.shields.io/docsrs/mod-cli"></a>
         <span>&nbsp;</span>
         <a href="https://github.com/jamesgober/mod-cli/actions/workflows/ci.yml" title="CI Status"><img alt="CI" src="https://github.com/jamesgober/mod-cli/actions/workflows/ci.yml/badge.svg"></a>
-        <span>&nbsp;</span>
-        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/jamesgober/mod-cli?color=%23347d39" alt="last commit badge">
     </div>
 </div>
-<div>
-    <br>
-    <p>
-        <strong>ModCLI</strong> is a lightweight, modular CLI framework for Rust. 
-        A fully customizable and feature-rich system for registering commands, styling output, and running interactive shells with zero bloat. Built to speed up CLI development and get powerful tools running fast—without rewriting the basics.
-    </p>
-</div>
+<br>
+<p>
+    <strong>MOD-CLI</strong> is a lightweight, modular CLI framework for Rust. 
+    A fully customizable and feature-rich system for registering commands, styling output, and running interactive shells with zero bloat. Built to speed up CLI development and get powerful tools running fast—without rewriting the basics.
+</p>
+
+<br>
+<br>
+
 <h2>Documentation</h2>
 <p>
     Full API docs are available on <a href="https://docs.rs/mod-cli" title="Docs.rs: mod-cli">docs.rs</a>.
@@ -30,6 +30,8 @@
     Some examples are feature-gated and compile/run only when the corresponding feature is enabled.
     <br>
 </p>
+
+<br>
 <h2>Key Features</h2>
 <li>
     <strong>Custom Commands</strong> - Define your own commands with execution logic.

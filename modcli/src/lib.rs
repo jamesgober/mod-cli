@@ -11,47 +11,17 @@
 //! # Features
 //! - Custom commands via the `Command` trait
 //! - Styled output, gradients, progress, tables
-//! - Interactive shell (via built-in `shell` command)
-//! - Optional JSON command loading (`json-loader`)
-//! - Optional plugin loading (`plugins`)
+//! - Optional internal helper commands
 //!
-//! ## JSON Loader (feature: `json-loader`)
-//! ```no_run
-//! use modcli::ModCli;
-//! #[cfg(feature = "json-loader")]
-//! use modcli::loader::sources::JsonFileSource;
-//! let mut cli = ModCli::new();
-//! #[cfg(feature = "json-loader")]
-//! {
-//!     let source = JsonFileSource::new("modcli/examples/commands.json");
-//!     cli.registry.load_from(Box::new(source));
-//! }
-//! let args: Vec<String> = std::env::args().skip(1).collect();
-//! cli.run(args);
-//! ```
-//!
-//! ## Plugins (feature: `plugins`)
-//! ```no_run
-//! use modcli::ModCli;
-//! let mut cli = ModCli::new();
-//! #[cfg(feature = "plugins")]
-//! {
-//!     cli.registry.load_plugins("./plugins");
-//! }
-//! let args: Vec<String> = std::env::args().skip(1).collect();
-//! cli.run(args);
-//! ```
+//! Note: Runtime plugins and JSON/config loaders have been removed from core for
+//! security and performance. Configure your CLI directly in code.
 
 pub mod command;
-pub mod config;
-pub mod console;
 pub mod error;
 pub mod input;
 pub mod loader;
 pub mod output;
 pub mod parser;
-pub mod shell_commands;
-pub mod shell_extensions;
 
 pub use crate::command::Command as CliCustom;
 use crate::loader::CommandRegistry;
@@ -73,7 +43,6 @@ pub mod custom;
 /// ```
 pub struct ModCli {
     pub registry: CommandRegistry,
-    config: Option<config::CliConfig>,
 }
 
 impl Default for ModCli {
@@ -99,7 +68,6 @@ impl ModCli {
     pub fn new() -> Self {
         Self {
             registry: CommandRegistry::new(),
-            config: None,
         }
     }
 
@@ -113,31 +81,11 @@ impl ModCli {
         self.registry.get_prefix()
     }
 
-    /// Preferred constructor: sets config path before CLI boot.
-    pub fn with_config(path: &str) -> Self {
-        config::set_path(path);
-        Self::new()
-    }
-
-    /// Construct with an owned configuration (non-global). Prefer this in library usage/tests.
-    pub fn with_owned_config(cfg: config::CliConfig) -> Self {
-        let mut s = Self::new();
-        s.apply_config(&cfg);
-        s.config = Some(cfg);
-        s
-    }
-
-    fn apply_config(&mut self, cfg: &config::CliConfig) {
-        if let Some(prefix) = cfg.modcli.prefix.as_deref() {
-            self.set_prefix(prefix);
-        }
-    }
-
     /// Runs the CLI by dispatching the first arg as the command and the rest as arguments.
     /// Prints an error if no command is provided.
     pub fn run(&mut self, args: Vec<String>) {
         if args.is_empty() {
-            eprintln!("No command provided.");
+            crate::output::hook::status("No command provided. Try `help`.");
             return;
         }
 

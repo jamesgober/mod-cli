@@ -27,14 +27,14 @@ fn parse_quoted_tokens() {
 
 #[test]
 fn parse_escaped_spaces_and_quotes() {
-    let (cmd, args) = parse_line("run path\ with\ spaces \"quote\" ");
+    let (cmd, args) = parse_line(r#"run path\ with\ spaces "quote" "#);
     assert_eq!(cmd, "run");
     assert_eq!(args, vec!["path with spaces", "quote"]);
 }
 
 #[test]
 fn parse_mixed_quotes_and_text() {
-    let (cmd, args) = parse_line("cmd pre\"fix \"mid dle\" suf'fix' end");
+    let (cmd, args) = parse_line(r#"cmd pre"fix "mid dle" suf'fix' end"#);
     assert_eq!(cmd, "cmd");
     assert_eq!(args, vec!["pre\"fix", "mid dle", "suffix", "end"]);
 }

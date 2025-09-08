@@ -32,33 +32,3 @@ fn registry_try_execute_invalid_usage_returns_error() {
         other => panic!("expected InvalidUsage, got {other:?}"),
     }
 }
-
-#[cfg(feature = "json-loader")]
-mod json_loader {
-    use super::*;
-    use modcli::loader::sources::JsonFileSource;
-    use std::fs;
-
-    #[test]
-    fn json_loader_missing_file_no_panic() {
-        let mut reg = CommandRegistry::new();
-        let source = JsonFileSource::new("/this/path/should/not/exist/____.json");
-        reg.load_from(Box::new(source));
-        assert_eq!(reg.len(), 0);
-    }
-
-    #[test]
-    fn json_loader_invalid_json_no_panic() {
-        // Create a temp invalid json file
-        let dir = std::env::temp_dir();
-        let path = dir.join("modcli_invalid.json");
-        let _ = fs::write(&path, "{ invalid json ");
-
-        let mut reg = CommandRegistry::new();
-        let source = JsonFileSource::new(path.to_string_lossy().to_string());
-        reg.load_from(Box::new(source));
-        assert_eq!(reg.len(), 0);
-
-        let _ = fs::remove_file(path);
-    }
-}

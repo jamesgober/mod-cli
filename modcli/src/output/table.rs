@@ -13,7 +13,7 @@ pub enum TableStyle {
     Heavy,
 }
 
-pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style: TableStyle) {
+pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style: TableStyle) -> String {
     let term_width = terminal_size()
         .map(|(Width(w), _)| w as usize)
         .unwrap_or(80);
@@ -48,51 +48,60 @@ pub fn render_table(headers: &[&str], rows: &[Vec<&str>], mode: TableMode, style
         TableStyle::Heavy => BorderSet::heavy(),
     };
 
+    let mut out = String::with_capacity(128);
+
     // Top Border
-    print!("{}", border.top_left);
+    out.push(border.top_left);
     for i in 0..col_count {
-        print!("{}", border.horizontal.to_string().repeat(col_width));
+        out.push_str(&border.horizontal.to_string().repeat(col_width));
         if i < col_count - 1 {
-            print!("{}", border.top_cross);
+            out.push(border.top_cross);
         }
     }
-    println!("{}", border.top_right);
+    out.push(border.top_right);
+    out.push('\n');
 
     // Header Row
-    print!("{}", border.vertical);
+    out.push(border.vertical);
     for h in headers.iter() {
-        print!("{}{}", pad_cell(h, col_width), border.vertical);
+        out.push_str(&pad_cell(h, col_width));
+        out.push(border.vertical);
     }
-    println!();
+    out.push('\n');
 
     // Mid Border
-    print!("{}", border.mid_left);
+    out.push(border.mid_left);
     for i in 0..col_count {
-        print!("{}", border.inner_horizontal.to_string().repeat(col_width));
+        out.push_str(&border.inner_horizontal.to_string().repeat(col_width));
         if i < col_count - 1 {
-            print!("{}", border.mid_cross);
+            out.push(border.mid_cross);
         }
     }
-    println!("{}", border.mid_right);
+    out.push(border.mid_right);
+    out.push('\n');
 
     // Body Rows
     for row in rows {
-        print!("{}", border.vertical);
+        out.push(border.vertical);
         for cell in row {
-            print!("{}{}", pad_cell(cell, col_width), border.vertical);
+            out.push_str(&pad_cell(cell, col_width));
+            out.push(border.vertical);
         }
-        println!();
+        out.push('\n');
     }
 
     // Bottom Border
-    print!("{}", border.bottom_left);
+    out.push(border.bottom_left);
     for i in 0..col_count {
-        print!("{}", border.horizontal.to_string().repeat(col_width));
+        out.push_str(&border.horizontal.to_string().repeat(col_width));
         if i < col_count - 1 {
-            print!("{}", border.bottom_cross);
+            out.push(border.bottom_cross);
         }
     }
-    println!("{}", border.bottom_right);
+    out.push(border.bottom_right);
+    out.push('\n');
+
+    out
 }
 
 /// Truncates the cell to fit `width` characters visually, appending an ellipsis if needed,

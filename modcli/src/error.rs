@@ -15,9 +15,6 @@ pub enum ModCliError {
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
 
-    #[error("failed to parse config JSON: {0}")]
-    ConfigParse(#[from] serde_json::Error),
-
     #[error("invalid usage: {0}")]
     InvalidUsage(String),
 

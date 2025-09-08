@@ -1,24 +1,13 @@
 // pub mod custom; // feature = "custom-commands"
 // use crate::custom::CustomCommand; // feature = "custom-commands"
-#[cfg(feature = "plugins")]
-pub mod plugins;
-
-#[cfg(feature = "plugins")]
-use crate::loader::plugins::PluginLoader;
 
 #[cfg(feature = "internal-commands")]
-use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand, ShellCommand};
+use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand};
 use crate::output::hook;
 
 use crate::command::Command;
 use crate::error::ModCliError;
 use std::collections::HashMap;
-
-#[cfg(feature = "json-loader")]
-use crate::loader::sources::CommandSource;
-
-#[cfg(feature = "json-loader")]
-pub mod sources;
 
 /// Registry for commands and optional alias/prefix routing.
 ///
@@ -114,14 +103,7 @@ impl CommandRegistry {
         self.commands.values()
     }
 
-    /// Registers a command with an alias
-    #[cfg(feature = "plugins")]
-    pub fn load_plugins(&mut self, path: &str) {
-        let loader = PluginLoader::new(path);
-        for plugin in loader.load_plugins() {
-            self.register(plugin);
-        }
-    }
+    // Note: runtime plugin loading has been removed from core for security/perf.
 
     /// Resolves and executes a command by name or alias, with optional prefix routing.
     ///
@@ -236,17 +218,11 @@ impl CommandRegistry {
     pub fn load_internal_commands(&mut self) {
         self.register(Box::new(PingCommand));
         self.register(Box::new(HelloCommand));
-        self.register(Box::new(ShellCommand));
         self.register(Box::new(FrameworkCommand));
         self.register(Box::new(HelpCommand::new()));
     }
 
-    #[cfg(feature = "json-loader")]
-    pub fn load_from(&mut self, source: Box<dyn CommandSource>) {
-        for cmd in source.load_commands() {
-            self.register(cmd);
-        }
-    }
+    // Note: JSON loader has been removed from core. Use code registration.
 
     pub fn len(&self) -> usize {
         self.commands.len()

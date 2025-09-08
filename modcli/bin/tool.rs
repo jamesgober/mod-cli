@@ -1,82 +1,23 @@
-//use modcli::output::hook;
-use modcli::config::CliConfig;
 use modcli::ModCli;
-//use modcli::loader::sources::JsonFileSource;
-use modcli::config::MessageConfig;
-use modcli::console::run_shell;
-use modcli::error::ModCliError;
-use modcli::output::{print, themes::apply_theme};
+use modcli::output::{hook, print};
 
 fn main() {
-    // Load config file
-    let config = CliConfig::load(None);
-
-    // Grab CLI settings
-    let _cli_name = config.modcli.name.as_deref().unwrap_or("mod-cli");
-    let cli_prefix = config.modcli.prefix.as_deref().unwrap_or("mod");
-    let force_shell = config.modcli.force_shell.unwrap_or(false);
-
     // Grab CLI args
     let args: Vec<String> = std::env::args().skip(1).collect();
 
-    // Apply theme if defined
-    if let Some(theme) = &config.modcli.theme {
-        apply_theme(theme);
-    }
-
-    // Show banner if defined
-    if let Some(banner) = &config.modcli.banner {
-        let delay = config.modcli.delay.unwrap_or(0);
-        print::scroll(&banner.lines().collect::<Vec<&str>>(), delay);
-    }
-
-    // CLI messages
-    let default_msg_config = MessageConfig::default();
-    let msg_config = config
-        .modcli
-        .messages
-        .as_ref()
-        .unwrap_or(&default_msg_config);
-    let msg_no_command = msg_config
-        .no_command
-        .as_deref()
-        .unwrap_or("⚠️ No command given. Try `help`.");
-
-    // No args and not forcing shell? Show no-command message
-    if args.is_empty() && !force_shell {
-        print::status(msg_no_command);
+    // No args? status message and exit success
+    if args.is_empty() {
+        print::status("⚠️ No command given. Try `help`.");
         return;
     }
 
     // Create and configure CLI
     let mut cli = ModCli::new();
-    cli.set_prefix(cli_prefix);
-
-    // Load external JSON commands
-    //let source = JsonFileSource::new("examples/commands.json");
-    //cli.registry.load_from(Box::new(source));
-
-    // If force_shell is enabled OR user explicitly passed "shell"
-    if force_shell || (args.len() == 1 && args[0] == "shell") {
-        match run_shell(config) {
-            Ok(()) => return,
-            Err(ModCliError::MissingShellConfig) => {
-                eprintln!("Shell configuration missing. Set modcli.shell or disable shell mode.");
-                std::process::exit(2);
-            }
-            Err(e) => {
-                eprintln!("Shell error: {e}");
-                std::process::exit(1);
-            }
-        }
-    }
+    cli.set_prefix("mod");
 
     // Enforce strict argument mode (1 command only)
-    if let Some(true) = config.modcli.strict {
-        if args.len() > 1 {
-            eprintln!("Too many arguments. Strict mode is enabled.");
-            std::process::exit(2);
-        }
+    if args.len() > 1 {
+        hook::warn("Too many arguments; expected a single command.");
     }
 
     // Now safely run the CLI with args

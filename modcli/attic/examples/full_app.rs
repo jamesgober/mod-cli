@@ -45,17 +45,6 @@ fn main() {
     let rainbow = gradient::two_color("Gradient demo", RED, ORANGE);
     print::line(&rainbow);
 
-    // Load JSON commands (if enabled)
-    #[cfg(feature = "json-loader")]
-    {
-        use modcli::loader::sources::JsonFileSource;
-        let source = JsonFileSource::new("modcli/examples/commands.json");
-        cli.registry.load_from(Box::new(source));
-    }
-
-    // Load plugins (if enabled)
-    #[cfg(feature = "plugins")]
-    cli.registry.load_plugins("./plugins");
 
     // Run CLI
     let args: Vec<String> = std::env::args().skip(1).collect();

@@ -1,4 +1,5 @@
 use modcli::error::ModCliError;
+use modcli::output::hook;
 use modcli::ModCli;
 
 fn main() {
@@ -29,12 +30,6 @@ fn main() {
     #[allow(unused_mut)]
     let mut cli = ModCli::new();
 
-    // Auto-load plugins from ./plugins when feature enabled
-    #[cfg(feature = "plugins")]
-    {
-        cli.registry.load_plugins("./plugins");
-    }
-
     // Skip program name and pass only actual arguments
     let cli_args = if args.len() > 1 {
         args[1..].to_vec()
@@ -43,8 +38,8 @@ fn main() {
     };
 
     if cli_args.is_empty() {
-        eprintln!("No command provided.");
-        std::process::exit(2);
+        hook::status("No command provided. Try `help`.");
+        std::process::exit(0);
     }
 
     let cmd = cli_args[0].clone();
@@ -53,15 +48,15 @@ fn main() {
     match cli.registry.try_execute(&cmd, &rest) {
         Ok(()) => {}
         Err(ModCliError::InvalidUsage(msg)) => {
-            eprintln!("Invalid usage: {msg}");
+            hook::error(&format!("Invalid usage: {msg}"));
             std::process::exit(2);
         }
         Err(ModCliError::UnknownCommand(name)) => {
-            eprintln!("Unknown command: {name}");
+            hook::unknown(&format!("{name}"));
             std::process::exit(127);
         }
         Err(e) => {
-            eprintln!("{e}");
+            hook::error(&e.to_string());
             std::process::exit(1);
         }
     }
