@@ -57,14 +57,14 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.5.3"
+mod-cli = "0.6.0"
 ```
 <br>
 
 Add the library to your `Cargo.toml` with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.5.3", features = ["plugins"] }
+mod-cli = { version = "0.6.0", features = ["plugins"] }
 ```
 
 <br>

@@ -95,7 +95,7 @@ Example:
 
 ```console
 $ modcli --version
-v0.5.3
+v0.6.0
 
 $ modcli unknown
 Unknown command: unknown
