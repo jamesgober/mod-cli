@@ -688,12 +688,10 @@ impl<'a> RawPagedSelectInput<'a> {
                 if (start + row) == self.cursor {
                     let line = format!("  > {}", label).with(sel_fg).on(sel_bg).bold();
                     println!("{}", line);
+                } else if row % 2 == 1 {
+                    println!("{}", format!("    {}", label).with(stripe_fg));
                 } else {
-                    if row % 2 == 1 {
-                        println!("{}", format!("    {}", label).with(stripe_fg));
-                    } else {
-                        println!("    {}", label);
-                    }
+                    println!("    {}", label);
                 }
             }
             println!(
@@ -845,15 +843,13 @@ impl<'a> RawPagedMultiSelectInput<'a> {
                         .on(sel_bg)
                         .bold();
                     println!("{}", line);
+                } else if row % 2 == 1 {
+                    println!(
+                        "{}",
+                        format!("    {} {}", mark, self.items[fi]).with(stripe_fg)
+                    );
                 } else {
-                    if row % 2 == 1 {
-                        println!(
-                            "{}",
-                            format!("    {} {}", mark, self.items[fi]).with(stripe_fg)
-                        );
-                    } else {
-                        println!("    {} {}", mark, self.items[fi]);
-                    }
+                    println!("    {} {}", mark, self.items[fi]);
                 }
             }
             println!("\nKeys: ↑/↓ PgUp/PgDn Home/End Space Enter Esc  (type to search, Backspace clears)");
@@ -1111,14 +1107,12 @@ impl<'a> RawButtonsInput<'a> {
                     } else {
                         token.as_str().with(sel_fg).on(sel_bg).bold().to_string()
                     }
+                } else if is_disabled {
+                    token.as_str().with(Color::DarkGrey).to_string()
+                } else if is_danger {
+                    token.as_str().with(Color::Red).to_string()
                 } else {
-                    if is_disabled {
-                        token.as_str().with(Color::DarkGrey).to_string()
-                    } else if is_danger {
-                        token.as_str().with(Color::Red).to_string()
-                    } else {
-                        token.clone()
-                    }
+                    token.clone()
                 };
                 line.push_str(&format!(" {}", styled));
             }

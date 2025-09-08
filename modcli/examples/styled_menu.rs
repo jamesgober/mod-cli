@@ -50,7 +50,8 @@ fn main() {
         stdout.flush().ok();
 
         // Events
-        if let Ok(Event::Key(k)) = event::read() { match k.code {
+        if let Ok(Event::Key(k)) = event::read() {
+            match k.code {
                 KeyCode::Up => {
                     cursor_idx = cursor_idx.saturating_sub(1);
                 }
@@ -94,6 +95,7 @@ fn main() {
                     break;
                 }
                 _ => {}
-            } }
+            }
+        }
     }
 }

@@ -30,10 +30,10 @@ pub fn link(text: &str, url: &str) {
     if osc8_enabled {
         // OSC 8: ESC ] 8 ; ; url BEL text ESC ] 8 ; ; BEL
         // Use \x1b (ESC) and \x07 (BEL)
-        print!("\x1b]8;;{}\x07{}\x1b]8;;\x07", url, text);
-        println!("");
+        print!("\x1b]8;;{url}\x07{text}\x1b]8;;\x07");
+        println!();
     } else {
-        println!("{} ({})", text, url);
+        println!("{text} ({url})");
     }
 }
 

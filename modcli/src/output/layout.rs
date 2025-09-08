@@ -1,17 +1,12 @@
 use console::measure_text_width;
 use terminal_size::{terminal_size, Width};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub enum WidthSpec {
     Fixed(usize),
     Percent(u16),
+    #[default]
     Auto,
-}
-
-impl Default for WidthSpec {
-    fn default() -> Self {
-        WidthSpec::Auto
-    }
 }
 
 #[derive(Debug, Default)]

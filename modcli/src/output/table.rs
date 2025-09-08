@@ -73,6 +73,7 @@ pub fn write_table_csv(path: &str, headers: &[&str], rows: &[Vec<&str>]) -> std:
 }
 
 /// Styled variant: allow optional header foreground color and zebra row background color.
+#[allow(clippy::too_many_arguments)]
 pub fn render_table_with_opts_styled(
     headers: &[&str],
     rows: &[Vec<&str>],
@@ -378,6 +379,7 @@ pub fn render_table_with(
 }
 
 /// Advanced renderer with options: per-column alignment/truncation, zebra stripes, and row separators.
+#[allow(clippy::too_many_arguments)]
 pub fn render_table_with_opts(
     headers: &[&str],
     rows: &[Vec<&str>],
@@ -510,6 +512,7 @@ pub enum ColWidth {
 }
 
 /// Render with explicit per-column widths.
+#[allow(clippy::too_many_arguments)]
 pub fn render_table_with_columns(
     headers: &[&str],
     rows: &[Vec<&str>],

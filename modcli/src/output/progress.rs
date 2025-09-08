@@ -69,7 +69,7 @@ impl MultiProgress {
         print!("\x1B[{}A", n); // ANSI: CUU n
         for b in &self.bars {
             b.render();
-            println!("");
+            println!();
         }
         let _ = stdout().flush();
     }
@@ -281,7 +281,7 @@ impl ProgressBar {
         if let Some(total) = self.total_bytes {
             let elapsed = self.start_time.map(|t| t.elapsed()).unwrap_or_default();
             let rate_bps = if elapsed.as_secs_f64() > 0.0 {
-                (self.bytes_processed as f64 / elapsed.as_secs_f64()) as f64
+                self.bytes_processed as f64 / elapsed.as_secs_f64()
             } else {
                 0.0
             };
