@@ -3,7 +3,6 @@ use crossterm::style::Color;
 
 /// Gradient helpers that accept named colors. Requires `features=["gradients"]`.
 /// These are thin wrappers over the existing gradient module.
-
 /// Two-color gradient using named colors.
 pub fn two_named(text: &str, from: &str, to: &str) -> String {
     let c1 = colors::get(from);

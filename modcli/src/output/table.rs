@@ -300,7 +300,7 @@ fn csv_field(s: &str) -> String {
     let need_quotes = s.contains(',') || s.contains('"') || s.contains('\n');
     if need_quotes {
         let escaped = s.replace('"', "\"\"");
-        format!("\"{}\"", escaped)
+        format!("\"{escaped}\"")
     } else {
         s.to_string()
     }

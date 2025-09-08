@@ -19,7 +19,7 @@ fn main() {
         bar1.tick();
         std::thread::sleep(std::time::Duration::from_millis(30));
     }
-    println!("");
+    println!();
 
     // Heavy-like
     let mut bar2 = ProgressBar::new(25, style_heavy());
@@ -28,5 +28,5 @@ fn main() {
         bar2.tick();
         std::thread::sleep(std::time::Duration::from_millis(24));
     }
-    println!("");
+    println!();
 }

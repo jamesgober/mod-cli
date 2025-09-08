@@ -86,7 +86,7 @@ impl Command for HelpCommand {
         }
 
         let header = messages::message_or_default("help.header", "Help:");
-        println!("{}", header);
+        println!("{header}");
         for command in registry.all() {
             let name = command.name();
             let top_level = !name.contains(':');

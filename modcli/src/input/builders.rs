@@ -9,13 +9,17 @@ use crossterm::{
 use std::collections::HashSet;
 use std::io::{stdin, stdout, Write};
 
+// Reduce type complexity for validator closures used by text/number inputs
+type TextValidator = dyn Fn(&str) -> Result<(), String> + Send + Sync;
+type NumberValidator = dyn Fn(f64) -> Result<(), String> + Send + Sync;
+
 pub struct TextInput<'a> {
     label: &'a str,
     default: Option<String>,
     required: bool,
     min_len: Option<usize>,
     max_len: Option<usize>,
-    validator: Option<Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>>,
+    validator: Option<Box<TextValidator>>,
     mask: Option<char>,
 }
 
@@ -129,7 +133,7 @@ pub struct NumberInput<'a> {
     min: Option<f64>,
     max: Option<f64>,
     step: f64,
-    validator: Option<Box<dyn Fn(f64) -> Result<(), String> + Send + Sync>>,
+    validator: Option<Box<NumberValidator>>,
 }
 
 impl<'a> NumberInput<'a> {

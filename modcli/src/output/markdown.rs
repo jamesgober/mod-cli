@@ -46,8 +46,7 @@ fn render_inline(s: &str) -> String {
     // Bold **...** and italic *...*
     let s2 = out;
     let s3 = replace_enclosed(&s2, "**", "\x1b[1m", "\x1b[0m");
-    let s4 = replace_enclosed(&s3, "*", "\x1b[3m", "\x1b[0m");
-    s4
+    replace_enclosed(&s3, "*", "\x1b[3m", "\x1b[0m")
 }
 
 fn find_next(bytes: &[u8], mut i: usize, ch: u8) -> Option<usize> {

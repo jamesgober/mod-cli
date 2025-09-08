@@ -7,16 +7,19 @@ fn main() {
     set_startup_banner(|| {
         let _guard = themes::ThemeGuard::apply("blue");
         let art = r#"
-   __  ___        __     ____ _     ___ 
-  /  |/  /____ _ / /_   / __ ( )   /   |
- / /|_/ // __ `// __ \ / / / /| | / /| |
-/ /  / // /_/ // /_/ // /_/ / | |/ ___ |
-/_/  /_/ \__,_//_.___/ \____/  |__/_/  |_|
+
+  ▗▖  ▗▖ ▗▄▄▖ ▗▄▄▄ 
+  ▐▛▚▞▜▌▐▌  ▐▌▐▌  █
+  ▐▌  ▐▌▐▌  ▐▌▐▌  █
+  ▐▌  ▐▌▝▚▄▄▞▘▐▙▄▄▀  
+  ┳┳┓┏┓┳┓  ┳┓┳┳┏┓┏┳┓
+  ┃┃┃┃┃┃┃  ┣┫┃┃┗┓ ┃ 
+  ┛ ┗┗┛┻┛  ┛┗┗┛┗┛ ┻ 
 "#;
         print::line(&art.with(Color::Cyan).bold().to_string());
         print::line("Welcome to mod-cli! Type 'help' to see available commands.");
         themes::Theme::reset();
-        println!("");
+        println!();
     });
 
     // Minimal CLI to demonstrate banner showing before dispatch

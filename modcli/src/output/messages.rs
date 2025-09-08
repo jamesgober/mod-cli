@@ -4,16 +4,14 @@ use std::sync::Mutex;
 use std::sync::OnceLock;
 
 static CATALOG: OnceLock<Mutex<HashMap<String, String>>> = OnceLock::new();
-static INTERCEPTOR: OnceLock<
-    Mutex<Option<Box<dyn Fn(&str, &str) -> Cow<'static, str> + Send + Sync>>>,
-> = OnceLock::new();
+type InterceptorFn = dyn Fn(&str, &str) -> Cow<'static, str> + Send + Sync;
+static INTERCEPTOR: OnceLock<Mutex<Option<Box<InterceptorFn>>>> = OnceLock::new();
 
 fn catalog() -> &'static Mutex<HashMap<String, String>> {
     CATALOG.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-fn interceptor(
-) -> &'static Mutex<Option<Box<dyn Fn(&str, &str) -> Cow<'static, str> + Send + Sync>>> {
+fn interceptor() -> &'static Mutex<Option<Box<InterceptorFn>>> {
     INTERCEPTOR.get_or_init(|| Mutex::new(None))
 }
 

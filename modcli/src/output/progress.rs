@@ -15,6 +15,12 @@ pub struct ProgressStyle {
     pub color: Option<Color>,
 }
 
+impl Default for MultiProgress {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // --- MultiProgress ---
 
 /// Minimal multi-progress manager that stacks multiple ProgressBar lines.
@@ -66,7 +72,7 @@ impl MultiProgress {
             return;
         }
         // Move cursor up n lines (except for first draw)
-        print!("\x1B[{}A", n); // ANSI: CUU n
+        print!("\x1B[{n}A"); // ANSI: CUU n
         for b in &self.bars {
             b.render();
             println!();
@@ -113,9 +119,9 @@ fn human_bytes_per_sec(bps: f64) -> String {
         (bps, "B/s")
     };
     if value.abs() >= 100.0 {
-        format!("{:>4.0} {}", value, unit)
+        format!("{value:>4.0} {unit}")
     } else {
-        format!("{:>4.1} {}", value, unit)
+        format!("{value:>4.1} {unit}")
     }
 }
 
@@ -126,9 +132,9 @@ fn human_duration(d: Duration) -> String {
     let m = secs / 60;
     let s = secs % 60;
     if h > 0 {
-        format!("{:02}:{:02}:{:02}", h, m, s)
+        format!("{h:02}:{m:02}:{s:02}")
     } else {
-        format!("{:02}:{:02}", m, s)
+        format!("{m:02}:{s:02}")
     }
 }
 

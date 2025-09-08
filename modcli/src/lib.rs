@@ -57,7 +57,7 @@ pub fn set_startup_banner_from_file(path: &str) -> Result<(), String> {
     let data = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
     let owned = data.clone();
     set_startup_banner(move || {
-        println!("{}\n", owned);
+        println!("{owned}\n");
     });
     Ok(())
 }
@@ -70,7 +70,7 @@ macro_rules! banner_text {
     ($text:expr) => {{
         $crate::set_startup_banner(|| {
             $crate::output::print::line($text);
-            println!("");
+            println!();
         });
     }};
 }

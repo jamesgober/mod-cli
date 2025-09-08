@@ -9,7 +9,10 @@ fn main() {
         hook::info(&format!("[pre] cmd='{cmd}' args={args:?}"));
     });
     cli.registry.set_post_hook(|cmd, args, res| {
-        hook::info(&format!("[post] cmd='{cmd}' args={args:?} ok={}", res.is_ok()));
+        hook::info(&format!(
+            "[post] cmd='{cmd}' args={args:?} ok={}",
+            res.is_ok()
+        ));
     });
 
     // Error formatter

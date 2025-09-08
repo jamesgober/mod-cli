@@ -33,7 +33,7 @@ impl Command for InvalidCmd {
 #[test]
 fn registry_try_execute_invalid_usage_returns_error() {
     let mut reg = CommandRegistry::new();
-    reg.register(Box::new(InvalidCmd::default()));
+    reg.register(Box::new(InvalidCmd));
     let err = reg.try_execute("bad", &[]).unwrap_err();
     match err {
         ModCliError::InvalidUsage(msg) => assert!(msg.contains("invalid")),

@@ -9,6 +9,11 @@ use crate::command::Command;
 use crate::error::ModCliError;
 use std::collections::{HashMap, HashSet};
 
+// Reduce type complexity for registry hooks and error formatter
+type PreHookFn = dyn Fn(&str, &[String]) + Send + Sync;
+type PostHookFn = dyn Fn(&str, &[String], Result<(), &str>) + Send + Sync;
+type ErrorFmtFn = dyn Fn(&crate::error::ModCliError) -> String + Send + Sync;
+
 /// Registry for commands and optional alias/prefix routing.
 ///
 /// # Example
@@ -35,9 +40,9 @@ pub struct CommandRegistry {
     authorize_policy: Option<
         Box<dyn Fn(&dyn Command, &HashSet<String>, &[String]) -> Result<(), String> + Send + Sync>,
     >,
-    pre_hook: Option<Box<dyn Fn(&str, &[String]) + Send + Sync>>, // before dispatch
-    post_hook: Option<Box<dyn Fn(&str, &[String], Result<(), &str>) + Send + Sync>>, // after dispatch
-    error_formatter: Option<Box<dyn Fn(&crate::error::ModCliError) -> String + Send + Sync>>,
+    pre_hook: Option<Box<PreHookFn>>,   // before dispatch
+    post_hook: Option<Box<PostHookFn>>, // after dispatch
+    error_formatter: Option<Box<ErrorFmtFn>>,
     #[cfg(feature = "dispatch-cache")]
     cache: std::sync::Mutex<Option<(String, String)>>,
 }
