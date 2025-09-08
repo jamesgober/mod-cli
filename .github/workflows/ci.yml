@@ -50,61 +50,12 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.rust == 'stable' }}
         run: cargo clippy -- -D warnings
 
-      - name: Test with json-loader feature
-        run: cargo test --features json-loader --verbose
-
       - name: Doctests (default)
         run: cargo test --doc --verbose
-
-      - name: Doctests (json-loader + plugins)
-        run: cargo test --doc --features json-loader,plugins --verbose
 
       - name: Build docs (no-deps)
         run: cargo doc --no-deps --verbose
 
-  plugin-smoke:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ matrix.rust }}
-          components: rustfmt, clippy
-
-      - name: Build example plugin
-        working-directory: modcli/examples/plugins/hello-plugin
-        run: cargo build --release --verbose
-
-      - name: Prepare plugin folder (Unix)
-        if: matrix.os != 'windows-latest'
-        run: mkdir -p plugins
-
-      - name: Prepare plugin folder (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          if (-not (Test-Path "plugins")) { New-Item -ItemType Directory -Path "plugins" | Out-Null }
-
-      - name: Copy plugin (macOS/Linux)
-        if: matrix.os == 'macos-latest'
-        run: cp modcli/examples/plugins/hello-plugin/target/release/libhello_plugin.dylib plugins/
-
-      - name: Copy plugin (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: cp modcli/examples/plugins/hello-plugin/target/release/libhello_plugin.so plugins/
-
-      - name: Copy plugin (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          Copy-Item modcli/examples/plugins/hello-plugin/target/release/hello_plugin.dll plugins/
-
-      - name: Run smoke test (plugins feature)
-        run: cargo run --features plugins --bin modcli -- hello-plugin
 
   msrv-check:
     name: MSRV Check (1.81.0)

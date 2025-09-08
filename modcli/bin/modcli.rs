@@ -52,7 +52,7 @@ fn main() {
             std::process::exit(2);
         }
         Err(ModCliError::UnknownCommand(name)) => {
-            hook::unknown(&format!("{name}"));
+            hook::unknown(name.as_str());
             std::process::exit(127);
         }
         Err(e) => {

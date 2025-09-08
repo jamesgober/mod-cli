@@ -13,6 +13,7 @@ fn print_scroll_with_small_delay_completes() {
 }
 
 #[test]
+#[cfg_attr(miri, ignore)]
 fn print_file_missing_path_does_not_panic() {
     // This should log an error via print::error but must not panic
     print::file("/this/path/does/not/exist___", 0);
