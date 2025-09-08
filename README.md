@@ -68,14 +68,14 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.5.3"
+mod-cli = "0.6.0"
 ```
 <br>
 
 Add the library to your `Cargo.toml` with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.5.3", features = ["plugins"] }
+mod-cli = { version = "0.6.0", features = ["plugins"] }
 ```
 
 Example plugin included in this repo:
@@ -90,13 +90,13 @@ Copy the built library into a `plugins/` directory alongside your binary and run
 Enable the JSON loader feature:
 ```toml
 [dependencies]
-mod-cli = { version = "0.5.3", features = ["json-loader"] }
+mod-cli = { version = "0.6.0", features = ["json-loader"] }
 ```
 
 Enable multiple features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.5.3", features = ["plugins", "json-loader"] }
+mod-cli = { version = "0.6.0", features = ["plugins", "json-loader"] }
 ```
 
 <br>
