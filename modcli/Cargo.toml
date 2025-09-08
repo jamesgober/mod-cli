@@ -102,11 +102,25 @@ path = "examples/demo.rs"
 # 📦 FEATURES
 #####################################################
 [features]
-default = ["internal-commands", "custom-commands"]
+default = [
+    "internal-commands",
+    "custom-commands",
+    "gradients",
+    "layouts",
+    "progress-presets",
+    "table-presets",
+]
 internal-commands = []
 custom-commands = []
 tracing-logs = ["dep:tracing", "dep:tracing-subscriber"]
 dispatch-cache = []
+# Optional UX features (zero-dep)
+gradients = []
+layouts = []
+progress-presets = []
+table-presets = []
+theme-config = ["dep:serde", "dep:serde_json"]
+images = ["dep:image"]
 
 
 
@@ -125,6 +139,10 @@ crossterm = { version = "0.27.0", features = ["event-stream"] }
 console = "0.15"
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"], optional = true }
+unicode-segmentation = "1.10"
 
 
 

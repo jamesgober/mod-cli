@@ -7,7 +7,7 @@ use crate::output::hook;
 
 use crate::command::Command;
 use crate::error::ModCliError;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Registry for commands and optional alias/prefix routing.
 ///
@@ -30,6 +30,14 @@ pub struct CommandRegistry {
     prefix: String,
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
+    caps: HashSet<String>,
+    visibility_policy: Option<Box<dyn Fn(&dyn Command, &HashSet<String>) -> bool + Send + Sync>>,
+    authorize_policy: Option<
+        Box<dyn Fn(&dyn Command, &HashSet<String>, &[String]) -> Result<(), String> + Send + Sync>,
+    >,
+    pre_hook: Option<Box<dyn Fn(&str, &[String]) + Send + Sync>>, // before dispatch
+    post_hook: Option<Box<dyn Fn(&str, &[String], Result<(), &str>) + Send + Sync>>, // after dispatch
+    error_formatter: Option<Box<dyn Fn(&crate::error::ModCliError) -> String + Send + Sync>>,
     #[cfg(feature = "dispatch-cache")]
     cache: std::sync::Mutex<Option<(String, String)>>,
 }
@@ -47,6 +55,12 @@ impl CommandRegistry {
             prefix: String::new(),
             commands: HashMap::new(),
             aliases: HashMap::new(),
+            caps: HashSet::new(),
+            visibility_policy: None,
+            authorize_policy: None,
+            pre_hook: None,
+            post_hook: None,
+            error_formatter: None,
             #[cfg(feature = "dispatch-cache")]
             cache: std::sync::Mutex::new(None),
         };
@@ -103,6 +117,88 @@ impl CommandRegistry {
         self.commands.values()
     }
 
+    // --- Capabilities API -----------------------------------------------------
+    pub fn grant_cap<S: Into<String>>(&mut self, cap: S) {
+        self.caps.insert(cap.into());
+    }
+    pub fn revoke_cap(&mut self, cap: &str) {
+        self.caps.remove(cap);
+    }
+    pub fn has_cap(&self, cap: &str) -> bool {
+        self.caps.contains(cap)
+    }
+    pub fn set_caps<I, S>(&mut self, caps: I)
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        self.caps.clear();
+        for c in caps {
+            self.caps.insert(c.into());
+        }
+    }
+
+    pub fn set_visibility_policy<F>(&mut self, f: F)
+    where
+        F: Fn(&dyn Command, &HashSet<String>) -> bool + Send + Sync + 'static,
+    {
+        self.visibility_policy = Some(Box::new(f));
+    }
+
+    pub fn set_authorize_policy<F>(&mut self, f: F)
+    where
+        F: Fn(&dyn Command, &HashSet<String>, &[String]) -> Result<(), String>
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.authorize_policy = Some(Box::new(f));
+    }
+
+    pub fn set_pre_hook<F>(&mut self, f: F)
+    where
+        F: Fn(&str, &[String]) + Send + Sync + 'static,
+    {
+        self.pre_hook = Some(Box::new(f));
+    }
+
+    pub fn set_post_hook<F>(&mut self, f: F)
+    where
+        F: Fn(&str, &[String], Result<(), &str>) + Send + Sync + 'static,
+    {
+        self.post_hook = Some(Box::new(f));
+    }
+
+    pub fn set_error_formatter<F>(&mut self, f: F)
+    where
+        F: Fn(&crate::error::ModCliError) -> String + Send + Sync + 'static,
+    {
+        self.error_formatter = Some(Box::new(f));
+    }
+
+    #[inline(always)]
+    pub fn is_visible(&self, cmd: &dyn Command) -> bool {
+        if let Some(ref pol) = self.visibility_policy {
+            return pol(cmd, &self.caps);
+        }
+        if cmd.hidden() {
+            return false;
+        }
+        cmd.required_caps().iter().all(|c| self.caps.contains(*c))
+    }
+
+    #[inline(always)]
+    pub fn is_authorized(&self, cmd: &dyn Command, args: &[String]) -> Result<(), String> {
+        if let Some(ref pol) = self.authorize_policy {
+            return pol(cmd, &self.caps, args);
+        }
+        if cmd.required_caps().iter().all(|c| self.caps.contains(*c)) {
+            Ok(())
+        } else {
+            Err("Not authorized".into())
+        }
+    }
+
     // Note: runtime plugin loading has been removed from core for security/perf.
 
     /// Resolves and executes a command by name or alias, with optional prefix routing.
@@ -124,12 +220,16 @@ impl CommandRegistry {
     #[inline(always)]
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Err(err) = self.try_execute(cmd, args) {
-            match err {
-                ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
-                ModCliError::UnknownCommand(name) => hook::unknown(&format!(
-                    "[{name}]. Type `help` or `--help` for a list of available commands."
-                )),
-                other => hook::error(&format!("{other}")),
+            if let Some(ref fmt) = self.error_formatter {
+                hook::error(&fmt(&err));
+            } else {
+                match err {
+                    ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
+                    ModCliError::UnknownCommand(name) => hook::unknown(&format!(
+                        "[{name}]. Type `help` or `--help` for a list of available commands."
+                    )),
+                    other => hook::error(&format!("{other}")),
+                }
             }
         }
     }
@@ -157,6 +257,9 @@ impl CommandRegistry {
     /// ```
     #[inline(always)]
     pub fn try_execute(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
+        if let Some(ref pre) = self.pre_hook {
+            pre(cmd, args);
+        }
         // Strip optional prefix `<prefix>:` without intermediate allocations
         let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
             let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
@@ -184,8 +287,11 @@ impl CommandRegistry {
             }
         }
 
-        // Resolve command by direct name or alias with at most two lookups
+        // Try direct name
         if let Some(command) = self.commands.get(token) {
+            if let Err(err) = self.is_authorized(command.as_ref(), args) {
+                return Err(ModCliError::InvalidUsage(err));
+            }
             if let Err(err) = command.validate(args) {
                 return Err(ModCliError::InvalidUsage(err));
             }
@@ -194,11 +300,18 @@ impl CommandRegistry {
             if let Ok(mut guard) = self.cache.lock() {
                 *guard = Some((token.to_string(), token.to_string()));
             }
+            if let Some(ref post) = self.post_hook {
+                post(cmd, args, Ok(()));
+            }
             return Ok(());
         }
 
+        // Try alias mapping
         if let Some(primary) = self.aliases.get(token) {
             if let Some(command) = self.commands.get(primary.as_str()) {
+                if let Err(err) = self.is_authorized(command.as_ref(), args) {
+                    return Err(ModCliError::InvalidUsage(err));
+                }
                 if let Err(err) = command.validate(args) {
                     return Err(ModCliError::InvalidUsage(err));
                 }
@@ -207,11 +320,36 @@ impl CommandRegistry {
                 if let Ok(mut guard) = self.cache.lock() {
                     *guard = Some((token.to_string(), primary.clone()));
                 }
+                if let Some(ref post) = self.post_hook {
+                    post(cmd, args, Ok(()));
+                }
                 return Ok(());
             }
         }
 
-        Err(ModCliError::UnknownCommand(cmd.to_string()))
+        // Two-token nested dispatch: "parent child ..." -> "parent:child"
+        if !args.is_empty() {
+            let combined = format!("{token}:{}", args[0]);
+            if let Some(command) = self.commands.get(combined.as_str()) {
+                let rest = &args[1..];
+                if let Err(err) = self.is_authorized(command.as_ref(), rest) {
+                    return Err(ModCliError::InvalidUsage(err));
+                }
+                if let Err(err) = command.validate(rest) {
+                    return Err(ModCliError::InvalidUsage(err));
+                }
+                command.execute_with(rest, self);
+                if let Some(ref post) = self.post_hook {
+                    post(cmd, args, Ok(()));
+                }
+                return Ok(());
+            }
+        }
+        let err = ModCliError::UnknownCommand(cmd.to_string());
+        if let Some(ref post) = self.post_hook {
+            post(cmd, args, Err("unknown"));
+        }
+        Err(err)
     }
 
     #[cfg(feature = "internal-commands")]

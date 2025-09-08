@@ -64,7 +64,7 @@ impl Command for InvalidCmd {
 #[test]
 fn alias_resolution_executes_primary_command() {
     let mut reg = CommandRegistry::new();
-    reg.register(Box::new(AliasCmd::default()));
+    reg.register(Box::new(AliasCmd));
 
     // Execute using alias
     reg.execute("alt", &[]);
@@ -79,7 +79,7 @@ fn alias_resolution_executes_primary_command() {
 #[test]
 fn validate_error_prevents_execute() {
     let mut reg = CommandRegistry::new();
-    reg.register(Box::new(InvalidCmd::default()));
+    reg.register(Box::new(InvalidCmd));
 
     // Should not panic; execute must not be called due to validation error
     reg.execute("bad", &[]);

@@ -13,8 +13,8 @@ impl Command for HelloCommand {
     }
 
     fn execute(&self, args: &[String]) {
-        let target = args.get(0).map(String::as_str).unwrap_or("world");
-        println!("👋 Hello, {}!", target);
+        let target = args.first().map(String::as_str).unwrap_or("world");
+        println!("👋 Hello, {target}!");
     }
 }
 

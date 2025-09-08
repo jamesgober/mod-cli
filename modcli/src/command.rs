@@ -36,6 +36,13 @@ pub trait Command {
         false
     }
 
+    /// Capability requirements for visibility/authorization.
+    /// The parent application grants capabilities at runtime on the registry.
+    /// Default: no requirements.
+    fn required_caps(&self) -> &[&str] {
+        &[]
+    }
+
     fn validate(&self, _args: &[String]) -> Result<(), String> {
         Ok(())
     }

@@ -14,6 +14,78 @@ pub fn line(text: &str) {
     println!("{text}");
 }
 
+/// Prints a clickable hyperlink using OSC 8 sequences when enabled.
+///
+/// By default, this function falls back to printing `text (url)` to ensure
+/// compatibility with terminals that do not support OSC 8. To enable OSC 8
+/// output, set the environment variable `ENABLE_OSC8=true`.
+///
+/// Example:
+/// ```rust
+/// use modcli::output::print;
+/// print::link("mod-cli docs", "https://docs.rs/mod-cli");
+/// ```
+pub fn link(text: &str, url: &str) {
+    let osc8_enabled = osc8_supported();
+    if osc8_enabled {
+        // OSC 8: ESC ] 8 ; ; url BEL text ESC ] 8 ; ; BEL
+        // Use \x1b (ESC) and \x07 (BEL)
+        print!("\x1b]8;;{}\x07{}\x1b]8;;\x07", url, text);
+        println!("");
+    } else {
+        println!("{} ({})", text, url);
+    }
+}
+
+/// Detect whether OSC 8 hyperlinks should be enabled.
+///
+/// Priority:
+/// - If ENABLE_OSC8 is explicitly set to true/false, honor it.
+/// - Otherwise auto-enable for common terminals that support OSC 8.
+fn osc8_supported() -> bool {
+    if let Ok(val) = std::env::var("ENABLE_OSC8") {
+        let v = val.to_ascii_lowercase();
+        if v == "true" || v == "1" {
+            return true;
+        }
+        if v == "false" || v == "0" {
+            return false;
+        }
+    }
+
+    // Auto-detect common terminals with OSC 8 support
+    let has = |k: &str| std::env::var_os(k).is_some();
+    let term_program = std::env::var("TERM_PROGRAM")
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    let term = std::env::var("TERM")
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+
+    // WezTerm
+    if has("WEZTERM_EXECUTABLE") || term_program.contains("wezterm") {
+        return true;
+    }
+    // iTerm2
+    if term_program.contains("iterm") {
+        return true;
+    }
+    // Kitty
+    if has("KITTY_WINDOW_ID") || term.contains("kitty") {
+        return true;
+    }
+    // VTE-based (many Linux terminals)
+    if has("VTE_VERSION") {
+        return true;
+    }
+    // Windows Terminal
+    if has("WT_SESSION") {
+        return true;
+    }
+
+    false
+}
+
 /// Prints text without newline
 #[inline(always)]
 pub fn write(text: &str) {

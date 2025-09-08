@@ -52,6 +52,38 @@ mod-cli = { version = "*", features = ["json-loader", "plugins", "internal-comma
 | `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.         |
 | `dispatch-cache`    |   off   | Single-entry dispatch cache to speed repeated command invocations.         |
 
+## Examples
+
+The repository includes runnable examples under `modcli/examples/` covering styled output, gradients, tables, progress, layouts, and themes.
+
+Basic (no extra features):
+
+```console
+$ cargo run --example style_builder
+$ cargo run --example table_basic
+$ cargo run --example progress_basic
+$ cargo run --example progress_custom
+$ cargo run --example gradient_multi
+$ cargo run --example themes_demo
+```
+
+Feature-gated examples (enable flags as shown):
+
+```console
+$ cargo run --example gradient_two --features gradients
+$ cargo run --example gradient_multi --features gradients
+$ cargo run --example table_presets --features table-presets
+$ cargo run --example progress_presets --features progress-presets
+$ cargo run --example layout_demo --features layouts
+```
+
+Justfile shortcuts (optional):
+
+```console
+$ just all-basic
+$ just all-features
+```
+
 ## Contributing Performance
 
 When micro-benchmarks are available (Criterion recommended):

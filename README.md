@@ -292,6 +292,30 @@ print::line(&gradient_text);
 
 ```
 
+### Themes
+
+<!-- Optional screenshot/GIF. Replace the src with your asset path. -->
+<!-- <img src="docs/media/themes-demo.gif" alt="Themes demo" width="600" /> -->
+
+```rust
+use modcli::output::{print, themes};
+
+// Apply a theme (changes terminal fg/bg until reset)
+themes::apply_theme("blue");
+print::line("Applied theme: blue");
+
+// Read colors for log categories from current theme
+let t = themes::current_theme();
+let categories = ["error","warn","success","info","debug","trace","notice","status"]; 
+for key in categories {
+    let color = t.get_log_color(key);
+    println!("{key}: {:?}", color);
+}
+
+// Reset at the end
+themes::Theme::reset();
+```
+
 ---
 
 ### Output Styles

@@ -21,6 +21,119 @@ pub fn generate(text: &str, start: Color, end: Color) -> String {
         result.push_str(&c.to_string().with(color).to_string());
     }
 
+    /// Common easing modes for gradients
+    #[allow(dead_code)]
+    #[derive(Clone, Copy)]
+    pub enum Easing {
+        Linear,
+        EaseIn,
+        EaseOut,
+        EaseInOut,
+    }
+
+    #[allow(dead_code)]
+    #[inline(always)]
+    fn apply_easing(t: f32, mode: Easing) -> f32 {
+        match mode {
+            Easing::Linear => t,
+            Easing::EaseIn => t * t,
+            Easing::EaseOut => 1.0 - (1.0 - t) * (1.0 - t),
+            Easing::EaseInOut => {
+                if t < 0.5 {
+                    2.0 * t * t
+                } else {
+                    1.0 - (-2.0 * t + 2.0).powi(2) / 2.0
+                }
+            }
+        }
+    }
+
+    /// Multi-color gradient with easing across the full text length.
+    /// Easing is applied to the overall position before segment selection.
+    #[allow(dead_code)]
+    pub fn multi_color_eased(text: &str, colors: Vec<Color>, ease: Easing) -> String {
+        let chars: Vec<char> = text.chars().collect();
+        let steps = chars.len().max(1);
+        let segments = colors.len().saturating_sub(1).max(1);
+        let mut result = String::with_capacity(text.len() * 10);
+
+        for (i, c) in chars.iter().enumerate() {
+            let t_raw = i as f32 / (steps - 1).max(1) as f32;
+            let t = apply_easing(t_raw, ease).clamp(0.0, 1.0);
+            let seg_float = t * segments as f32;
+            let seg = seg_float.floor() as usize;
+            let seg_t = seg_float - seg as f32;
+
+            let from = colors.get(seg).unwrap_or(&colors[0]);
+            let to = colors.get(seg + 1).unwrap_or(from);
+
+            let r = interpolate(get_r(from), get_r(to), (seg_t * 100.0) as usize, 100);
+            let g = interpolate(get_g(from), get_g(to), (seg_t * 100.0) as usize, 100);
+            let b = interpolate(get_b(from), get_b(to), (seg_t * 100.0) as usize, 100);
+
+            let color = Color::Rgb { r, g, b };
+            result.push_str(&c.to_string().with(color).to_string());
+        }
+
+        result
+    }
+
+    /// A small set of palette stops for viridis (approximation)
+    #[allow(dead_code)]
+    pub fn palette_viridis() -> Vec<Color> {
+        vec![
+            Color::Rgb { r: 68, g: 1, b: 84 },
+            Color::Rgb {
+                r: 59,
+                g: 82,
+                b: 139,
+            },
+            Color::Rgb {
+                r: 33,
+                g: 145,
+                b: 140,
+            },
+            Color::Rgb {
+                r: 94,
+                g: 201,
+                b: 97,
+            },
+            Color::Rgb {
+                r: 253,
+                g: 231,
+                b: 37,
+            },
+        ]
+    }
+
+    /// A small set of palette stops for magma (approximation)
+    #[allow(dead_code)]
+    pub fn palette_magma() -> Vec<Color> {
+        vec![
+            Color::Rgb { r: 0, g: 0, b: 4 },
+            Color::Rgb {
+                r: 73,
+                g: 15,
+                b: 99,
+            },
+            Color::Rgb {
+                r: 187,
+                g: 55,
+                b: 84,
+            },
+            Color::Rgb {
+                r: 249,
+                g: 142,
+                b: 8,
+            },
+            Color::Rgb {
+                r: 252,
+                g: 253,
+                b: 191,
+            },
+        ]
+    }
+
     result
 }
 

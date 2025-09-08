@@ -1,0 +1,5 @@
+{
+  "help.header": "# Help\n- Use `help <ns>` to see namespaced commands",
+  "help.footer": "\n*Tip*: Try `help ops` for namespaced help\n",
+  "help.ns_header": "Help (namespace)"
+}

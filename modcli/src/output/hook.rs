@@ -1,59 +1,68 @@
+use crate::output::messages;
 use crate::output::print;
 #[cfg(feature = "tracing-logs")]
 use tracing::{debug as tdebug, error as terror, info as tinfo, warn as twarn};
 
 /// Hook for debug messages
 pub fn debug(msg: &str) {
-    print::debug(msg);
+    let m = messages::intercept("debug", msg);
+    print::debug(&m);
     #[cfg(feature = "tracing-logs")]
-    tdebug!(target: "modcli", message = %msg);
+    tdebug!(target: "modcli", message = %m);
 }
 
 /// Hook for info-level messages
 pub fn info(msg: &str) {
-    print::info(msg);
+    let m = messages::intercept("info", msg);
+    print::info(&m);
     #[cfg(feature = "tracing-logs")]
-    tinfo!(target: "modcli", message = %msg);
+    tinfo!(target: "modcli", message = %m);
 }
 
 /// Hook for warning-level messages
 pub fn warn(msg: &str) {
-    print::warn(msg);
+    let m = messages::intercept("warn", msg);
+    print::warn(&m);
     #[cfg(feature = "tracing-logs")]
-    twarn!(target: "modcli", message = %msg);
+    twarn!(target: "modcli", message = %m);
 }
 
 /// Hook for error-level messages
 pub fn error(msg: &str) {
-    print::error(msg);
+    let m = messages::intercept("error", msg);
+    print::error(&m);
     #[cfg(feature = "tracing-logs")]
-    terror!(target: "modcli", message = %msg);
+    terror!(target: "modcli", message = %m);
 }
 
 /// Hook for success-level messages
 pub fn success(msg: &str) {
-    print::success(msg);
+    let m = messages::intercept("success", msg);
+    print::success(&m);
     #[cfg(feature = "tracing-logs")]
-    tinfo!(target: "modcli", success = true, message = %msg);
+    tinfo!(target: "modcli", success = true, message = %m);
 }
 
 /// Hook for status-level messages
 pub fn status(msg: &str) {
-    print::status(msg);
+    let m = messages::intercept("status", msg);
+    print::status(&m);
     #[cfg(feature = "tracing-logs")]
-    tinfo!(target: "modcli", status = true, message = %msg);
+    tinfo!(target: "modcli", status = true, message = %m);
 }
 
 /// Hook for deprecated messages
 pub fn deprecated(msg: &str) {
-    print::deprecated(msg);
+    let m = messages::intercept("deprecated", msg);
+    print::deprecated(&m);
     #[cfg(feature = "tracing-logs")]
-    twarn!(target: "modcli", deprecated = true, message = %msg);
+    twarn!(target: "modcli", deprecated = true, message = %m);
 }
 
 /// Hook for unknown command situations
 pub fn unknown(msg: &str) {
-    print::unknown(msg);
+    let m = messages::intercept("unknown", msg);
+    print::unknown(&m);
     #[cfg(feature = "tracing-logs")]
-    twarn!(target: "modcli", unknown_command = true, message = %msg);
+    twarn!(target: "modcli", unknown_command = true, message = %m);
 }

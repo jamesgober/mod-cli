@@ -1,0 +1,15 @@
+{
+  "name": "blueprint",
+  "fg": "white",
+  "bg": "dark_blue",
+  "log_styles": {
+    "error": "red",
+    "warn": "yellow",
+    "success": "green",
+    "info": "light_blue",
+    "debug": "grey",
+    "trace": "light_grey",
+    "notice": "cyan",
+    "status": "magenta"
+  }
+}

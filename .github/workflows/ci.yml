@@ -51,10 +51,10 @@ jobs:
         run: cargo clippy -- -D warnings
 
       - name: Doctests (default)
-        run: cargo test --doc --verbose
+        run: cargo test --doc --all-features --verbose
 
-      - name: Build docs (no-deps)
-        run: cargo doc --no-deps --verbose
+      - name: Build docs (no-deps, all features)
+        run: cargo doc --no-deps --all-features --verbose
 
 
   msrv-check:
@@ -85,8 +85,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - name: Build docs with warnings as errors
-        run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --verbose
+      - name: Build docs with warnings as errors (all features)
+        run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --verbose
 
   miri:
     name: Miri (memory safety)
@@ -152,7 +152,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - name: Build all examples
-        run: cargo build --examples --verbose
+      - name: Build all examples (all features)
+        run: cargo build --examples --all-features --verbose
       - name: Run demo example (smoke)
         run: cargo run --example demo --quiet || true

@@ -12,6 +12,135 @@
 
 ## [Unreleased]
 
+### Added
+- Output: Tables
+  - Per-column widths via `ColWidth::{Fixed, Percent, Auto}` and `render_table_with_columns(...)`.
+  - Alignment and truncation via `Align`, `TruncateMode`, `render_table_with(...)`, and `render_table_with_opts(...)`.
+  - Styled headers + colorized zebra via `render_table_with_opts_styled(...)`.
+  - Presets (feature `table-presets`):
+    - `render_table_preset_cyan_header_blue_zebra(...)`
+    - `render_table_preset_heavy_cyan_separators(...)`
+    - `render_table_preset_minimal_magenta_grey_zebra(...)`
+  - Exporters: `render_table_markdown`, `render_table_csv`, `render_table_json`.
+  - File output helpers: `write_table_markdown(path, ...)`, `write_table_csv(path, ...)`.
+
+- Output: Progress
+  - MultiProgress manager for stacked bars.
+  - Emoji spinner `show_emoji_spinner(label, cycles, delay_ms)`.
+
+- Output: Links
+  - `print::link(text, url)` with OSC8 auto-detection (WezTerm, iTerm2, Kitty, VTE, Windows Terminal) and override via `ENABLE_OSC8`.
+  - Examples: `examples/link_demo.rs`, `examples/link_james.rs`.
+
+- Output: Themes
+  - RAII `ThemeGuard` apply/reset.
+  - JSON theme loader behind feature `theme-config`: `load_theme_from_json(path)`; sample JSON.
+
+- Output: Gradients
+  - Easing: `Easing::{Linear, EaseIn, EaseOut, EaseInOut}` and `multi_color_eased(text, colors, ease)`.
+  - Palettes: `palette_viridis()`, `palette_magma()`.
+
+- Output: Images (feature `images`)
+  - New module `output::images` with universal ANSI truecolor mosaic fallback.
+  - API: `show_image_mosaic(path, ImageOpts)`; future auto-detect path reserved.
+  - Example: `examples/image_mosaic.rs`.
+
+- Inputs: Builder API
+  - Text/Number/Confirm builders in `modcli::input`:
+    - `text(label).default(..).required().min_len(..).max_len(..).validate(..).mask('*').get()`
+    - `number(label).default(..).min(..).max(..).step(..).validate(..).get()`
+    - `confirm(label).default_yes()/default_no().get()`
+  - Simple menus (stdin):
+    - `select(label, items).initial(idx).get() -> Result<usize, String>`
+    - `multi_select(label, items).get() -> Result<Vec<usize>, String>`
+    - `buttons(label, [(title, hotkey)]).default(idx).get() -> usize`
+  - Raw-mode menus:
+    - `raw_select(label, items).get() -> Option<usize>`
+    - `raw_multi_select(label, items).get() -> Option<Vec<usize>>`
+  - Themed, paged, searchable raw menus:
+    - `raw_select_paged(label, items).initial(idx).page_size(n).get() -> Option<usize>`
+    - `raw_multi_select_paged(label, items).initial(idx).page_size(n).get() -> Option<Vec<usize>>`
+
+- Core: Startup Banner
+  - One-time startup banner hook executed at the start of `ModCli::run()`.
+  - APIs:
+    - `set_startup_banner(|| { ... })`
+    - `set_startup_banner_from_file(path)`
+    - Macros: `banner_text!(..), banner_file!(..), banner!({ .. })`
+  - Disable via env var: `MODCLI_DISABLE_BANNER=1|true`.
+  - Examples: `examples/banner_demo.rs`, `examples/banner_file_demo.rs`.
+
+- Core: Gated & Nested Commands (capability-based, auth-agnostic)
+  - Commands can declare soft requirements via `Command::required_caps() -> &[&str]`.
+  - `CommandRegistry` stores capability strings and provides a neutral API:
+    - `grant_cap`, `revoke_cap`, `set_caps`, `has_cap`.
+    - Optional policies:
+      - `set_visibility_policy(|cmd, caps| -> bool)`
+      - `set_authorize_policy(|cmd, caps, args| -> Result<(), String>)`
+    - Defaults:
+      - visible = `!hidden && required_caps ⊆ caps`
+      - authorized = `required_caps ⊆ caps`
+  - Nested commands by name: `parent:child`.
+    - Root help lists only top-level (no `:`).
+    - `help parent` lists `parent:` children.
+    - Dispatch supports both `parent:child args` and `parent child args`.
+  - Example: `examples/gated_nested_demo.rs` (set caps via `MODCLI_CAPS="role:admin,user:james"`).
+
+- Tooling: Completions & Man pages
+  - Examples to generate scripts/manpage:
+    - `examples/gen_completions.rs` (bash/zsh/fish)
+    - `examples/gen_man.rs` (man1)
+  - Justfile targets: `completions`, `manpages`, `install-completions`, `install-manpages`.
+
+- Examples (new/updated)
+  - Tables: `table_align.rs`, `table_columns.rs`, `table_separators.rs`, `table_colors.rs`, `table_export.rs`.
+  - Progress: `progress_basic.rs`, `progress_custom.rs`, `multiprogress_demo.rs`, `progress_real.rs`.
+  - Links: `link_demo.rs`, `link_james.rs`.
+  - Themes: `themes_demo.rs`, `themes_load.rs` (+ `examples/themes/sample_theme.json`).
+  - Images: `image_mosaic.rs`.
+  - Inputs/Menus: `input_demo.rs`, `menu_demo.rs`, `menu_demo_paged.rs`, `styled_menu.rs`.
+  - Banner: `banner_demo.rs`, `banner_file_demo.rs`.
+  - Gating/Nesting: `gated_nested_demo.rs`.
+
+- Output: Custom Messages & Interceptors
+  - Message catalog with per-key overrides: `messages::set_message`, `get_message`, `message_or_default`.
+  - Global output interceptor: `messages::set_output_interceptor(|category, text| -> Cow<'static, str>)`.
+  - JSON bundle loader gated by feature `theme-config`: `messages::load_messages_from_json`.
+  - Examples: `messages_demo.rs`, `messages_json_demo.rs`.
+
+- Output: Help Templates & Markdown
+  - Help headers/footers driven by message keys: `help.header`, `help.footer`, `help.ns_header`.
+  - Command help() text rendered via minimal Markdown (headings, lists, bold/italic/code).
+  - Example: `help_markdown_demo.rs`.
+
+- Inputs: Keybinding Customization
+  - New `KeyMap` struct for raw menus/buttons; `.keymap(km)` on raw builders.
+  - Works with `raw_select`, `raw_multi_select`, `raw_select_paged`, `raw_multi_select_paged`, `raw_buttons`.
+  - Example: `menu_keymap_demo.rs`.
+
+- Core: Pre/Post Hooks & Error Formatter
+  - Registry hooks: `set_pre_hook(|cmd, args|)` and `set_post_hook(|cmd, args, result|)`.
+  - Error formatter: `set_error_formatter(|&ModCliError| -> String)` used by `execute()`.
+  - Example: `hooks_demo.rs`.
+
+- Docs
+  - Added sections: Help Templates & Markdown, Keybinding Customization, i18n Bundles (JSON).
+  - Expanded Gated & Nested Commands documentation.
+
+### Changed
+- Tables: truncation now grapheme- and East Asian width-safe using `unicode-segmentation` with visual width checks via `console::measure_text_width`.
+
+### Docs
+- `docs/API.md` expanded with sections and runnable snippets:
+  - Tables: Alignment/Truncation, Styled header + Zebra, Per-column Widths, Exporters, Exporters to Files.
+  - Hyperlinks (OSC 8).
+  - Gradients: Palettes & Easing.
+  - Progress: Bytes/Rate/ETA and MultiProgress.
+  - Inputs & Menus: legacy prompts, builder inputs, simple menus, raw-mode, themed paged menus with search.
+  - Startup Banner: function + macros + env var and examples.
+  - Gated & Nested Commands: capabilities API, policies, namespaced help/dispatch, example.
+
+
 
 
 

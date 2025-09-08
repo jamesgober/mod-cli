@@ -35,7 +35,7 @@ impl Command for Hello {
 fn executes_command_with_prefix_routing() {
     let mut reg = CommandRegistry::new();
     reg.set_prefix("tool");
-    reg.register(Box::new(Hello::default()));
+    reg.register(Box::new(Hello));
 
     // Execute using prefixed syntax
     reg.execute("tool:hello", &[]);

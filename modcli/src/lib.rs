@@ -16,6 +16,11 @@
 //! Note: Runtime plugins and JSON/config loaders have been removed from core for
 //! security and performance. Configure your CLI directly in code.
 
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    OnceLock,
+};
+
 pub mod command;
 pub mod error;
 pub mod input;
@@ -43,6 +48,48 @@ pub mod custom;
 /// ```
 pub struct ModCli {
     pub registry: CommandRegistry,
+}
+
+/// Registers a startup banner from a UTF-8 text file. The contents are read immediately
+/// and stored; at runtime the stored text is printed when the banner runs.
+/// Returns Err if the file cannot be read.
+pub fn set_startup_banner_from_file(path: &str) -> Result<(), String> {
+    let data = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+    let owned = data.clone();
+    set_startup_banner(move || {
+        println!("{}\n", owned);
+    });
+    Ok(())
+}
+
+// --- Macros ------------------------------------------------------------------
+
+/// Register a simple text banner that prints a single line and a newline.
+#[macro_export]
+macro_rules! banner_text {
+    ($text:expr) => {{
+        $crate::set_startup_banner(|| {
+            $crate::output::print::line($text);
+            println!("");
+        });
+    }};
+}
+
+/// Register a banner from a file path (evaluated at runtime).
+#[macro_export]
+macro_rules! banner_file {
+    ($path:expr) => {{
+        let _ = $crate::set_startup_banner_from_file($path);
+    }};
+}
+
+/// Register a banner with custom code using a block. Example:
+/// banner!({ println!("Hello"); })
+#[macro_export]
+macro_rules! banner {
+    ($body:block) => {{
+        $crate::set_startup_banner(|| $body);
+    }};
 }
 
 impl Default for ModCli {
@@ -84,6 +131,7 @@ impl ModCli {
     /// Runs the CLI by dispatching the first arg as the command and the rest as arguments.
     /// Prints an error if no command is provided.
     pub fn run(&mut self, args: Vec<String>) {
+        run_startup_banner_if_enabled();
         if args.is_empty() {
             crate::output::hook::status("No command provided. Try `help`.");
             return;
@@ -101,4 +149,38 @@ impl ModCli {
 /// Useful for surfacing framework version from applications.
 pub fn modcli_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
+}
+
+// --- Startup banner hook -----------------------------------------------------
+
+static STARTUP_BANNER: OnceLock<Box<dyn Fn() + Send + Sync>> = OnceLock::new();
+static BANNER_RAN: AtomicBool = AtomicBool::new(false);
+
+/// Registers a startup banner callback that will be invoked once, the first time
+/// `ModCli::run()` is called in this process. If the environment variable
+/// `MODCLI_DISABLE_BANNER` is set to "1" or "true" (case-insensitive), the
+/// banner will be suppressed.
+///
+/// Note: This can only be set once per process.
+pub fn set_startup_banner<F>(f: F)
+where
+    F: Fn() + Send + Sync + 'static,
+{
+    let _ = STARTUP_BANNER.set(Box::new(f));
+}
+
+fn run_startup_banner_if_enabled() {
+    // Ensure one-time run per process
+    if BANNER_RAN.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    // Allow disabling via env var
+    if let Ok(val) = std::env::var("MODCLI_DISABLE_BANNER") {
+        if val == "1" || val.eq_ignore_ascii_case("true") {
+            return;
+        }
+    }
+    if let Some(cb) = STARTUP_BANNER.get() {
+        cb();
+    }
 }

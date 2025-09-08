@@ -34,13 +34,25 @@
 //! render_table(&headers, &rows, TableMode::Flex, TableStyle::Rounded);
 //! ```
 pub mod colors;
-pub mod gradient;
 pub mod hook;
+#[cfg(feature = "images")]
+pub mod images;
+pub mod input;
+pub mod markdown;
+pub mod messages;
 pub mod print;
 pub mod progress;
 pub mod style;
 pub mod table;
 pub mod themes;
+
+// Optional modules
+#[cfg(feature = "gradients")]
+pub mod gradient;
+#[cfg(feature = "gradients")]
+pub mod gradient_extras;
+#[cfg(feature = "layouts")]
+pub mod layout;
 
 // Expose public API
 pub use colors::{
@@ -48,10 +60,10 @@ pub use colors::{
     DARK_PURPLE, DARK_TEAL, GREEN, GREY, LIGHT_BLUE, LIGHT_CYAN, LIGHT_GREEN, LIGHT_GREY,
     LIGHT_MAGENTA, LIGHT_YELLOW, MAGENTA, ORANGE, PINK, PURPLE, RED, TEAL, WHITE, YELLOW,
 };
+#[cfg(feature = "images")]
+pub use images::{show as show_image, show_mosaic as show_image_mosaic, ImageOpts};
 pub use progress::{
-    show_percent_progress, show_progress_bar, show_spinner, ProgressBar, ProgressStyle,
+    show_percent_progress, show_progress_bar, show_spinner, MultiProgress, ProgressBar,
+    ProgressStyle,
 };
 pub use style::build;
-
-// Compile the input submodule crate-visibly; public access is via `modcli::input::*` re-exports
-pub(crate) mod input;
