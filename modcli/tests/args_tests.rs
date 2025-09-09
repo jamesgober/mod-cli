@@ -24,7 +24,10 @@ fn get_string_reads_split_and_equals() {
         "--host=localhost".to_string(),
     ];
     assert_eq!(args::get_string(&argv, "--name").as_deref(), Some("james"));
-    assert_eq!(args::get_string(&argv, "--host").as_deref(), Some("localhost"));
+    assert_eq!(
+        args::get_string(&argv, "--host").as_deref(),
+        Some("localhost")
+    );
     assert_eq!(args::get_string(&argv, "--missing"), None);
 }
 
