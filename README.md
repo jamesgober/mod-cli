@@ -22,6 +22,17 @@
   
 </p>
 
+<div align="center">
+  <sup>
+    <a href="#installation"><b>Install</b></a>
+    <span>&nbsp;│&nbsp;</span>
+    <a href="#usage"><b>Usage</b></a>
+    <span>&nbsp;│&nbsp;</span>
+    <a href="#error-handling"><b>Error Handling</b></a>
+  </sup>
+  <br>
+</div>
+
 <br>
 <br>
 
@@ -68,14 +79,62 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.6.3"
+mod-cli = "0.6.4"
+```
+
+<hr><br>
+
+<h2>Error Handling</h2>
+
+Commands and selected APIs return structured errors via `ModCliError`.
+
+Key updates:
+- `Command::validate(&self, args) -> Result<(), modcli::error::ModCliError>`
+- `set_startup_banner_from_file(path) -> Result<(), ModCliError>`
+- `output::messages::load_messages_from_json(path) -> Result<(), ModCliError>` (feature: `theme-config`)
+
+Minimal example:
+
+```rust
+use modcli::command::Command;
+use modcli::error::ModCliError;
+
+struct Hello;
+
+impl Command for Hello {
+    fn name(&self) -> &str { "hello" }
+    fn help(&self) -> Option<&str> { Some("Greets the user") }
+
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
+        if args.len() > 1 {
+            return Err(ModCliError::InvalidUsage("hello takes at most one argument".into()));
+        }
+        Ok(())
+    }
+
+    fn execute(&self, args: &[String]) {
+        if let Some(name) = args.first() { println!("Hello, {name}!"); } else { println!("Hello!"); }
+    }
+}
+```
+
+Programmatic dispatch:
+
+```rust
+use modcli::{loader::CommandRegistry, error::ModCliError};
+let reg = CommandRegistry::new();
+match reg.try_execute("unknown", &[]) {
+    Err(ModCliError::UnknownCommand(name)) => eprintln!("unknown: {name}"),
+    Err(other) => eprintln!("error: {other}"),
+    Ok(()) => {}
+}
 ```
 <br>
 
 Add the library with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.3", features = ["gradients", "table-presets"] }
+mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
 ```
 <br>
 

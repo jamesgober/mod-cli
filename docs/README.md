@@ -42,7 +42,7 @@ Enable features in your application’s Cargo.toml:
 
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.3", features = ["gradients", "table-presets"] }
+mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
 ```
 
 ## Feature Matrix

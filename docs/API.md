@@ -1,3 +1,179 @@
+
+<h2 id="async-feature-async">Async (feature: <code>async</code>)</h2>
+
+Enable async support:
+
+```toml
+[dependencies]
+mod-cli = { version = "0.6.4", features = ["async"] }
+```
+
+<h2 id="shell-utilities-history">Shell Utilities: History</h2>
+
+Lightweight helpers for shell history persistence and search live in `modcli::shell::history`.
+
+```rust
+use modcli::shell::history;
+
+// Load from default path (~/.config/modcli/history) or provide a custom path
+let mut entries = history::load(None);
+
+// Append a new entry and save
+history::add(None, "help")?;
+entries.push("help".into());
+history::save(None, &entries)?;
+
+// Search recent entries (case-insensitive)
+let hits = history::search(&entries, "he", 10);
+```
+
+<h2 id="argument-helpers">Argument Helpers</h2>
+
+Convenience helpers for simple flag and key/value parsing. These avoid boilerplate in small CLIs.
+
+API (module `modcli::args`):
+
+```rust
+use modcli::args;
+
+let argv = vec![
+    "--name".to_string(), "james".to_string(),
+    "--port=8080".to_string(),
+    "--verbose".to_string(),
+];
+
+// flags
+let verbose = args::flag(&argv, "--verbose");
+
+// strings
+let name = args::get_string(&argv, "--name").unwrap_or_else(|| "guest".into());
+
+// ints (Result<_, ModCliError>)
+let port: u16 = args::get_int(&argv, "--port")?;
+
+// bool values as keys (e.g., --debug=false)
+let debug = args::get_bool(&argv, "--debug").unwrap_or(false);
+```
+
+Errors use `ModCliError::InvalidUsage` with clear messages for missing/invalid values.
+
+<h2 id="validation-helpers">Validation Helpers</h2>
+
+Helpers for common validation patterns live in `modcli::validate`.
+
+```rust
+use modcli::{args, validate};
+use modcli::error::ModCliError;
+
+fn parse_and_validate(argv: &[String]) -> Result<(), ModCliError> {
+    // Require a key to be present: --name or --name=<val>
+    validate::require(argv, "--name")?;
+
+    // Parse a numeric arg with bounds: 1024 <= --port <= 65535
+    let _port: u16 = validate::parse_in_range(argv, "--port", Some(1024), Some(65535))?;
+
+    // Path validations
+    if let Some(cfg) = args::get_string(argv, "--config") {
+        validate::path_exists(&cfg)?;
+        validate::path_is_file(&cfg)?;
+    }
+    Ok(())
+}
+```
+Minimal async command:
+
+```rust
+#[cfg(feature = "async")]
+{
+    use modcli::command::AsyncCommand;
+    use modcli::error::ModCliError;
+    use std::future::Future;
+    use std::pin::Pin;
+
+    struct Fetch;
+
+    impl AsyncCommand for Fetch {
+        fn name(&self) -> &str { "fetch" }
+        fn execute_async(&self, args: &[String]) -> Pin<Box<dyn Future<Output = Result<(), ModCliError>> + Send + '_>> {
+            Box::pin(async move {
+                println!("fetching: {}", args.get(0).unwrap_or(&"https://example.com".into()));
+                Ok(())
+            })
+        }
+    }
+}
+```
+
+Run from an async context (example uses `tokio-runtime` feature):
+
+```rust
+#[tokio::main]
+async fn main() {
+    use modcli::loader::CommandRegistry;
+    let mut reg = CommandRegistry::new();
+    reg.register_async(Box::new(Fetch));
+    reg.execute_async("fetch", &[]).await;
+}
+```
+<h2 id="error-handling">Error Handling</h2>
+
+Commands and selected APIs now return structured errors via `ModCliError` rather than raw strings. This provides better context and consistent formatting in `CommandRegistry::execute()` and `try_execute()`.
+
+Key points:
+
+- `Command::validate(&self, args) -> Result<(), modcli::error::ModCliError>`
+- `set_startup_banner_from_file(path) -> Result<(), ModCliError>`
+- `output::messages::load_messages_from_json(path) -> Result<(), ModCliError>` (feature: `theme-config`)
+
+Example: a command with validation
+
+```rust
+use modcli::command::Command;
+use modcli::error::ModCliError;
+
+struct Hello;
+
+impl Command for Hello {
+    fn name(&self) -> &str { "hello" }
+    fn help(&self) -> Option<&str> { Some("Greets the user") }
+
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
+        if args.len() > 1 {
+            return Err(ModCliError::InvalidUsage("hello takes at most one argument".into()));
+        }
+        Ok(())
+    }
+
+    fn execute(&self, args: &[String]) {
+        if let Some(name) = args.first() { println!("Hello, {name}!"); } else { println!("Hello!"); }
+    }
+}
+```
+
+Example: loading messages (feature `theme-config`)
+
+```rust
+#[cfg(feature = "theme-config")]
+{
+    use modcli::output::messages;
+    if let Err(e) = messages::load_messages_from_json("modcli/examples/messages/en.json") {
+        eprintln!("failed to load messages: {e}");
+    }
+}
+```
+
+`CommandRegistry::execute()` prints user-friendly messages. For programmatic handling, use `try_execute()` and match on `ModCliError`:
+
+```rust
+use modcli::{loader::CommandRegistry, error::ModCliError};
+let reg = CommandRegistry::new();
+match reg.try_execute("unknown", &[]) {
+    Err(ModCliError::UnknownCommand(name)) => eprintln!("unknown: {name}"),
+    Err(other) => eprintln!("error: {other}"),
+    Ok(()) => {}
+}
+```
+
 <h1 align="center">
     <img width="90px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
     <br><b>mod-cli</b><br>
@@ -33,6 +209,11 @@
   - **[Per-column widths](#tables-per-column-widths-fixed--percent--auto)**
   - **[Exporters (Markdown/CSV/JSON)](#tables-exporters-markdown--csv--json)**
 - **[Progress](#progress-presets-feature-progress-presets)**
+ - **[Error Handling](#error-handling)**
+ - **[Async](#async-feature-async)**
+ - **[Argument Helpers](#argument-helpers)**
+ - **[Validation Helpers](#validation-helpers)**
+ - **[Shell Utilities: History](#shell-utilities-history)**
 
 <hr>
 <br>

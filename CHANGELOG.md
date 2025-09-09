@@ -12,12 +12,45 @@
 
 ## [Unreleased]
 
+- No unreleased changes.
+
+
+
+<br>
+
+
+## [0.6.4] - 2025-09-09
+
+### Added
+- Async support (feature: `async`; optional runtime: `tokio-runtime`)
+  - `command::AsyncCommand` (object-safe, boxed-future signature):
+    - `fn execute_async(&self, args: &[String]) -> Pin<Box<dyn Future<Output = Result<(), ModCliError>> + Send + '_>>`
+  - Registry methods:
+    - `CommandRegistry::register_async(Box<dyn AsyncCommand>)`
+    - `CommandRegistry::try_execute_async(cmd, args) -> Result<(), ModCliError>`
+    - `CommandRegistry::execute_async(cmd, args)`
+  - Example: `modcli/examples/async_fetch.rs` (run with `--features async,tokio-runtime`)
+- Docs: new sections
+  - Error Handling (ModCliError usage and examples)
+  - Async (feature gating, minimal AsyncCommand, execute_async usage)
+- Argument Helpers (`modcli::args`)
+  - `flag(&[String], "--flag") -> bool`
+  - `get_string(&[String], "--key") -> Option<String>`
+  - `get_int<T: FromStr>(&[String], "--port") -> Result<T, ModCliError>`
+  - `get_bool(&[String], "--debug") -> Result<bool, ModCliError>`
+ - Shell Utilities: History (`modcli::shell::history`)
+   - `default_history_path()`; `load(path)`, `save(path, entries)`, `add(path, line)`, `search(entries, query, limit)`
+   - Example: `modcli/examples/history_demo.rs`
+
 ### Changed
 - Docs: Synchronized all install snippets and sample outputs to `0.6.3`.
 - Docs: Aligned feature matrix across `README.md`, `docs/API.md`, `docs/README.md`, and `modcli/README.md` with actual flags in `modcli/Cargo.toml`.
 - Docs: Pruned stale sections (plugins/json-loader) and removed links-to-nowhere; TOCs now map 1:1 to real sections.
 - Docs: Tightened table examples and fixed code fences in `docs/API.md`.
 - Build: Resolved all clippy lints under `-D warnings` across all features.
+- API: `Command::validate(&self, args) -> Result<(), ModCliError>` (was `Result<(), String>`).
+- API: `set_startup_banner_from_file(path) -> Result<(), ModCliError>` (was `Result<(), String>`).
+- API: `output::messages::load_messages_from_json(path) -> Result<(), ModCliError>` (was `Result<(), String>`; requires `theme-config`).
 
 ### Fixed
 - MSRV/clippy: Added explicit lifetimes for returned builder types (`'_'`) in `modcli/src/input/builders.rs` to satisfy `mismatched-lifetime-syntaxes`.
@@ -26,7 +59,7 @@
 - Docs: Fixed broken anchors and corrected outdated version references.
 
 ### Notes
-- This Unreleased section captures post-`0.6.3` cleanups; no public API additions yet. Any future API surface changes (e.g., error enums, async command support, arg helpers) will be logged here with examples.
+- This release includes API changes (ModCliError migration) and new async support. Upcoming items (typed arg helpers, richer validators) will be logged in Unreleased as they land.
 
 
 <br>
