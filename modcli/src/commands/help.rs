@@ -3,6 +3,7 @@ use crate::loader::CommandRegistry;
 use crate::output::hook;
 use crate::output::markdown;
 use crate::output::messages;
+use crate::error::ModCliError;
 
 /// Built-in help command (execution handled by registry internally)
 pub struct HelpCommand;
@@ -32,9 +33,9 @@ impl Command for HelpCommand {
         Some("Displays help information")
     }
 
-    fn validate(&self, args: &[String]) -> Result<(), String> {
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
         if args.len() > 1 {
-            Err("Too many arguments. Usage: help [command]".into())
+            Err(ModCliError::InvalidUsage("Too many arguments. Usage: help [command]".into()))
         } else {
             Ok(())
         }

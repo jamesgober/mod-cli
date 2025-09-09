@@ -1,6 +1,7 @@
 use crate::command::Command;
 use crate::modcli_version;
 use crate::output::{build, print, BLUE, GREY, LIGHT_BLUE};
+use crate::error::ModCliError;
 pub struct FrameworkCommand;
 
 impl Command for FrameworkCommand {
@@ -20,9 +21,9 @@ impl Command for FrameworkCommand {
     }
 
     // Command validate
-    fn validate(&self, args: &[String]) -> Result<(), String> {
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
         if !args.is_empty() {
-            Err("framework does not accept any arguments.".into())
+            Err(ModCliError::InvalidUsage("framework does not accept any arguments.".into()))
         } else {
             Ok(())
         }

@@ -18,8 +18,15 @@ pub enum ModCliError {
     #[error("invalid usage: {0}")]
     InvalidUsage(String),
 
+    #[error("validation failed: {0}")]
+    Validation(String),
+
     #[error("unknown command: {0}")]
     UnknownCommand(String),
+
+    #[cfg(feature = "theme-config")]
+    #[error("config parse error: {0}")]
+    ConfigParse(#[from] serde_json::Error),
 
     #[error("error: {0}")]
     Other(String),

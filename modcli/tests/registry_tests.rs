@@ -2,6 +2,7 @@ use std::sync::{Mutex, OnceLock};
 
 use modcli::command::Command;
 use modcli::loader::CommandRegistry;
+use modcli::error::ModCliError;
 
 // Shared test state to verify side effects
 static EXEC_LOG: OnceLock<Mutex<Vec<&'static str>>> = OnceLock::new();
@@ -30,7 +31,7 @@ impl Command for AliasCmd {
         Some("Alias test command")
     }
 
-    fn validate(&self, _args: &[String]) -> Result<(), String> {
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
         Ok(())
     }
 
@@ -51,8 +52,8 @@ impl Command for InvalidCmd {
         Some("Always invalid")
     }
 
-    fn validate(&self, _args: &[String]) -> Result<(), String> {
-        Err("invalid on purpose".into())
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
+        Err(ModCliError::InvalidUsage("invalid on purpose".into()))
     }
 
     fn execute(&self, _args: &[String]) {

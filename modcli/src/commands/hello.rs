@@ -1,4 +1,5 @@
 use crate::command::Command;
+use crate::error::ModCliError;
 
 pub struct HelloCommand;
 
@@ -11,9 +12,11 @@ impl Command for HelloCommand {
         Some("Greets the user")
     }
 
-    fn validate(&self, args: &[String]) -> Result<(), String> {
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
         if args.len() > 1 {
-            Err("Hello takes at most one argument (your name).".into())
+            Err(ModCliError::InvalidUsage(
+                "Hello takes at most one argument (your name).".into(),
+            ))
         } else {
             Ok(())
         }

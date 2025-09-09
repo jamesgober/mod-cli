@@ -57,25 +57,31 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.6.3"
+mod-cli = "0.6.4"
 ```
 <br>
 
 Add the library to your `Cargo.toml` with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.3", features = ["plugins"] }
+mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
 ```
 
 <br>
 <h3>Feature Flags</h3>
 
-| Feature               | Description                                           |
-|------------------------|-------------------------------------------------------|
-| `internal-commands`    | Enables built-in test/dev commands like `ping`, `hello` |
-| `custom-commands`      | Enables CLI custom command creation.                  |
-| `json-loader`          | Enables external command loading from JSON config     |
-| `plugins`              | Enables plugin support for dynamic runtime command injection |
+| Feature               | Description |
+|----------------------|-------------|
+| `internal-commands`  | Built-in helper commands like `help`, `ping`, etc. |
+| `custom-commands`    | Ergonomic helpers for user-defined commands. |
+| `tracing-logs`       | Emit `tracing` events via `output::hook` alongside console output. |
+| `dispatch-cache`     | Single-entry dispatch cache to speed repeated invocations. |
+| `gradients`          | Named gradient helpers (24‑bit RGB) with zero extra deps. |
+| `layouts`            | Lightweight layout engine for terminal rows/columns. |
+| `table-presets`      | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
+| `progress-presets`   | Convenience constructors for `ProgressStyle` (compact, heavy). |
+| `theme-config`       | Enable theme config serialization (serde/serde_json). |
+| `images`             | Optional image support (png/jpeg) via the `image` crate. |
 
 
 <hr><br>

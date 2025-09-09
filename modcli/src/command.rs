@@ -10,7 +10,7 @@
 /// impl Command for Hello {
 ///     fn name(&self) -> &str { "hello" }
 ///     fn help(&self) -> Option<&str> { Some("Greets the user") }
-///     fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
+///     fn validate(&self, _args: &[String]) -> Result<(), modcli::error::ModCliError> { Ok(()) }
 ///     fn execute(&self, _args: &[String]) { println!("Hello!"); }
 /// }
 ///
@@ -20,6 +20,7 @@
 /// cli.run(args);
 /// ```
 use crate::loader::CommandRegistry;
+use crate::error::ModCliError;
 
 pub trait Command {
     fn name(&self) -> &str;
@@ -43,7 +44,7 @@ pub trait Command {
         &[]
     }
 
-    fn validate(&self, _args: &[String]) -> Result<(), String> {
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
         Ok(())
     }
 
@@ -54,4 +55,17 @@ pub trait Command {
     fn execute_with(&self, args: &[String], _registry: &CommandRegistry) {
         self.execute(args)
     }
+}
+
+// Optional async commands (object-safe via boxed future)
+#[cfg(feature = "async")]
+pub trait AsyncCommand: Send + Sync {
+    fn name(&self) -> &str;
+    fn aliases(&self) -> &[&str] { &[] }
+    fn execute_async(
+        &self,
+        args: &[String],
+    ) -> core::pin::Pin<
+        Box<dyn core::future::Future<Output = Result<(), ModCliError>> + Send + '_>,
+    >;
 }

@@ -1,6 +1,7 @@
 use crate::command::Command;
 use crate::config::CliConfig;
 use crate::console::run_shell;
+use crate::error::ModCliError;
 
 pub struct ShellCommand;
 
@@ -13,9 +14,9 @@ impl Command for ShellCommand {
         Some("Launch interactive shell")
     }
 
-    fn validate(&self, args: &[String]) -> Result<(), String> {
+    fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
         if !args.is_empty() {
-            Err("Shell does not accept any arguments.".into())
+            Err(ModCliError::InvalidUsage("Shell does not accept any arguments.".into()))
         } else {
             Ok(())
         }

@@ -23,10 +23,13 @@ use std::sync::{
 
 pub mod command;
 pub mod error;
+pub mod args;
 pub mod input;
 pub mod loader;
 pub mod output;
 pub mod parser;
+pub mod validate;
+pub mod shell;
 
 pub use crate::command::Command as CliCustom;
 use crate::loader::CommandRegistry;
@@ -53,8 +56,8 @@ pub struct ModCli {
 /// Registers a startup banner from a UTF-8 text file. The contents are read immediately
 /// and stored; at runtime the stored text is printed when the banner runs.
 /// Returns Err if the file cannot be read.
-pub fn set_startup_banner_from_file(path: &str) -> Result<(), String> {
-    let data = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+pub fn set_startup_banner_from_file(path: &str) -> Result<(), crate::error::ModCliError> {
+    let data = std::fs::read_to_string(path)?;
     let owned = data.clone();
     set_startup_banner(move || {
         println!("{owned}\n");

@@ -6,7 +6,10 @@ use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand};
 use crate::output::hook;
 
 use crate::command::Command;
+#[allow(unused_imports)]
 use crate::error::ModCliError;
+#[cfg(feature = "async")]
+use crate::command::AsyncCommand;
 use std::collections::{HashMap, HashSet};
 
 // Reduce type complexity for registry hooks and error formatter
@@ -38,6 +41,10 @@ pub struct CommandRegistry {
     prefix: String,
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
+    #[cfg(feature = "async")]
+    async_commands: HashMap<String, Box<dyn AsyncCommand>>, // separate store for async commands
+    #[cfg(feature = "async")]
+    async_aliases: HashMap<String, String>,
     caps: HashSet<String>,
     visibility_policy: Option<Box<VisibilityPolicyFn>>,
     authorize_policy: Option<Box<AuthorizePolicyFn>>,
@@ -61,6 +68,10 @@ impl CommandRegistry {
             prefix: String::new(),
             commands: HashMap::new(),
             aliases: HashMap::new(),
+            #[cfg(feature = "async")]
+            async_commands: HashMap::new(),
+            #[cfg(feature = "async")]
+            async_aliases: HashMap::new(),
             caps: HashSet::new(),
             visibility_policy: None,
             authorize_policy: None,
@@ -78,6 +89,18 @@ impl CommandRegistry {
         reg.load_internal_commands();
 
         reg
+    }
+
+    /// Register an async command (feature: "async")
+    #[cfg(feature = "async")]
+    pub fn register_async(&mut self, cmd: Box<dyn AsyncCommand>) {
+        let name = cmd.name().to_string();
+        self.async_commands.insert(name.clone(), cmd);
+        for &alias in self.async_commands[&name].aliases() {
+            if !self.async_commands.contains_key(alias) {
+                self.async_aliases.insert(alias.to_string(), name.clone());
+            }
+        }
     }
 
     /// Sets the command prefix
@@ -121,6 +144,12 @@ impl CommandRegistry {
     /// Returns an iterator over all registered commands.
     pub fn all(&self) -> impl Iterator<Item = &Box<dyn Command>> {
         self.commands.values()
+    }
+
+    /// Returns all registered async commands (read-only)
+    #[cfg(feature = "async")]
+    pub fn all_async(&self) -> impl Iterator<Item = &Box<dyn AsyncCommand>> {
+        self.async_commands.values()
     }
 
     // --- Capabilities API -----------------------------------------------------
@@ -283,9 +312,7 @@ impl CommandRegistry {
             if let Some((ref t, ref p)) = *guard {
                 if t == token {
                     if let Some(command) = self.commands.get(p.as_str()) {
-                        if let Err(err) = command.validate(args) {
-                            return Err(ModCliError::InvalidUsage(err));
-                        }
+                        command.validate(args)?;
                         command.execute_with(args, self);
                         return Ok(());
                     }
@@ -298,9 +325,7 @@ impl CommandRegistry {
             if let Err(err) = self.is_authorized(command.as_ref(), args) {
                 return Err(ModCliError::InvalidUsage(err));
             }
-            if let Err(err) = command.validate(args) {
-                return Err(ModCliError::InvalidUsage(err));
-            }
+            command.validate(args)?;
             command.execute_with(args, self);
             #[cfg(feature = "dispatch-cache")]
             if let Ok(mut guard) = self.cache.lock() {
@@ -318,9 +343,7 @@ impl CommandRegistry {
                 if let Err(err) = self.is_authorized(command.as_ref(), args) {
                     return Err(ModCliError::InvalidUsage(err));
                 }
-                if let Err(err) = command.validate(args) {
-                    return Err(ModCliError::InvalidUsage(err));
-                }
+                command.validate(args)?;
                 command.execute_with(args, self);
                 #[cfg(feature = "dispatch-cache")]
                 if let Ok(mut guard) = self.cache.lock() {
@@ -341,9 +364,7 @@ impl CommandRegistry {
                 if let Err(err) = self.is_authorized(command.as_ref(), rest) {
                     return Err(ModCliError::InvalidUsage(err));
                 }
-                if let Err(err) = command.validate(rest) {
-                    return Err(ModCliError::InvalidUsage(err));
-                }
+                command.validate(rest)?;
                 command.execute_with(rest, self);
                 if let Some(ref post) = self.post_hook {
                     post(cmd, args, Ok(()));

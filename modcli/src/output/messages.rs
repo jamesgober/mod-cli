@@ -76,9 +76,9 @@ pub fn intercept<'a>(category: &str, text: &'a str) -> Cow<'a, str> {
 /// Load messages from a JSON object file mapping string keys to string values.
 /// Example JSON: { "help.header": "Commands", "unknown": "..." }
 #[cfg(feature = "theme-config")]
-pub fn load_messages_from_json(path: &str) -> Result<(), String> {
-    let data = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
-    let map: HashMap<String, String> = serde_json::from_str(&data).map_err(|e| e.to_string())?;
+pub fn load_messages_from_json(path: &str) -> Result<(), crate::error::ModCliError> {
+    let data = std::fs::read_to_string(path)?;
+    let map: HashMap<String, String> = serde_json::from_str(&data)?;
     if let Ok(mut cat) = catalog().lock() {
         for (k, v) in map {
             cat.insert(k, v);
@@ -88,6 +88,8 @@ pub fn load_messages_from_json(path: &str) -> Result<(), String> {
 }
 
 #[cfg(not(feature = "theme-config"))]
-pub fn load_messages_from_json(_path: &str) -> Result<(), String> {
-    Err("messages JSON loader requires feature: theme-config".into())
+pub fn load_messages_from_json(_path: &str) -> Result<(), crate::error::ModCliError> {
+    Err(crate::error::ModCliError::InvalidUsage(
+        "messages JSON loader requires feature: theme-config".into(),
+    ))
 }
