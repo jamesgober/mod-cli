@@ -115,7 +115,7 @@ impl<'a> TextInput<'a> {
     }
 }
 
-pub fn text(label: &str) -> TextInput {
+pub fn text(label: &str) -> TextInput<'_> {
     TextInput {
         label,
         default: None,
@@ -213,7 +213,7 @@ impl<'a> NumberInput<'a> {
     }
 }
 
-pub fn number(label: &str) -> NumberInput {
+pub fn number(label: &str) -> NumberInput<'_> {
     NumberInput {
         label,
         default: None,
@@ -257,7 +257,7 @@ impl<'a> ConfirmInput<'a> {
     }
 }
 
-pub fn confirm(label: &str) -> ConfirmInput {
+pub fn confirm(label: &str) -> ConfirmInput<'_> {
     ConfirmInput {
         label,
         default_yes: true,
@@ -309,7 +309,7 @@ impl<'a> SelectInput<'a> {
     }
 }
 
-pub fn select(label: &str, items: impl IntoIterator<Item = impl Into<String>>) -> SelectInput {
+pub fn select(label: &str, items: impl IntoIterator<Item = impl Into<String>>) -> SelectInput<'_> {
     SelectInput {
         label,
         items: items.into_iter().map(Into::into).collect(),
@@ -357,7 +357,7 @@ impl<'a> MultiSelectInput<'a> {
 pub fn multi_select(
     label: &str,
     items: impl IntoIterator<Item = impl Into<String>>,
-) -> MultiSelectInput {
+) -> MultiSelectInput<'_> {
     MultiSelectInput {
         label,
         items: items.into_iter().map(Into::into).collect(),
@@ -666,7 +666,7 @@ impl<'a> RawPagedSelectInput<'a> {
             } else if self.cursor >= filtered.len() {
                 self.cursor = filtered.len() - 1;
             }
-            let total_pages = (filtered.len() + self.page_size - 1) / self.page_size;
+            let total_pages = filtered.len().div_ceil(self.page_size);
             let page = if filtered.is_empty() {
                 0
             } else {
@@ -757,7 +757,7 @@ impl<'a> RawPagedSelectInput<'a> {
 pub fn raw_select_paged(
     label: &str,
     items: impl IntoIterator<Item = impl Into<String>>,
-) -> RawPagedSelectInput {
+) -> RawPagedSelectInput<'_> {
     RawPagedSelectInput {
         label,
         items: items.into_iter().map(Into::into).collect(),
@@ -814,7 +814,7 @@ impl<'a> RawPagedMultiSelectInput<'a> {
             } else if self.cursor >= filtered.len() {
                 self.cursor = filtered.len() - 1;
             }
-            let total_pages = (filtered.len() + self.page_size - 1) / self.page_size;
+            let total_pages = filtered.len().div_ceil(self.page_size);
             let page = if filtered.is_empty() {
                 0
             } else {
@@ -926,7 +926,7 @@ impl<'a> RawPagedMultiSelectInput<'a> {
 pub fn raw_multi_select_paged(
     label: &str,
     items: impl IntoIterator<Item = impl Into<String>>,
-) -> RawPagedMultiSelectInput {
+) -> RawPagedMultiSelectInput<'_> {
     let v: Vec<String> = items.into_iter().map(Into::into).collect();
     let picked = vec![false; v.len()];
     RawPagedMultiSelectInput {
@@ -1216,7 +1216,7 @@ impl<'a> RawButtonsInput<'a> {
 pub fn raw_buttons(
     label: &str,
     buttons: impl IntoIterator<Item = (impl Into<String>, char)>,
-) -> RawButtonsInput {
+) -> RawButtonsInput<'_> {
     RawButtonsInput {
         label,
         buttons: buttons.into_iter().map(|(t, k)| (t.into(), k)).collect(),

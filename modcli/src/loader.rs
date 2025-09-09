@@ -13,6 +13,9 @@ use std::collections::{HashMap, HashSet};
 type PreHookFn = dyn Fn(&str, &[String]) + Send + Sync;
 type PostHookFn = dyn Fn(&str, &[String], Result<(), &str>) + Send + Sync;
 type ErrorFmtFn = dyn Fn(&crate::error::ModCliError) -> String + Send + Sync;
+type VisibilityPolicyFn = dyn Fn(&dyn Command, &HashSet<String>) -> bool + Send + Sync;
+type AuthorizePolicyFn =
+    dyn Fn(&dyn Command, &HashSet<String>, &[String]) -> Result<(), String> + Send + Sync;
 
 /// Registry for commands and optional alias/prefix routing.
 ///
@@ -36,10 +39,8 @@ pub struct CommandRegistry {
     commands: HashMap<String, Box<dyn Command>>,
     aliases: HashMap<String, String>,
     caps: HashSet<String>,
-    visibility_policy: Option<Box<dyn Fn(&dyn Command, &HashSet<String>) -> bool + Send + Sync>>,
-    authorize_policy: Option<
-        Box<dyn Fn(&dyn Command, &HashSet<String>, &[String]) -> Result<(), String> + Send + Sync>,
-    >,
+    visibility_policy: Option<Box<VisibilityPolicyFn>>,
+    authorize_policy: Option<Box<AuthorizePolicyFn>>,
     pre_hook: Option<Box<PreHookFn>>,   // before dispatch
     post_hook: Option<Box<PostHookFn>>, // after dispatch
     error_formatter: Option<Box<ErrorFmtFn>>,
