@@ -26,27 +26,13 @@
 - **[Themes](#themes)**
 - **[Hyperlinks (OSC 8)](#hyperlinks-osc-8)**
 - **[Gradients](#gradients-feature-gradients)**
-  - **[Gradient Palettes & Easing](#gradient-palettes--easing)**
 - **[Layouts](#layouts-feature-layouts)**
 - **[Tables](#tables-presets-feature-table-presets)**
   - **[Alignment and Truncation](#tables-alignment-and-truncation)**
   - **[Styled header + colorized zebra](#tables-styled-header--colorized-zebra)**
   - **[Per-column widths](#tables-per-column-widths-fixed--percent--auto)**
   - **[Exporters (Markdown/CSV/JSON)](#tables-exporters-markdown--csv--json)**
-  - **[Exporters to files](#tables-exporters-to-files)**
 - **[Progress](#progress-presets-feature-progress-presets)**
-  - **[Bytes / Rate / ETA](#progress-bytes-rate-eta)**
-  - **[MultiProgress](#multiprogress-stacked-bars)**
- - **[Inputs & Menus](#inputs--menus)**
-  - **[Forms](#forms)**
- - **[Completions & Man Pages](#completions--man-pages)**
- - **[Examples](#examples)**
- - **[Startup Banner](#startup-banner)**
- - **[Gated & Nested Commands](#gated--nested-commands)**
-  - **[Help Templates & Markdown](#help-templates--markdown)**
-  - **[i18n Bundles (JSON)](#i18n-bundles-json)**
-  - **[Keybinding Customization](#keybinding-customization)**
-  - **[Hooks & Error Formatting](#hooks--error-formatting)**
 
 <hr>
 <br>
@@ -81,14 +67,16 @@ cargo add mod-cli
 
 | Feature               | Default | Description |
 |----------------------|:-------:|-------------|
-| `internal-commands`  |  on     | Enables built-in helper commands like `help`, `ping`, etc. |
-| `custom-commands`    |  on     | Enables ergonomic re-exports for user-defined commands. |
+| `internal-commands`  |  on     | Built-in helper commands like `help`, `ping`, etc. |
+| `custom-commands`    |  on     | Ergonomic helpers for user-defined commands. |
 | `tracing-logs`       |  off    | Emits `tracing` events via `output::hook` alongside themed console output. |
-| `dispatch-cache`     |  off    | Optional single-entry dispatch cache to speed repeated command invocations. |
-| `gradients`          |  off    | Adds named gradient helpers that wrap 24-bit RGB gradients (no new deps). |
-| `layouts`            |  off    | Adds a lightweight layout engine for composing rows/columns in the terminal. |
-| `table-presets`      |  off    | Adds convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
-| `progress-presets`   |  off    | Adds convenience constructors for `ProgressStyle` (compact, heavy). |
+| `dispatch-cache`     |  off    | Single-entry dispatch cache to speed repeated command invocations. |
+| `gradients`          |  off    | Named gradient helpers that wrap 24-bit RGB gradients (no new deps). |
+| `layouts`            |  off    | Lightweight layout engine for composing rows/columns in the terminal. |
+| `table-presets`      |  off    | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
+| `progress-presets`   |  off    | Convenience constructors for `ProgressStyle` (compact, heavy). |
+| `theme-config`       |  off    | Enable theme config serialization (serde/serde_json). |
+| `images`             |  off    | Optional `image` crate integration (png/jpeg only, opt-in). |
 
 
 <br>
@@ -262,6 +250,7 @@ let t_heavy = render_table(&headers, &rows, TableMode::Flex, TableStyle::Heavy);
   let t_ascii = render_table(&headers, &rows, TableMode::Fixed(14), TableStyle::ascii_preset());
   let t_round = render_table(&headers, &rows, TableMode::Fixed(14), TableStyle::rounded_preset());
 }
+```
 
 ### Tables: Alignment and Truncation
 

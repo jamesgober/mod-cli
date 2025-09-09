@@ -12,6 +12,16 @@
 
 ## [Unreleased]
 
+
+
+
+
+<br>
+
+
+## [0.6.3] - 2025-09-08 
+### Changed
+
 ### Added
 - Output: Tables
   - Per-column widths via `ColWidth::{Fixed, Percent, Auto}` and `render_table_with_columns(...)`.
@@ -139,10 +149,6 @@
   - Inputs & Menus: legacy prompts, builder inputs, simple menus, raw-mode, themed paged menus with search.
   - Startup Banner: function + macros + env var and examples.
   - Gated & Nested Commands: capabilities API, policies, namespaced help/dispatch, example.
-
-
-
-
 
 
 

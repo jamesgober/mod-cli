@@ -16,8 +16,10 @@
 </div>
 <br>
 <p>
-    <strong>MOD-CLI</strong> is a lightweight, modular CLI framework for Rust. 
-    A fully customizable and feature-rich system for registering commands, styling output, and running interactive shells with zero bloat. Built to speed up CLI development and get powerful tools running fast—without rewriting the basics.
+  <strong>MOD-CLI</strong> is a lightweight, modular CLI framework for Rust.
+  Register commands, style output, and build interactive flows with a clean, zero-bloat core.
+  Focus on your app, not boilerplate.
+  
 </p>
 
 <br>
@@ -25,10 +27,8 @@
 
 <h2>Documentation</h2>
 <p>
-    Full API docs are available on <a href="https://docs.rs/mod-cli" title="Docs.rs: mod-cli">docs.rs</a>.
-    Docs are built with features enabled for maximum example coverage (<code>json-loader</code>, <code>plugins</code>, <code>internal-commands</code>, <code>custom-commands</code>).
-    Some examples are feature-gated and compile/run only when the corresponding feature is enabled.
-    <br>
+  Full API docs are on <a href="https://docs.rs/mod-cli" title="Docs.rs: mod-cli">docs.rs</a>.
+  Docs are built with a minimal, stable feature set (<code>internal-commands</code>, <code>custom-commands</code>) to ensure MSRV compatibility.
 </p>
 
 <br>
@@ -72,121 +72,31 @@ mod-cli = "0.6.0"
 ```
 <br>
 
-Add the library to your `Cargo.toml` with features:
+Add the library with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.0", features = ["plugins"] }
+mod-cli = { version = "0.6.0", features = ["gradients", "table-presets"] }
 ```
-
-Example plugin included in this repo:
-- Path: `modcli/examples/plugins/hello-plugin/`
-- Build (from that directory):
-  - macOS: `cargo build --release` → produces `target/release/libhello_plugin.dylib`
-  - Linux: `cargo build --release` → produces `target/release/libhello_plugin.so`
-  - Windows: `cargo build --release` → produces `target\release\hello_plugin.dll`
-
-Copy the built library into a `plugins/` directory alongside your binary and run with the `plugins` feature enabled.
-
-Enable the JSON loader feature:
-```toml
-[dependencies]
-mod-cli = { version = "0.6.0", features = ["json-loader"] }
-```
-
-Enable multiple features:
-```toml
-[dependencies]
-mod-cli = { version = "0.6.0", features = ["plugins", "json-loader"] }
-```
+<br>
 
 <br>
 <h3>Feature Flags</h3>
 
-| Feature               | Description                                           |
-|------------------------|-------------------------------------------------------|
-| `internal-commands`    | Enables built-in test/dev commands like `ping`, `hello` |
-| `custom-commands`      | Enables CLI custom command creation.                  |
-| `json-loader`          | Enables external command loading from JSON config     |
-| `plugins`              | Enables plugin support for dynamic runtime command injection |
+| Feature               | Description |
+|----------------------|-------------|
+| `internal-commands`  | Built-in helper commands like `help`, `ping`, etc. |
+| `custom-commands`    | Ergonomic helpers for user-defined commands. |
+| `tracing-logs`       | Emit `tracing` events via `output::hook` alongside console output. |
+| `dispatch-cache`     | Single-entry dispatch cache to speed repeated invocations. |
+| `gradients`          | Named gradient helpers (24‑bit RGB) with zero extra deps. |
+| `layouts`            | Lightweight layout engine for terminal rows/columns. |
+| `table-presets`      | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
+| `progress-presets`   | Convenience constructors for `ProgressStyle` (compact, heavy). |
+| `theme-config`       | Enable theme config serialization (serde/serde_json). |
+| `images`             | Optional image support (png/jpeg) via the `image` crate. |
 
 
-### JSON Command Source (feature: `json-loader`)
-
-```rust
-//! Enable with: features = ["json-loader"]
-use modcli::ModCli;
-#[cfg(feature = "json-loader")]
-use modcli::loader::sources::JsonFileSource;
-
-fn main() {
-    let mut cli = ModCli::new();
-
-    #[cfg(feature = "json-loader")]
-    {
-        // Load commands from a JSON file at runtime
-        let source = JsonFileSource::new("examples/commands.json");
-        cli.registry.load_from(Box::new(source));
-    }
-
-    let args: Vec<String> = std::env::args().skip(1).collect();
-    cli.run(args);
-}
-```
-
-Example JSON (`examples/commands.json`):
-```json
-[
-  { "name": "greet", "aliases": ["hi"], "help": "Greets user" },
-  { "name": "version", "help": "Show version" }
-]
-```
-
-
-### Writing a Plugin (feature: `plugins`)
-
-```rust
-// In your plugin crate (cdylib), expose a C-ABI symbol that returns a command
-// Cargo.toml for the plugin:
-// [lib]
-// crate-type = ["cdylib"]
-
-use modcli::command::Command;
-
-struct MyPluginCmd;
-
-impl Command for MyPluginCmd {
-    fn name(&self) -> &str { "plugged" }
-    fn help(&self) -> Option<&str> { Some("Plugin-provided command") }
-    fn validate(&self, _args: &[String]) -> Result<(), String> { Ok(()) }
-    fn execute(&self, _args: &[String]) { println!("Hello from plugin!"); }
-}
-
-#[no_mangle]
-pub extern "C" fn register_command() -> Box<dyn Command> {
-    Box::new(MyPluginCmd)
-}
-```
-
-Host app loading plugins:
-```rust
-//! Enable with: features = ["plugins"]
-use modcli::ModCli;
-#[cfg(feature = "plugins")]
-use modcli::loader::CommandRegistry;
-
-fn main() {
-    let mut cli = ModCli::new();
-
-    #[cfg(feature = "plugins")]
-    {
-        // Load all dynamic libraries from ./plugins directory
-        cli.registry.load_plugins("./plugins");
-    }
-
-    let args: Vec<String> = std::env::args().skip(1).collect();
-    cli.run(args);
-}
-```
+<!-- Removed experimental sections for plugins/json-loader to align with current feature set. -->
 
 
 <hr><br>
@@ -223,12 +133,13 @@ fn main() {
 
 #### Using named colors
 ```rust
- let teal = colors::get("teal"); // always returns a Color (or fallback)
- let demo = build()
-     .part("Color Demo:").space()
-     .part("Teal").color(teal).bold().get();
+use modcli::output::{build, colors, print};
 
- print::line(&demo, 0);
+let teal = colors::get("teal"); // returns a Color (or fallback)
+let demo = build()
+    .part("Color Demo:").space()
+    .part("Teal").color(teal).bold().get();
+print::line(&demo);
 
 ```
 
@@ -490,7 +401,7 @@ println!();
 
 #### Table Example: Flex Width, Heavy Borders
 ```rust
-use crate::output::table::{render_table, TableMode, TableStyle};
+use modcli::output::table::{render_table, TableMode, TableStyle};
 
 let headers = ["Name", "Age", "Role"];
 let rows = vec![
