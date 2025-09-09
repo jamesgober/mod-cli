@@ -1,8 +1,7 @@
-use std::sync::{Mutex, OnceLock};
-
-use modcli::command::Command;
-use modcli::loader::CommandRegistry;
 use modcli::error::ModCliError;
+use modcli::loader::CommandRegistry;
+use modcli::command::Command;
+use std::sync::{Mutex, OnceLock};
 
 static EXEC_LOG: OnceLock<Mutex<Vec<&'static str>>> = OnceLock::new();
 
@@ -24,7 +23,9 @@ impl Command for Hello {
     fn help(&self) -> Option<&str> {
         Some("hello test")
     }
-    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> { Ok(()) }
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
+        Ok(())
+    }
     fn execute(&self, _args: &[String]) {
         log_exec("hello_executed")
     }

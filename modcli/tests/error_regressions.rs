@@ -22,7 +22,9 @@ impl Command for InvalidCmd {
     fn help(&self) -> Option<&str> {
         Some("Always invalid")
     }
-    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> { Err(ModCliError::InvalidUsage("invalid on purpose".into())) }
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
+        Err(ModCliError::InvalidUsage("invalid on purpose".into()))
+    }
     fn execute(&self, _args: &[String]) {
         panic!("should not execute on invalid")
     }
