@@ -415,7 +415,7 @@ impl<'a> ButtonsInput<'a> {
 pub fn buttons(
     label: &str,
     buttons: impl IntoIterator<Item = (impl Into<String>, char)>,
-) -> ButtonsInput {
+) -> ButtonsInput<'_> {
     ButtonsInput {
         label,
         buttons: buttons.into_iter().map(|(t, k)| (t.into(), k)).collect(),
@@ -523,7 +523,7 @@ impl<'a> RawSelectInput<'a> {
 pub fn raw_select(
     label: &str,
     items: impl IntoIterator<Item = impl Into<String>>,
-) -> RawSelectInput {
+) -> RawSelectInput<'_> {
     RawSelectInput {
         label,
         items: items.into_iter().map(Into::into).collect(),
@@ -609,7 +609,7 @@ impl<'a> RawMultiSelectInput<'a> {
 pub fn raw_multi_select(
     label: &str,
     items: impl IntoIterator<Item = impl Into<String>>,
-) -> RawMultiSelectInput {
+) -> RawMultiSelectInput<'_> {
     RawMultiSelectInput {
         label,
         items: items.into_iter().map(Into::into).collect(),
