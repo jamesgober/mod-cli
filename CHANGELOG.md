@@ -12,8 +12,21 @@
 
 ## [Unreleased]
 
+### Changed
+- Docs: Synchronized all install snippets and sample outputs to `0.6.3`.
+- Docs: Aligned feature matrix across `README.md`, `docs/API.md`, `docs/README.md`, and `modcli/README.md` with actual flags in `modcli/Cargo.toml`.
+- Docs: Pruned stale sections (plugins/json-loader) and removed links-to-nowhere; TOCs now map 1:1 to real sections.
+- Docs: Tightened table examples and fixed code fences in `docs/API.md`.
+- Build: Resolved all clippy lints under `-D warnings` across all features.
 
+### Fixed
+- MSRV/clippy: Added explicit lifetimes for returned builder types (`'_'`) in `modcli/src/input/builders.rs` to satisfy `mismatched-lifetime-syntaxes`.
+- Replaced manual ceil division with `usize::div_ceil` where applicable.
+- Inlined format arguments in `println!/format!/write!` throughout `builders.rs` and `output/images.rs` to satisfy `clippy::uninlined_format_args`.
+- Docs: Fixed broken anchors and corrected outdated version references.
 
+### Notes
+- This Unreleased section captures post-`0.6.3` cleanups; no public API additions yet. Any future API surface changes (e.g., error enums, async command support, arg helpers) will be logged here with examples.
 
 
 <br>
