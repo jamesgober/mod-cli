@@ -108,8 +108,7 @@ fn render_mosaic(img: &DynamicImage, opts: ImageOpts) -> String {
             use std::fmt::Write as _;
             let _ = write!(
                 out,
-                "\x1b[38;2;{};{};{}m\x1b[48;2;{};{};{}m▀",
-                r1, g1, b1, r2, g2, b2
+                "\x1b[38;2;{r1};{g1};{b1}m\x1b[48;2;{r2};{g2};{b2}m▀"
             );
         }
         out.push('\n');

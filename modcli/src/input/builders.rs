@@ -165,7 +165,7 @@ impl<'a> NumberInput<'a> {
         loop {
             let hint = self
                 .default
-                .map(|d| format!(" [{}]", d))
+                .map(|d| format!(" [{d}]"))
                 .unwrap_or_default();
             print!("{}{} ", self.label, hint);
             if let Err(e) = stdout().flush() {
@@ -381,7 +381,7 @@ impl<'a> ButtonsInput<'a> {
             "{}",
             self.buttons
                 .iter()
-                .map(|(t, k)| format!("[{}] {}", k, t))
+                .map(|(t, k)| format!("[{k}] {t}"))
                 .collect::<Vec<_>>()
                 .join("  ")
         );
@@ -390,10 +390,10 @@ impl<'a> ButtonsInput<'a> {
             .and_then(|i| {
                 self.buttons
                     .get(i)
-                    .map(|(_, k)| format!(" (default {})", k))
+                    .map(|(_, k)| format!(" (default {k})"))
             })
             .unwrap_or_default();
-        print!("Choose by hotkey{}: ", default_hint);
+        print!("Choose by hotkey{default_hint}: ");
         if let Err(e) = stdout().flush() {
             hook::warn(&format!("flush failed: {e}"));
         }
@@ -489,9 +489,9 @@ impl<'a> RawSelectInput<'a> {
             println!("{}\n", self.label);
             for (i, it) in self.items.iter().enumerate() {
                 if i == selected {
-                    println!("  > {}", it);
+                    println!("  > {it}");
                 } else {
-                    println!("    {}", it);
+                    println!("    {it}");
                 }
             }
             let _ = stdout.flush();
@@ -565,9 +565,9 @@ impl<'a> RawMultiSelectInput<'a> {
             for (i, it) in self.items.iter().enumerate() {
                 let mark = if picked[i] { "[x]" } else { "[ ]" };
                 if i == cursor_idx {
-                    println!("  > {} {}", mark, it);
+                    println!("  > {mark} {it}");
                 } else {
-                    println!("    {} {}", mark, it);
+                    println!("    {mark} {it}");
                 }
             }
             let _ = stdout.flush();
@@ -690,12 +690,12 @@ impl<'a> RawPagedSelectInput<'a> {
             for (row, fi) in (start..end).enumerate().map(|(row, i)| (row, filtered[i])) {
                 let label = &self.items[fi];
                 if (start + row) == self.cursor {
-                    let line = format!("  > {}", label).with(sel_fg).on(sel_bg).bold();
-                    println!("{}", line);
+                    let line = format!("  > {label}").with(sel_fg).on(sel_bg).bold();
+                    println!("{line}");
                 } else if row % 2 == 1 {
-                    println!("{}", format!("    {}", label).with(stripe_fg));
+                    println!("{}", format!("    {label}").with(stripe_fg));
                 } else {
-                    println!("    {}", label);
+                    println!("    {label}");
                 }
             }
             println!(
@@ -836,24 +836,15 @@ impl<'a> RawPagedMultiSelectInput<'a> {
             let sel_fg = theme.get_log_color("menu_selected_fg");
             let stripe_fg = theme.get_log_color("menu_stripe_fg");
             for (row, fi) in (start..end).enumerate().map(|(row, i)| (row, filtered[i])) {
-                let mark = if *self.picked.get(fi).unwrap_or(&false) {
-                    "[x]"
-                } else {
-                    "[ ]"
-                };
+                let mark = if *self.picked.get(fi).unwrap_or(&false) { "[x]" } else { "[ ]" };
+                let label = &self.items[fi];
                 if (start + row) == self.cursor {
-                    let line = format!("  > {} {}", mark, self.items[fi])
-                        .with(sel_fg)
-                        .on(sel_bg)
-                        .bold();
-                    println!("{}", line);
+                    let line = format!("  > {mark} {label}").with(sel_fg).on(sel_bg).bold();
+                    println!("{line}");
                 } else if row % 2 == 1 {
-                    println!(
-                        "{}",
-                        format!("    {} {}", mark, self.items[fi]).with(stripe_fg)
-                    );
+                    println!("{}", format!("    {mark} {label}").with(stripe_fg));
                 } else {
-                    println!("    {} {}", mark, self.items[fi]);
+                    println!("    {mark} {label}");
                 }
             }
             println!("\nKeys: ↑/↓ PgUp/PgDn Home/End Space Enter Esc  (type to search, Backspace clears)");
@@ -1100,7 +1091,7 @@ impl<'a> RawButtonsInput<'a> {
             // Render buttons as a row
             let mut line = String::new();
             for (i, (title, key)) in self.buttons.iter().enumerate() {
-                let token = format!("[{}] {}", key, title);
+                let token = format!("[{key}] {title}");
                 let is_disabled = self.disabled.contains(&i);
                 let is_danger = self.danger.contains(&i);
                 let styled = if i == self.cursor {
@@ -1124,12 +1115,12 @@ impl<'a> RawButtonsInput<'a> {
                 } else {
                     token.clone()
                 };
-                line.push_str(&format!(" {}", styled));
+                line.push_str(&format!(" {styled}"));
             }
-            println!("{}\n", line);
+            println!("{line}\n");
             // Tooltip/help under the row if provided
             if let Some(Some(help)) = self.helps.get(self.cursor) {
-                println!("{}\n", help);
+                println!("{help}\n");
             }
             println!(
                 "Keys: Left/Right to move, Enter select, hotkeys {}, Esc cancel",

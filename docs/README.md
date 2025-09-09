@@ -25,32 +25,40 @@
  
 ## Using Features
 
-The crate exposes several feature flags to tailor functionality and surface area:
+The crate exposes feature flags to tailor functionality and surface area:
 
-- `json-loader`: Enables loading commands from JSON files (see `modcli/examples/commands.json`).
-- `plugins`: Enables dynamic plugin loading via `libloading` (platform `.so`/`.dylib`/`.dll`).
-- `internal-commands`: Includes built-in helper commands for the framework.
-- `custom-commands`: Enables custom commands module re-exports for ergonomic APIs.
-- `tracing-logs`: Emits `tracing` events from `output::hook` while still printing themed console output.
+- `internal-commands`: Built-in helper commands (e.g., `help`, `ping`).
+- `custom-commands`: Ergonomic helpers for user-defined commands.
+- `tracing-logs`: Emit `tracing` events from `output::hook` while printing themed console output.
 - `dispatch-cache`: Optional single-entry dispatch cache to accelerate repeated command invocations.
+- `gradients`: Named gradient helpers (24-bit RGB) with zero additional dependencies.
+- `layouts`: Lightweight layout engine for terminal rows/columns.
+- `table-presets`: Convenience presets for `TableStyle` (ASCII, Rounded, Heavy).
+- `progress-presets`: Convenience constructors for `ProgressStyle`.
+- `theme-config`: Enable theme config serialization (serde/serde_json).
+- `images`: Optional integration with the `image` crate (png/jpeg).
 
 Enable features in your application’s Cargo.toml:
 
 ```toml
 [dependencies]
-mod-cli = { version = "*", features = ["json-loader", "plugins", "internal-commands", "custom-commands"] }
+mod-cli = { version = "0.6.3", features = ["gradients", "table-presets"] }
 ```
 
 ## Feature Matrix
 
 | Feature             | Default | Description                                                                 |
 |---------------------|:-------:|-----------------------------------------------------------------------------|
-| `internal-commands` |   on    | Includes built-in helper commands to assist framework usage.               |
-| `custom-commands`   |   on    | Enables ergonomic re-exports for user-defined commands.                    |
-| `json-loader`       |   off   | Load commands from JSON sources (see `modcli/examples/commands.json`).     |
-| `plugins`           |   off   | Dynamic plugin loading via `libloading` (platform `.so`/`.dylib`/`.dll`).  |
-| `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.         |
-| `dispatch-cache`    |   off   | Single-entry dispatch cache to speed repeated command invocations.         |
+| `internal-commands` |   on    | Includes built-in helper commands.                                          |
+| `custom-commands`   |   on    | Ergonomic re-exports for user-defined commands.                             |
+| `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.          |
+| `dispatch-cache`    |   off   | Single-entry dispatch cache to speed repeated command invocations.          |
+| `gradients`         |   off   | Named gradient helpers (24-bit RGB).                                        |
+| `layouts`           |   off   | Lightweight layout engine for terminal rows/columns.                        |
+| `table-presets`     |   off   | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy).               |
+| `progress-presets`  |   off   | Convenience constructors for `ProgressStyle`.                                |
+| `theme-config`      |   off   | Theme config serialization (serde/serde_json).                               |
+| `images`            |   off   | Optional `image` crate integration (png/jpeg).                               |
 
 ## Examples
 
