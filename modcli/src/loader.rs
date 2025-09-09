@@ -152,6 +152,88 @@ impl CommandRegistry {
         self.async_commands.values()
     }
 
+    // --- ASYNC DISPATCH (feature: "async") ---------------------------------
+    #[cfg(feature = "async")]
+    #[inline(always)]
+    pub async fn try_execute_async(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
+        if let Some(ref pre) = self.pre_hook { pre(cmd, args); }
+
+        // Strip optional prefix from the incoming token
+        let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
+            let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
+            if maybe_prefix == self.prefix && rest_with_colon.as_bytes().first() == Some(&b':') {
+                &rest_with_colon[1..]
+            } else { cmd }
+        } else { cmd };
+
+        // Direct name
+        if let Some(command) = self.async_commands.get(token) {
+            if let Err(e) = self.is_authorized_async(args) { return Err(ModCliError::InvalidUsage(e)); }
+            command.execute_async(args).await?;
+            if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+            return Ok(());
+        }
+
+        // Alias
+        if let Some(primary) = self.async_aliases.get(token) {
+            if let Some(command) = self.async_commands.get(primary.as_str()) {
+                if let Err(e) = self.is_authorized_async(args) { return Err(ModCliError::InvalidUsage(e)); }
+                command.execute_async(args).await?;
+                if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+                return Ok(());
+            }
+        }
+
+        // Two-token nested: parent child -> parent:child
+        if !args.is_empty() {
+            let combined = format!("{token}:{}", args[0]);
+            if let Some(command) = self.async_commands.get(combined.as_str()) {
+                let rest = &args[1..];
+                if let Err(e) = self.is_authorized_async(rest) { return Err(ModCliError::InvalidUsage(e)); }
+                command.execute_async(rest).await?;
+                if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+                return Ok(());
+            }
+        }
+
+        if let Some(ref post) = self.post_hook { post(cmd, args, Err("unknown")); }
+        Err(ModCliError::UnknownCommand(cmd.to_string()))
+    }
+
+    /// Execute async and print user-friendly messages
+    #[cfg(feature = "async")]
+    #[inline(always)]
+    pub async fn execute_async(&self, cmd: &str, args: &[String]) {
+        if let Err(err) = self.try_execute_async(cmd, args).await {
+            if let Some(ref fmt) = self.error_formatter {
+                hook::error(&fmt(&err));
+            } else {
+                match err {
+                    ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
+                    ModCliError::UnknownCommand(name) => hook::unknown(&format!(
+                        "[{name}]. Type `help` or `--help` for a list of available commands."
+                    )),
+                    other => hook::error(&format!("{other}")),
+                }
+            }
+        }
+    }
+
+    // Authorization shim to reuse existing policy contract for async commands
+    #[cfg(feature = "async")]
+    #[inline(always)]
+    fn is_authorized_async(&self, args: &[String]) -> Result<(), String> {
+        if let Some(ref pol) = self.authorize_policy {
+            struct Dummy;
+            impl Command for Dummy {
+                fn name(&self) -> &str { "__async_dummy__" }
+                fn execute(&self, _args: &[String]) {}
+            }
+            return pol(&Dummy, &self.caps, args);
+        }
+        Ok(())
+    }
+
     // --- Capabilities API -----------------------------------------------------
     pub fn grant_cap<S: Into<String>>(&mut self, cap: S) {
         self.caps.insert(cap.into());

@@ -62,10 +62,10 @@ pub trait Command {
 pub trait AsyncCommand: Send + Sync {
     fn name(&self) -> &str;
     fn aliases(&self) -> &[&str] { &[] }
-    fn execute_async(
-        &self,
-        args: &[String],
+    fn execute_async<'a>(
+        &'a self,
+        args: &'a [String],
     ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = Result<(), ModCliError>> + Send + '_>,
+        Box<dyn core::future::Future<Output = Result<(), ModCliError>> + Send + 'a>,
     >;
 }
