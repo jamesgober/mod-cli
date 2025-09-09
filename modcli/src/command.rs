@@ -1,3 +1,4 @@
+use crate::error::ModCliError;
 /// Defines the trait for commands to implement.
 ///
 /// # Example
@@ -20,7 +21,6 @@
 /// cli.run(args);
 /// ```
 use crate::loader::CommandRegistry;
-use crate::error::ModCliError;
 
 pub trait Command {
     fn name(&self) -> &str;
@@ -61,11 +61,11 @@ pub trait Command {
 #[cfg(feature = "async")]
 pub trait AsyncCommand: Send + Sync {
     fn name(&self) -> &str;
-    fn aliases(&self) -> &[&str] { &[] }
+    fn aliases(&self) -> &[&str] {
+        &[]
+    }
     fn execute_async<'a>(
         &'a self,
         args: &'a [String],
-    ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = Result<(), ModCliError>> + Send + 'a>,
-    >;
+    ) -> core::pin::Pin<Box<dyn core::future::Future<Output = Result<(), ModCliError>> + Send + 'a>>;
 }

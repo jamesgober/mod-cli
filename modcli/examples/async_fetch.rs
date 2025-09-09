@@ -18,7 +18,9 @@ struct Fetch;
 
 #[cfg(feature = "async")]
 impl AsyncCommand for Fetch {
-    fn name(&self) -> &str { "fetch" }
+    fn name(&self) -> &str {
+        "fetch"
+    }
     fn execute_async<'a>(
         &'a self,
         args: &'a [String],
@@ -47,7 +49,11 @@ async fn main() {
     // Invoke: cargo run --example async_fetch --features async,tokio-runtime -- <url>
     let args: Vec<String> = std::env::args().skip(1).collect();
     let cmd = "fetch";
-    if args.is_empty() { reg.execute_async(cmd, &[]).await; } else { reg.execute_async(cmd, &args).await; }
+    if args.is_empty() {
+        reg.execute_async(cmd, &[]).await;
+    } else {
+        reg.execute_async(cmd, &args).await;
+    }
 }
 
 #[cfg(not(all(feature = "async", feature = "tokio-runtime")))]

@@ -1,6 +1,6 @@
+use modcli::command::Command;
 use modcli::error::ModCliError;
 use modcli::loader::CommandRegistry;
-use modcli::command::Command;
 use std::sync::{Mutex, OnceLock};
 
 static EXEC_LOG: OnceLock<Mutex<Vec<&'static str>>> = OnceLock::new();

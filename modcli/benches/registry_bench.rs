@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use modcli::command::Command;
-use modcli::loader::CommandRegistry;
 use modcli::error::ModCliError;
+use modcli::loader::CommandRegistry;
 
 struct Nop;
 impl Command for Nop {

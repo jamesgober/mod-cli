@@ -106,10 +106,7 @@ fn render_mosaic(img: &DynamicImage, opts: ImageOpts) -> String {
             let (r2, g2, b2) = alpha_over_black(r2, g2, b2, a2);
             // ANSI 24-bit FG/BG + '▀'
             use std::fmt::Write as _;
-            let _ = write!(
-                out,
-                "\x1b[38;2;{r1};{g1};{b1}m\x1b[48;2;{r2};{g2};{b2}m▀"
-            );
+            let _ = write!(out, "\x1b[38;2;{r1};{g1};{b1}m\x1b[48;2;{r2};{g2};{b2}m▀");
         }
         out.push('\n');
         // Reset at end of line

@@ -14,7 +14,9 @@ impl Command for PingCommand {
 
     fn validate(&self, args: &[String]) -> Result<(), ModCliError> {
         if !args.is_empty() {
-            Err(ModCliError::InvalidUsage("Ping does not accept any arguments.".into()))
+            Err(ModCliError::InvalidUsage(
+                "Ping does not accept any arguments.".into(),
+            ))
         } else {
             Ok(())
         }

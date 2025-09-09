@@ -21,15 +21,15 @@ use std::sync::{
     OnceLock,
 };
 
+pub mod args;
 pub mod command;
 pub mod error;
-pub mod args;
 pub mod input;
 pub mod loader;
 pub mod output;
 pub mod parser;
-pub mod validate;
 pub mod shell;
+pub mod validate;
 
 pub use crate::command::Command as CliCustom;
 use crate::loader::CommandRegistry;

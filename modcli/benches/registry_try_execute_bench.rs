@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use modcli::command::Command;
-use modcli::loader::CommandRegistry;
 use modcli::error::ModCliError;
+use modcli::loader::CommandRegistry;
 
 struct Nop;
 impl Command for Nop {
@@ -22,7 +22,9 @@ impl Command for NopAlias {
     fn aliases(&self) -> &[&str] {
         &["alias", "a"]
     }
-    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> { Ok(()) }
+    fn validate(&self, _args: &[String]) -> Result<(), ModCliError> {
+        Ok(())
+    }
     fn execute(&self, _args: &[String]) {}
 }
 

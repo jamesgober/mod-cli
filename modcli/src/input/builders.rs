@@ -163,10 +163,7 @@ impl<'a> NumberInput<'a> {
 
     pub fn get(self) -> Result<f64, String> {
         loop {
-            let hint = self
-                .default
-                .map(|d| format!(" [{d}]"))
-                .unwrap_or_default();
+            let hint = self.default.map(|d| format!(" [{d}]")).unwrap_or_default();
             print!("{}{} ", self.label, hint);
             if let Err(e) = stdout().flush() {
                 hook::warn(&format!("flush failed: {e}"));
@@ -387,11 +384,7 @@ impl<'a> ButtonsInput<'a> {
         );
         let default_hint = self
             .default
-            .and_then(|i| {
-                self.buttons
-                    .get(i)
-                    .map(|(_, k)| format!(" (default {k})"))
-            })
+            .and_then(|i| self.buttons.get(i).map(|(_, k)| format!(" (default {k})")))
             .unwrap_or_default();
         print!("Choose by hotkey{default_hint}: ");
         if let Err(e) = stdout().flush() {
@@ -836,7 +829,11 @@ impl<'a> RawPagedMultiSelectInput<'a> {
             let sel_fg = theme.get_log_color("menu_selected_fg");
             let stripe_fg = theme.get_log_color("menu_stripe_fg");
             for (row, fi) in (start..end).enumerate().map(|(row, i)| (row, filtered[i])) {
-                let mark = if *self.picked.get(fi).unwrap_or(&false) { "[x]" } else { "[ ]" };
+                let mark = if *self.picked.get(fi).unwrap_or(&false) {
+                    "[x]"
+                } else {
+                    "[ ]"
+                };
                 let label = &self.items[fi];
                 if (start + row) == self.cursor {
                     let line = format!("  > {mark} {label}").with(sel_fg).on(sel_bg).bold();

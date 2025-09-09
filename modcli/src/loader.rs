@@ -5,11 +5,11 @@
 use crate::commands::{FrameworkCommand, HelloCommand, HelpCommand, PingCommand};
 use crate::output::hook;
 
+#[cfg(feature = "async")]
+use crate::command::AsyncCommand;
 use crate::command::Command;
 #[allow(unused_imports)]
 use crate::error::ModCliError;
-#[cfg(feature = "async")]
-use crate::command::AsyncCommand;
 use std::collections::{HashMap, HashSet};
 
 // Reduce type complexity for registry hooks and error formatter
@@ -156,30 +156,44 @@ impl CommandRegistry {
     #[cfg(feature = "async")]
     #[inline(always)]
     pub async fn try_execute_async(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
-        if let Some(ref pre) = self.pre_hook { pre(cmd, args); }
+        if let Some(ref pre) = self.pre_hook {
+            pre(cmd, args);
+        }
 
         // Strip optional prefix from the incoming token
         let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
             let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
             if maybe_prefix == self.prefix && rest_with_colon.as_bytes().first() == Some(&b':') {
                 &rest_with_colon[1..]
-            } else { cmd }
-        } else { cmd };
+            } else {
+                cmd
+            }
+        } else {
+            cmd
+        };
 
         // Direct name
         if let Some(command) = self.async_commands.get(token) {
-            if let Err(e) = self.is_authorized_async(args) { return Err(ModCliError::InvalidUsage(e)); }
+            if let Err(e) = self.is_authorized_async(args) {
+                return Err(ModCliError::InvalidUsage(e));
+            }
             command.execute_async(args).await?;
-            if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+            if let Some(ref post) = self.post_hook {
+                post(cmd, args, Ok(()));
+            }
             return Ok(());
         }
 
         // Alias
         if let Some(primary) = self.async_aliases.get(token) {
             if let Some(command) = self.async_commands.get(primary.as_str()) {
-                if let Err(e) = self.is_authorized_async(args) { return Err(ModCliError::InvalidUsage(e)); }
+                if let Err(e) = self.is_authorized_async(args) {
+                    return Err(ModCliError::InvalidUsage(e));
+                }
                 command.execute_async(args).await?;
-                if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+                if let Some(ref post) = self.post_hook {
+                    post(cmd, args, Ok(()));
+                }
                 return Ok(());
             }
         }
@@ -189,14 +203,20 @@ impl CommandRegistry {
             let combined = format!("{token}:{}", args[0]);
             if let Some(command) = self.async_commands.get(combined.as_str()) {
                 let rest = &args[1..];
-                if let Err(e) = self.is_authorized_async(rest) { return Err(ModCliError::InvalidUsage(e)); }
+                if let Err(e) = self.is_authorized_async(rest) {
+                    return Err(ModCliError::InvalidUsage(e));
+                }
                 command.execute_async(rest).await?;
-                if let Some(ref post) = self.post_hook { post(cmd, args, Ok(())); }
+                if let Some(ref post) = self.post_hook {
+                    post(cmd, args, Ok(()));
+                }
                 return Ok(());
             }
         }
 
-        if let Some(ref post) = self.post_hook { post(cmd, args, Err("unknown")); }
+        if let Some(ref post) = self.post_hook {
+            post(cmd, args, Err("unknown"));
+        }
         Err(ModCliError::UnknownCommand(cmd.to_string()))
     }
 
@@ -226,7 +246,9 @@ impl CommandRegistry {
         if let Some(ref pol) = self.authorize_policy {
             struct Dummy;
             impl Command for Dummy {
-                fn name(&self) -> &str { "__async_dummy__" }
+                fn name(&self) -> &str {
+                    "__async_dummy__"
+                }
                 fn execute(&self, _args: &[String]) {}
             }
             return pol(&Dummy, &self.caps, args);
