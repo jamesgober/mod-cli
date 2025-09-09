@@ -68,14 +68,14 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.6.0"
+mod-cli = "0.6.3"
 ```
 <br>
 
 Add the library with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.0", features = ["gradients", "table-presets"] }
+mod-cli = { version = "0.6.3", features = ["gradients", "table-presets"] }
 ```
 <br>
 

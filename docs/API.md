@@ -45,7 +45,7 @@
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.6.0"
+mod-cli = "0.6.3"
 ```
 
 <br>
