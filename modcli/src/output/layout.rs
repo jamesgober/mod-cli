@@ -117,7 +117,7 @@ pub fn render(layout: &Layout) -> String {
 
     for (ri, row) in layout.rows.iter().enumerate() {
         if ri > 0 {
-            out.push_str(&"\n".repeat(layout.vgap.max(0)));
+            out.push_str(&"\n".repeat(layout.vgap));
         }
 
         // Compute column widths
@@ -149,11 +149,7 @@ pub fn render(layout: &Layout) -> String {
         // Remaining for autos
         let used_except_auto: usize = widths.iter().sum();
         let remaining = term_width.saturating_sub(used_except_auto + gaps_total);
-        let auto_share = if auto_count > 0 {
-            remaining / auto_count
-        } else {
-            0
-        };
+        let auto_share = remaining.checked_div(auto_count).unwrap_or(0);
         for (i, c) in row.cols.iter().enumerate() {
             if matches!(c.width, WidthSpec::Auto) {
                 widths[i] = auto_share;
@@ -190,9 +186,8 @@ pub fn render(layout: &Layout) -> String {
             if layout.border {
                 out.push('│');
             }
-            for (ci, w) in widths.iter().enumerate() {
-                let cell = prepared[ci][li].clone();
-                out.push_str(&pad_right(&cell, *w));
+            for (ci, (w, col)) in widths.iter().zip(&prepared).enumerate() {
+                out.push_str(&pad_right(&col[li], *w));
                 if ci < widths.len() - 1 {
                     if layout.border {
                         out.push('│');

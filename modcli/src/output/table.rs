@@ -561,11 +561,7 @@ pub fn render_table_with_columns(
     // Remaining space goes to autos evenly
     let used_except_auto: usize = widths.iter().sum();
     let remaining = term_width.saturating_sub(used_except_auto + gaps_total);
-    let auto_share = if auto_count > 0 {
-        remaining / auto_count
-    } else {
-        0
-    };
+    let auto_share = remaining.checked_div(auto_count).unwrap_or(0);
     for (i, spec) in columns.iter().enumerate().take(col_count) {
         if matches!(spec, ColWidth::Auto) {
             widths[i] = auto_share;
