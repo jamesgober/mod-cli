@@ -12,7 +12,8 @@
 
 ## [Unreleased]
 
-- No unreleased changes.
+### Changed
+- `ModCliError` is declared with `define-err` instead of `thiserror`: no proc macro and no build dependency. Every message, `source()`, and the `From<std::io::Error>` and `From<serde_json::Error>` conversions are unchanged, and the enum stays exhaustive, so existing matches still compile. `cargo semver-checks` against 0.6.4 finds nothing to bump.
 
 
 
