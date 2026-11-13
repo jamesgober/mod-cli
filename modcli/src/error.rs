@@ -1,33 +1,24 @@
-use thiserror::Error;
-
 pub type Result<T> = std::result::Result<T, ModCliError>;
 
-#[derive(Debug, Error)]
-pub enum ModCliError {
-    #[error(
-        "shell configuration is missing. Set modcli.shell in your config or disable shell mode."
-    )]
-    MissingShellConfig,
+define_err::define_errors! {
+    #[exhaustive]
+    pub enum ModCliError {
+        MissingShellConfig =>
+            "shell configuration is missing. Set modcli.shell in your config or disable shell mode.",
 
-    #[error("plugin load error: {0}")]
-    PluginLoad(String),
+        PluginLoad(detail: String) => "plugin load error: {detail}",
 
-    #[error("io error: {0}")]
-    Io(#[from] std::io::Error),
+        Io(#[from] source: std::io::Error) => "io error: {source}",
 
-    #[error("invalid usage: {0}")]
-    InvalidUsage(String),
+        InvalidUsage(detail: String) => "invalid usage: {detail}",
 
-    #[error("validation failed: {0}")]
-    Validation(String),
+        Validation(detail: String) => "validation failed: {detail}",
 
-    #[error("unknown command: {0}")]
-    UnknownCommand(String),
+        UnknownCommand(name: String) => "unknown command: {name}",
 
-    #[cfg(feature = "theme-config")]
-    #[error("config parse error: {0}")]
-    ConfigParse(#[from] serde_json::Error),
+        #[cfg(feature = "theme-config")]
+        ConfigParse(#[from] source: serde_json::Error) => "config parse error: {source}",
 
-    #[error("error: {0}")]
-    Other(String),
+        Other(detail: String) => "error: {detail}",
+    }
 }
