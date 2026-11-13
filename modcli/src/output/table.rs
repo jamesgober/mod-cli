@@ -240,13 +240,30 @@ pub fn render_table_markdown(headers: &[&str], rows: &[Vec<&str>]) -> String {
     out
 }
 
-/// Render as CSV. Minimal escaping for quotes and commas/newlines.
+/// Render as CSV. A field is quoted when it holds a comma, a quote, a
+/// newline, or a carriage return; quotes inside it are doubled.
+///
+/// Cells are written as they are. If the file may be opened in a spreadsheet
+/// and the cells hold data you did not write, use [`render_table_csv_safe`].
 pub fn render_table_csv(headers: &[&str], rows: &[Vec<&str>]) -> String {
+    render_csv(headers, rows, false)
+}
+
+/// Render as CSV for opening in a spreadsheet.
+///
+/// Same as [`render_table_csv`], except that a cell starting with `=`, `+`,
+/// `-`, `@`, a tab, or a carriage return gets a leading `'`, so a spreadsheet
+/// shows it as text instead of running it as a formula.
+pub fn render_table_csv_safe(headers: &[&str], rows: &[Vec<&str>]) -> String {
+    render_csv(headers, rows, true)
+}
+
+fn render_csv(headers: &[&str], rows: &[Vec<&str>], safe: bool) -> String {
     let mut out = String::new();
-    out.push_str(&join_csv(headers.iter().copied()));
+    out.push_str(&join_csv(headers.iter().copied(), safe));
     out.push('\n');
     for row in rows {
-        out.push_str(&join_csv(row.iter().copied()));
+        out.push_str(&join_csv(row.iter().copied(), safe));
         out.push('\n');
     }
     out
@@ -282,7 +299,7 @@ fn escape_md(s: &str) -> String {
     s.replace('|', "\\|")
 }
 
-fn join_csv<'a, I: IntoIterator<Item = &'a str>>(iter: I) -> String {
+fn join_csv<'a, I: IntoIterator<Item = &'a str>>(iter: I, safe: bool) -> String {
     let mut first = true;
     let mut s = String::new();
     for field in iter {
@@ -291,23 +308,49 @@ fn join_csv<'a, I: IntoIterator<Item = &'a str>>(iter: I) -> String {
         } else {
             first = false;
         }
-        s.push_str(&csv_field(field));
+        s.push_str(&csv_field(field, safe));
     }
     s
 }
 
-fn csv_field(s: &str) -> String {
-    let need_quotes = s.contains(',') || s.contains('"') || s.contains('\n');
+fn csv_field(s: &str, safe: bool) -> String {
+    let formula = safe && s.starts_with(['=', '+', '-', '@', '\t', '\r']);
+    let need_quotes = s.contains([',', '"', '\n', '\r']);
+    let mut out = String::with_capacity(s.len() + 3);
     if need_quotes {
-        let escaped = s.replace('"', "\"\"");
-        format!("\"{escaped}\"")
-    } else {
-        s.to_string()
+        out.push('"');
     }
+    if formula {
+        out.push('\'');
+    }
+    if need_quotes {
+        out.push_str(&s.replace('"', "\"\""));
+        out.push('"');
+    } else {
+        out.push_str(s);
+    }
+    out
 }
 
+/// Escapes a string for use inside a JSON string literal: quote, backslash,
+/// and every control character below U+0020.
 fn escape_json(s: &str) -> String {
-    s.replace('"', "\\\"")
+    use std::fmt::Write as _;
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => {
+                let _ = write!(out, "\\u{:04x}", c as u32);
+            }
+            c => out.push(c),
+        }
+    }
+    out
 }
 fn json_string(s: &str) -> String {
     format!("\"{}\"", escape_json(s))

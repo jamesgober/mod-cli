@@ -5,5 +5,5 @@ pub mod text;
 
 pub use confirm::prompt_confirm;
 pub use menu::interactive_menu;
-pub use password::prompt_password;
+pub use password::{prompt_password, try_prompt_password};
 pub use text::prompt_text;

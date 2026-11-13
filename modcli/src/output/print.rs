@@ -1,4 +1,5 @@
 use crate::output::style::build;
+use crate::output::text::{sanitize, strip_controls};
 use crate::output::themes::current_theme;
 use std::{
     fs::File,
@@ -14,11 +15,16 @@ pub fn line(text: &str) {
     println!("{text}");
 }
 
-/// Prints a clickable hyperlink using OSC 8 sequences when enabled.
+/// Prints a clickable hyperlink using OSC 8 sequences when the terminal
+/// supports them, and `text (url)` otherwise.
 ///
-/// By default, this function falls back to printing `text (url)` to ensure
-/// compatibility with terminals that do not support OSC 8. To enable OSC 8
-/// output, set the environment variable `ENABLE_OSC8=true`.
+/// OSC 8 is used when `ENABLE_OSC8` is `true` or `1`, and never when it is
+/// `false` or `0`. When it is not set, OSC 8 is turned on for terminals known
+/// to support it: WezTerm, iTerm2, Kitty, VTE-based terminals, and Windows
+/// Terminal.
+///
+/// Control characters are removed from the URL and escaped in the text, so
+/// neither can end the hyperlink early or start another terminal sequence.
 ///
 /// Example:
 /// ```rust
@@ -26,14 +32,18 @@ pub fn line(text: &str) {
 /// print::link("mod-cli docs", "https://docs.rs/mod-cli");
 /// ```
 pub fn link(text: &str, url: &str) {
-    let osc8_enabled = osc8_supported();
-    if osc8_enabled {
+    println!("{}", link_string(text, url, osc8_supported()));
+}
+
+/// Builds what [`link`] prints, without the trailing newline.
+fn link_string(text: &str, url: &str, osc8: bool) -> String {
+    let url = strip_controls(url);
+    let text = sanitize(text);
+    if osc8 {
         // OSC 8: ESC ] 8 ; ; url BEL text ESC ] 8 ; ; BEL
-        // Use \x1b (ESC) and \x07 (BEL)
-        print!("\x1b]8;;{url}\x07{text}\x1b]8;;\x07");
-        println!();
+        format!("\x1b]8;;{url}\x07{text}\x1b]8;;\x07")
     } else {
-        println!("{text} ({url})");
+        format!("{text} ({url})")
     }
 }
 
@@ -247,4 +257,23 @@ pub fn unknown(msg: &str) {
         .part(msg)
         .get();
     line(&styled);
+}
+
+#[cfg(test)]
+mod link_tests {
+    use super::link_string;
+
+    #[test]
+    fn link_url_cannot_end_the_sequence() {
+        let out = link_string("click", "https://ok\x07\x1b]52;c;cHduZWQ=\x07", true);
+        assert_eq!(out, "\x1b]8;;https://ok]52;c;cHduZWQ=\x07click\x1b]8;;\x07");
+        assert_eq!(out.matches('\x1b').count(), 2);
+        assert_eq!(out.matches('\x07').count(), 2);
+    }
+
+    #[test]
+    fn link_text_is_escaped() {
+        let out = link_string("a\x1b[2Jb", "https://ok", false);
+        assert_eq!(out, "a\\x1b[2Jb (https://ok)");
+    }
 }

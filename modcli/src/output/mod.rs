@@ -44,6 +44,7 @@ pub mod print;
 pub mod progress;
 pub mod style;
 pub mod table;
+pub mod text;
 pub mod themes;
 
 // Optional modules

@@ -10,7 +10,35 @@ use crate::command::AsyncCommand;
 use crate::command::Command;
 #[allow(unused_imports)]
 use crate::error::ModCliError;
+use crate::output::text::sanitize;
 use std::collections::{HashMap, HashSet};
+
+/// Lets the authorize policy, which takes a `&dyn Command`, see an async
+/// command as it is: its name, aliases, help, and required capabilities.
+#[cfg(feature = "async")]
+struct AsyncView<'a>(&'a dyn AsyncCommand);
+
+#[cfg(feature = "async")]
+impl Command for AsyncView<'_> {
+    fn name(&self) -> &str {
+        self.0.name()
+    }
+    fn aliases(&self) -> &[&str] {
+        self.0.aliases()
+    }
+    fn help(&self) -> Option<&str> {
+        self.0.help()
+    }
+    fn hidden(&self) -> bool {
+        self.0.hidden()
+    }
+    fn required_caps(&self) -> &[&str] {
+        self.0.required_caps()
+    }
+    // A policy only inspects the command; running it goes through
+    // `AsyncCommand::execute_async`.
+    fn execute(&self, _args: &[String]) {}
+}
 
 // Reduce type complexity for registry hooks and error formatter
 type PreHookFn = dyn Fn(&str, &[String]) + Send + Sync;
@@ -64,6 +92,7 @@ impl Default for CommandRegistry {
 impl CommandRegistry {
     /// Creates a new command registry
     pub fn new() -> Self {
+        #[allow(unused_mut)] // only mutated when a command feature is on
         let mut reg = Self {
             prefix: String::new(),
             commands: HashMap::new(),
@@ -129,6 +158,8 @@ impl CommandRegistry {
         // capture name before moving the command
         let name = cmd.name().to_string();
         self.commands.insert(name.clone(), cmd);
+        #[cfg(feature = "dispatch-cache")]
+        self.forget();
 
         // map each alias -> primary name without intermediate Vec allocations
         for &alias in self.commands[&name].aliases() {
@@ -153,6 +184,13 @@ impl CommandRegistry {
     }
 
     // --- ASYNC DISPATCH (feature: "async") ---------------------------------
+    /// Resolves and runs an async command, with the same routing and checks as
+    /// [`try_execute`](Self::try_execute).
+    ///
+    /// The command's [`required_caps`](AsyncCommand::required_caps) and the
+    /// authorize policy are checked before every run. The policy is handed a
+    /// view of the async command being run, so `cmd.name()` and
+    /// `cmd.required_caps()` are the real ones.
     #[cfg(feature = "async")]
     #[inline(always)]
     pub async fn try_execute_async(&self, cmd: &str, args: &[String]) -> Result<(), ModCliError> {
@@ -160,23 +198,16 @@ impl CommandRegistry {
             pre(cmd, args);
         }
 
-        // Strip optional prefix from the incoming token
-        let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
-            let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
-            if maybe_prefix == self.prefix && rest_with_colon.as_bytes().first() == Some(&b':') {
-                &rest_with_colon[1..]
-            } else {
-                cmd
-            }
-        } else {
-            cmd
-        };
+        let token = self.strip_prefix(cmd);
 
-        // Direct name
-        if let Some(command) = self.async_commands.get(token) {
-            if let Err(e) = self.is_authorized_async(args) {
-                return Err(ModCliError::InvalidUsage(e));
-            }
+        // Direct name, then alias
+        let resolved = self.async_commands.get(token).or_else(|| {
+            self.async_aliases
+                .get(token)
+                .and_then(|primary| self.async_commands.get(primary.as_str()))
+        });
+        if let Some(command) = resolved {
+            self.authorize_async(command.as_ref(), args)?;
             command.execute_async(args).await?;
             if let Some(ref post) = self.post_hook {
                 post(cmd, args, Ok(()));
@@ -184,28 +215,12 @@ impl CommandRegistry {
             return Ok(());
         }
 
-        // Alias
-        if let Some(primary) = self.async_aliases.get(token) {
-            if let Some(command) = self.async_commands.get(primary.as_str()) {
-                if let Err(e) = self.is_authorized_async(args) {
-                    return Err(ModCliError::InvalidUsage(e));
-                }
-                command.execute_async(args).await?;
-                if let Some(ref post) = self.post_hook {
-                    post(cmd, args, Ok(()));
-                }
-                return Ok(());
-            }
-        }
-
         // Two-token nested: parent child -> parent:child
         if !args.is_empty() {
             let combined = format!("{token}:{}", args[0]);
             if let Some(command) = self.async_commands.get(combined.as_str()) {
                 let rest = &args[1..];
-                if let Err(e) = self.is_authorized_async(rest) {
-                    return Err(ModCliError::InvalidUsage(e));
-                }
+                self.authorize_async(command.as_ref(), rest)?;
                 command.execute_async(rest).await?;
                 if let Some(ref post) = self.post_hook {
                     post(cmd, args, Ok(()));
@@ -225,35 +240,16 @@ impl CommandRegistry {
     #[inline(always)]
     pub async fn execute_async(&self, cmd: &str, args: &[String]) {
         if let Err(err) = self.try_execute_async(cmd, args).await {
-            if let Some(ref fmt) = self.error_formatter {
-                hook::error(&fmt(&err));
-            } else {
-                match err {
-                    ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
-                    ModCliError::UnknownCommand(name) => hook::unknown(&format!(
-                        "[{name}]. Type `help` or `--help` for a list of available commands."
-                    )),
-                    other => hook::error(&format!("{other}")),
-                }
-            }
+            self.report(err);
         }
     }
 
-    // Authorization shim to reuse existing policy contract for async commands
+    /// Runs the same authorization as for sync commands against a view of the
+    /// async command, so required capabilities and the policy both apply.
     #[cfg(feature = "async")]
-    #[inline(always)]
-    fn is_authorized_async(&self, args: &[String]) -> Result<(), String> {
-        if let Some(ref pol) = self.authorize_policy {
-            struct Dummy;
-            impl Command for Dummy {
-                fn name(&self) -> &str {
-                    "__async_dummy__"
-                }
-                fn execute(&self, _args: &[String]) {}
-            }
-            return pol(&Dummy, &self.caps, args);
-        }
-        Ok(())
+    fn authorize_async(&self, cmd: &dyn AsyncCommand, args: &[String]) -> Result<(), ModCliError> {
+        self.is_authorized(&AsyncView(cmd), args)
+            .map_err(ModCliError::InvalidUsage)
     }
 
     // --- Capabilities API -----------------------------------------------------
@@ -359,17 +355,28 @@ impl CommandRegistry {
     #[inline(always)]
     pub fn execute(&self, cmd: &str, args: &[String]) {
         if let Err(err) = self.try_execute(cmd, args) {
-            if let Some(ref fmt) = self.error_formatter {
-                hook::error(&fmt(&err));
-            } else {
-                match err {
-                    ModCliError::InvalidUsage(msg) => hook::error(&format!("Invalid usage: {msg}")),
-                    ModCliError::UnknownCommand(name) => hook::unknown(&format!(
-                        "[{name}]. Type `help` or `--help` for a list of available commands."
-                    )),
-                    other => hook::error(&format!("{other}")),
-                }
+            self.report(err);
+        }
+    }
+
+    /// Prints a dispatch error through the error formatter, or the default
+    /// messages. The default messages escape control characters in the user's
+    /// input (see [`sanitize`](crate::output::text::sanitize)); a custom
+    /// formatter's output is printed as it is.
+    fn report(&self, err: ModCliError) {
+        if let Some(ref fmt) = self.error_formatter {
+            hook::error(&fmt(&err));
+            return;
+        }
+        match err {
+            ModCliError::InvalidUsage(msg) => {
+                hook::error(&sanitize(&format!("Invalid usage: {msg}")))
             }
+            ModCliError::UnknownCommand(name) => hook::unknown(&format!(
+                "[{}]. Type `help` or `--help` for a list of available commands.",
+                sanitize(&name)
+            )),
+            other => hook::error(&sanitize(&format!("{other}"))),
         }
     }
 
@@ -399,81 +406,35 @@ impl CommandRegistry {
         if let Some(ref pre) = self.pre_hook {
             pre(cmd, args);
         }
-        // Strip optional prefix `<prefix>:` without intermediate allocations
-        let token: &str = if !self.prefix.is_empty() && cmd.len() > self.prefix.len() + 1 {
-            let (maybe_prefix, rest_with_colon) = cmd.split_at(self.prefix.len());
-            if maybe_prefix == self.prefix && rest_with_colon.as_bytes().first() == Some(&b':') {
-                &rest_with_colon[1..]
-            } else {
-                cmd
-            }
-        } else {
-            cmd
-        };
+        let token = self.strip_prefix(cmd);
 
+        // The cache remembers only which command a token resolved to. The
+        // command is still authorized and validated on every call.
         #[cfg(feature = "dispatch-cache")]
-        if let Ok(guard) = self.cache.lock() {
-            if let Some((ref t, ref p)) = *guard {
-                if t == token {
-                    if let Some(command) = self.commands.get(p.as_str()) {
-                        command.validate(args)?;
-                        command.execute_with(args, self);
-                        return Ok(());
-                    }
-                }
-            }
+        if let Some(command) = self.cached(token) {
+            return self.run(command, cmd, args, args);
         }
 
-        // Try direct name
-        if let Some(command) = self.commands.get(token) {
-            if let Err(err) = self.is_authorized(command.as_ref(), args) {
-                return Err(ModCliError::InvalidUsage(err));
-            }
-            command.validate(args)?;
-            command.execute_with(args, self);
+        // Try direct name, then alias mapping
+        let resolved = match self.commands.get_key_value(token) {
+            Some((name, command)) => Some((name.as_str(), command)),
+            None => self.aliases.get(token).and_then(|primary| {
+                self.commands
+                    .get_key_value(primary.as_str())
+                    .map(|(name, command)| (name.as_str(), command))
+            }),
+        };
+        if let Some((_primary, command)) = resolved {
             #[cfg(feature = "dispatch-cache")]
-            if let Ok(mut guard) = self.cache.lock() {
-                *guard = Some((token.to_string(), token.to_string()));
-            }
-            if let Some(ref post) = self.post_hook {
-                post(cmd, args, Ok(()));
-            }
-            return Ok(());
-        }
-
-        // Try alias mapping
-        if let Some(primary) = self.aliases.get(token) {
-            if let Some(command) = self.commands.get(primary.as_str()) {
-                if let Err(err) = self.is_authorized(command.as_ref(), args) {
-                    return Err(ModCliError::InvalidUsage(err));
-                }
-                command.validate(args)?;
-                command.execute_with(args, self);
-                #[cfg(feature = "dispatch-cache")]
-                if let Ok(mut guard) = self.cache.lock() {
-                    *guard = Some((token.to_string(), primary.clone()));
-                }
-                if let Some(ref post) = self.post_hook {
-                    post(cmd, args, Ok(()));
-                }
-                return Ok(());
-            }
+            self.remember(token, _primary);
+            return self.run(command.as_ref(), cmd, args, args);
         }
 
         // Two-token nested dispatch: "parent child ..." -> "parent:child"
         if !args.is_empty() {
             let combined = format!("{token}:{}", args[0]);
             if let Some(command) = self.commands.get(combined.as_str()) {
-                let rest = &args[1..];
-                if let Err(err) = self.is_authorized(command.as_ref(), rest) {
-                    return Err(ModCliError::InvalidUsage(err));
-                }
-                command.validate(rest)?;
-                command.execute_with(rest, self);
-                if let Some(ref post) = self.post_hook {
-                    post(cmd, args, Ok(()));
-                }
-                return Ok(());
+                return self.run(command.as_ref(), cmd, args, &args[1..]);
             }
         }
         let err = ModCliError::UnknownCommand(cmd.to_string());
@@ -481,6 +442,68 @@ impl CommandRegistry {
             post(cmd, args, Err("unknown"));
         }
         Err(err)
+    }
+
+    /// Authorizes, validates, and runs one resolved command, then calls the
+    /// post hook. Every dispatch path goes through here.
+    fn run(
+        &self,
+        command: &dyn Command,
+        cmd: &str,
+        all_args: &[String],
+        args: &[String],
+    ) -> Result<(), ModCliError> {
+        self.is_authorized(command, args)
+            .map_err(ModCliError::InvalidUsage)?;
+        command.validate(args)?;
+        command.execute_with(args, self);
+        if let Some(ref post) = self.post_hook {
+            post(cmd, all_args, Ok(()));
+        }
+        Ok(())
+    }
+
+    /// Removes `<prefix>:` from the front of a command token, if a prefix is
+    /// set and the token has one followed by a name.
+    fn strip_prefix<'a>(&self, cmd: &'a str) -> &'a str {
+        if self.prefix.is_empty() {
+            return cmd;
+        }
+        match cmd
+            .strip_prefix(self.prefix.as_str())
+            .and_then(|rest| rest.strip_prefix(':'))
+        {
+            Some(rest) if !rest.is_empty() => rest,
+            _ => cmd,
+        }
+    }
+
+    /// Looks up the command the cached token resolved to. The lock is released
+    /// before the command runs, so a command may dispatch again.
+    #[cfg(feature = "dispatch-cache")]
+    fn cached(&self, token: &str) -> Option<&dyn Command> {
+        let guard = self.cache.lock().ok()?;
+        match guard.as_ref() {
+            Some((t, primary)) if t == token => {
+                self.commands.get(primary.as_str()).map(|c| c.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "dispatch-cache")]
+    fn remember(&self, token: &str, primary: &str) {
+        if let Ok(mut guard) = self.cache.lock() {
+            *guard = Some((token.to_string(), primary.to_string()));
+        }
+    }
+
+    #[cfg(feature = "dispatch-cache")]
+    fn forget(&mut self) {
+        match self.cache.get_mut() {
+            Ok(slot) => *slot = None,
+            Err(poisoned) => *poisoned.into_inner() = None,
+        }
     }
 
     #[cfg(feature = "internal-commands")]

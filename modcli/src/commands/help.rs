@@ -4,6 +4,7 @@ use crate::loader::CommandRegistry;
 use crate::output::hook;
 use crate::output::markdown;
 use crate::output::messages;
+use crate::output::text::sanitize;
 
 /// Built-in help command (execution handled by registry internally)
 pub struct HelpCommand;
@@ -49,6 +50,8 @@ impl Command for HelpCommand {
         // validate() already ensures args.len() <= 1
         if args.len() == 1 {
             let query = &args[0];
+            // The query is user input: escape control characters before echoing it.
+            let shown = sanitize(query);
             // If a direct command matches and is visible, show its help
             if let Some(target) = registry.get(query) {
                 if registry.is_visible(target) {
@@ -58,7 +61,7 @@ impl Command for HelpCommand {
                     let rendered = markdown::render_markdown(body);
                     print!("{rendered}");
                 } else {
-                    println!("No help available for '{query}'");
+                    println!("No help available for '{shown}'");
                 }
                 return;
             }
@@ -66,12 +69,12 @@ impl Command for HelpCommand {
             // Namespace help: list children of `query:` that are visible
             let ns = format!("{query}:");
             let mut any = false;
-            let ns_header_fallback = format!("Help ({query}):");
+            let ns_header_fallback = format!("Help ({shown}):");
             let header = messages::message_or_default("help.ns_header", &ns_header_fallback);
             println!("{header}");
-            for command in registry.all() {
+            for command in sorted(registry) {
                 let name = command.name();
-                if name.starts_with(&ns) && registry.is_visible(command.as_ref()) {
+                if name.starts_with(&ns) && registry.is_visible(command) {
                     println!(
                         "  {:<20} {}",
                         name,
@@ -82,7 +85,7 @@ impl Command for HelpCommand {
             }
             if !any {
                 let unknown =
-                    format!("[{query}]. Type `help` or `--help` for a list of available commands.");
+                    format!("[{shown}]. Type `help` or `--help` for a list of available commands.");
                 hook::unknown(&unknown);
             }
             return;
@@ -90,10 +93,10 @@ impl Command for HelpCommand {
 
         let header = messages::message_or_default("help.header", "Help:");
         println!("{header}");
-        for command in registry.all() {
+        for command in sorted(registry) {
             let name = command.name();
             let top_level = !name.contains(':');
-            if top_level && registry.is_visible(command.as_ref()) {
+            if top_level && registry.is_visible(command) {
                 println!(
                     "  {:<12} {}",
                     name,
@@ -105,4 +108,11 @@ impl Command for HelpCommand {
             println!("{footer}");
         }
     }
+}
+
+/// Registered commands in name order, so help lists them the same way on every run.
+fn sorted(registry: &CommandRegistry) -> Vec<&dyn Command> {
+    let mut commands: Vec<&dyn Command> = registry.all().map(|c| c.as_ref()).collect();
+    commands.sort_unstable_by(|a, b| a.name().cmp(b.name()));
+    commands
 }

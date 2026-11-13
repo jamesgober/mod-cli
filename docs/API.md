@@ -5,7 +5,7 @@ Enable async support:
 
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.4", features = ["async"] }
+mod-cli = { version = "0.7.0", features = ["async"] }
 ```
 
 <h2 id="shell-utilities-history">Shell Utilities: History</h2>
@@ -15,13 +15,14 @@ Lightweight helpers for shell history persistence and search live in `modcli::sh
 ```rust
 use modcli::shell::history;
 
-// Load from default path (~/.config/modcli/history) or provide a custom path
-let mut entries = history::load(None);
+// One history file per program: ~/.config/myapp/history
+let path = history::default_path("myapp");
+let mut entries = history::load(path.as_deref());
 
 // Append a new entry and save
-history::add(None, "help")?;
+history::add(path.as_deref(), "help")?;
 entries.push("help".into());
-history::save(None, &entries)?;
+history::save(path.as_deref(), &entries)?;
 
 // Search recent entries (case-insensitive)
 let hits = history::search(&entries, "he", 10);
@@ -56,6 +57,22 @@ let debug = args::get_bool(&argv, "--debug").unwrap_or(false);
 ```
 
 Errors use `ModCliError::InvalidUsage` with clear messages for missing/invalid values.
+
+Every helper stops at `--`, and the last occurrence of an option wins. The single-option
+helpers only know about the option they are asked for, so they cannot tell that the text
+after another option (such as `--message`) is a value. When values may come from a script
+or a file, list every option that takes a value and use `args::parse`:
+
+```rust
+use modcli::args;
+
+let argv: Vec<String> = ["--message", "--out=x", "--", "--force"]
+    .iter().map(|s| s.to_string()).collect();
+let parsed = args::parse(&argv, &["--message", "--out"]);
+assert_eq!(parsed.get("--message"), Some("--out=x"));
+assert_eq!(parsed.get("--out"), None);
+assert_eq!(parsed.positionals(), ["--force"]);
+```
 
 <h2 id="validation-helpers">Validation Helpers</h2>
 
@@ -115,6 +132,11 @@ async fn main() {
     reg.execute_async("fetch", &[]).await;
 }
 ```
+
+Async commands are authorized the same way as sync ones. `AsyncCommand` has `required_caps()`,
+`hidden()`, and `help()` with the same defaults as `Command`, and the authorize policy is handed
+the async command being run, so `cmd.name()` is its real name.
+
 <h2 id="error-handling">Error Handling</h2>
 
 Commands and selected APIs now return structured errors via `ModCliError` rather than raw strings. This provides better context and consistent formatting in `CommandRegistry::execute()` and `try_execute()`.
@@ -251,7 +273,7 @@ cargo add mod-cli
 | `internal-commands`  |  on     | Built-in helper commands like `help`, `ping`, etc. |
 | `custom-commands`    |  on     | Ergonomic helpers for user-defined commands. |
 | `tracing-logs`       |  off    | Emits `tracing` events via `output::hook` alongside themed console output. |
-| `dispatch-cache`     |  off    | Single-entry dispatch cache to speed repeated command invocations. |
+| `dispatch-cache`     |  off    | Remembers the last command name lookup; authorization runs on every call. |
 | `gradients`          |  off    | Named gradient helpers that wrap 24-bit RGB gradients (no new deps). |
 | `layouts`            |  off    | Lightweight layout engine for composing rows/columns in the terminal. |
 | `table-presets`      |  off    | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
@@ -349,13 +371,15 @@ themes::Theme::reset();
 
 Clickable hyperlinks via OSC 8 sequences with automatic fallback.
 
-- By default, prints `text (url)` for compatibility.
-- Set `ENABLE_OSC8=true` to emit OSC 8 sequences in supported terminals.
+- `ENABLE_OSC8=true` (or `1`) always emits OSC 8; `ENABLE_OSC8=false` (or `0`) always prints `text (url)`.
+- When `ENABLE_OSC8` is not set, OSC 8 is used in terminals known to support it (WezTerm, iTerm2,
+  Kitty, VTE-based terminals, Windows Terminal) and `text (url)` everywhere else.
+- Control characters are removed from the URL and escaped in the text.
 
 ```rust
 use modcli::output::print;
 
-// Fallback: prints "mod-cli docs (https://docs.rs/mod-cli)" unless ENABLE_OSC8=true
+// Prints "mod-cli docs (https://docs.rs/mod-cli)" where OSC 8 is off
 print::link("mod-cli docs", "https://docs.rs/mod-cli");
 print::link("GitHub: jamesgober/mod-cli", "https://github.com/jamesgober/mod-cli");
 ```
@@ -512,6 +536,11 @@ println!("Markdown:\n{}", md);
 println!("CSV:\n{}", csv);
 println!("JSON:\n{}", json);
 ```
+
+`render_table_csv` quotes fields that hold a comma, a quote, a newline, or a carriage return.
+For a CSV file that will be opened in a spreadsheet, `render_table_csv_safe` also puts a `'`
+in front of cells starting with `=`, `+`, `-`, `@`, a tab, or a carriage return, so they are
+shown as text instead of run as formulas.
 
 ### Progress presets (feature: `progress-presets`)
 
