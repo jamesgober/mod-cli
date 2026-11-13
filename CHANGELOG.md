@@ -12,7 +12,9 @@
 
 ## [Unreleased]
 
-- No unreleased changes.
+### Changed
+- `ModCliError` is declared with `define-err` 0.10 instead of `thiserror`: no proc macro and no build dependency. Every message, `source()`, and the `From<std::io::Error>` and `From<serde_json::Error>` conversions are unchanged, and the enum stays exhaustive, so existing matches still compile.
+- From 0.10 on, a build can hold only one copy of define-err, so crates that use it move to each new define-err release together.
 
 
 
