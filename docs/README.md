@@ -30,7 +30,7 @@ The crate exposes feature flags to tailor functionality and surface area:
 - `internal-commands`: Built-in helper commands (e.g., `help`, `ping`).
 - `custom-commands`: Ergonomic helpers for user-defined commands.
 - `tracing-logs`: Emit `tracing` events from `output::hook` while printing themed console output.
-- `dispatch-cache`: Optional single-entry dispatch cache to accelerate repeated command invocations.
+- `dispatch-cache`: Remembers the last command name lookup. Authorization and validation still run on every call.
 - `gradients`: Named gradient helpers (24-bit RGB) with zero additional dependencies.
 - `layouts`: Lightweight layout engine for terminal rows/columns.
 - `table-presets`: Convenience presets for `TableStyle` (ASCII, Rounded, Heavy).
@@ -42,7 +42,7 @@ Enable features in your application’s Cargo.toml:
 
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
+mod-cli = { version = "0.7.0", features = ["gradients", "table-presets"] }
 ```
 
 ## Feature Matrix
@@ -52,7 +52,7 @@ mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
 | `internal-commands` |   on    | Includes built-in helper commands.                                          |
 | `custom-commands`   |   on    | Ergonomic re-exports for user-defined commands.                             |
 | `tracing-logs`      |   off   | Emits `tracing` events from hooks alongside themed console output.          |
-| `dispatch-cache`    |   off   | Single-entry dispatch cache to speed repeated command invocations.          |
+| `dispatch-cache`    |   off   | Remembers the last name lookup; authorization runs on every call.           |
 | `gradients`         |   off   | Named gradient helpers (24-bit RGB).                                        |
 | `layouts`           |   off   | Lightweight layout engine for terminal rows/columns.                        |
 | `table-presets`     |   off   | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy).               |

@@ -64,6 +64,23 @@ pub trait AsyncCommand: Send + Sync {
     fn aliases(&self) -> &[&str] {
         &[]
     }
+
+    /// Help text, as for [`Command::help`].
+    fn help(&self) -> Option<&str> {
+        None
+    }
+
+    /// Hidden from listings, as for [`Command::hidden`].
+    fn hidden(&self) -> bool {
+        false
+    }
+
+    /// Capabilities the command needs, as for [`Command::required_caps`].
+    /// Checked before every run, the same way as for sync commands.
+    fn required_caps(&self) -> &[&str] {
+        &[]
+    }
+
     fn execute_async<'a>(
         &'a self,
         args: &'a [String],

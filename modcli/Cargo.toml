@@ -9,7 +9,7 @@
 #####################################################
 [package] 
 name = "mod-cli"
-version = "0.6.4"
+version = "0.7.0"
 
 # Minimum Supported Rust Version (MSRV)
 edition = "2021"
@@ -159,3 +159,4 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"], optio
 [dev-dependencies]
 once_cell = "1.19"
 criterion = { version = "0.5", features = ["html_reports"] }
+proptest = { version = "1", default-features = false, features = ["std"] }

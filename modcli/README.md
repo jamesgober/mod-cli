@@ -31,7 +31,7 @@
 </li>
 <br>
 <li>
-    <strong>Styled Output</strong> – Compose bold, italic, underlined, and colorized output using a chainable builder. Includes table rendering and ANSI-safe formatting.
+    <strong>Styled Output</strong> – Compose bold, italic, underlined, and colorized output using a chainable builder. Includes table rendering, and `output::text::sanitize` for printing text you did not write.
 </li>
 <br>
 <li>
@@ -39,7 +39,7 @@
 </li>
 <br>
 <li>
-    <strong>Interactive Console</strong> – Launch an interactive shell with command routing, custom input handlers, prompt styling, and exit messages.
+    <strong>Interactive Input</strong> – Prompts, menus, forms, and a shell history helper for programs with their own prompt loop.
 </li>
 <br>
 <li>
@@ -47,7 +47,7 @@
 </li>
 <br>
 <li>
-    <strong>Zero-Bloat Core</strong> – Minimal dependencies, clean structure, and fully optional features through Cargo flags.
+    <strong>Optional Features</strong> – Gradients, layouts, presets, images, async, and tracing sit behind Cargo flags.
 </li>
 
 <hr><br>
@@ -57,14 +57,14 @@
 Add the library to your `Cargo.toml`:
 ```toml
 [dependencies]
-mod-cli = "0.6.4"
+mod-cli = "0.7.0"
 ```
 <br>
 
 Add the library to your `Cargo.toml` with features:
 ```toml
 [dependencies]
-mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
+mod-cli = { version = "0.7.0", features = ["gradients", "table-presets"] }
 ```
 
 <br>
@@ -75,7 +75,7 @@ mod-cli = { version = "0.6.4", features = ["gradients", "table-presets"] }
 | `internal-commands`  | Built-in helper commands like `help`, `ping`, etc. |
 | `custom-commands`    | Ergonomic helpers for user-defined commands. |
 | `tracing-logs`       | Emit `tracing` events via `output::hook` alongside console output. |
-| `dispatch-cache`     | Single-entry dispatch cache to speed repeated invocations. |
+| `dispatch-cache`     | Remembers the last command name lookup. Authorization still runs on every call. |
 | `gradients`          | Named gradient helpers (24‑bit RGB) with zero extra deps. |
 | `layouts`            | Lightweight layout engine for terminal rows/columns. |
 | `table-presets`      | Convenience presets for `TableStyle` (ASCII, Rounded, Heavy). |
@@ -310,7 +310,6 @@ use modcli::output::{
     },
     ORANGE
 };
-use modcli::console::run_shell;
 
 
  let mut bar = ProgressBar::new(10, ProgressStyle {
@@ -467,7 +466,7 @@ impl Command for GreetCommand {
         Some("Greets the user.")
     }
 
-    fn validate(&self, _args: &[String]) -> Result<(), String> {
+    fn validate(&self, _args: &[String]) -> Result<(), modcli::error::ModCliError> {
         Ok(())
     }
 
@@ -509,73 +508,22 @@ List of available commands...
 
 <br><br>
 
-<h2>Interactive Shell</h3>
+<h2>Shell History</h2>
 
-### ModCLI supports an interactive console mode (like a REPL):
-```rust
-use modcli::config::CliConfig;
-use modcli::console::run_shell;
+`modcli::shell::history` keeps a line history for programs with their own prompt loop.
+Give each program its own file:
 
-fn main() {
-    let config = CliConfig::load(None);
-    run_shell(config);
-}
+```rust,no_run
+use modcli::shell::history;
+
+let path = history::default_path("myapp"); // ~/.config/myapp/history
+let mut entries = history::load(path.as_deref());
+entries.push("deploy --dry-run".to_string());
+history::save(path.as_deref(), &entries).expect("save history");
 ```
 
-
-### Adding a custom console command for `shell`: 
-```rust
-use modcli::ModCli;
-use modcli::shell_commands::{register, ShellCommand};
-
-fn greet_handler(_input: &str) -> bool {
-    println!("👋 Hello from shell command!");
-    true
-}
-
-fn main() {
-    register(ShellCommand {
-        name: "greet",
-        aliases: &["hi", "wave"],
-        help: "Greets the user with a friendly hello",
-        handler: greet_handler,
-    });
-}
-```
-
-#### Config File Example (config.json)
-```json
-{
-  "modcli": {
-        "name"  : "mod-cli",
-        "prefix": "mod",
-        "banner": "Welcome to ModCLI",
-        "delay" : 0,
-        "theme" : "default",
-        "strict": false,
-        "force_shell": false,
-        "shell": {
-            "prompt": "Tool >",
-            "welcome": ["Welcome to the console."],
-            "goodbye": ["Bye!"]
-        },
-        "messages": {
-            "no_command": "No command provided.",
-            "not_found": "Command not found."
-        }
-  }
-}
-```
-> Default location: `project_root/config.json` 
-
-#### Manually set the config path (if not project root)
-```rust
-use modcli::config;
-
-fn main() {
-    config::set_path(("my/custom/config.json");
-
-```
+On Unix the file is created readable only by its owner. `save` and `add` refuse to
+write through a symbolic link, and never fall back to the current directory.
 
 
 <br><hr><br>

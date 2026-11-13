@@ -19,6 +19,44 @@
 <br>
 
 
+## [0.7.0] - 2026-11-12
+
+### Security
+- With the `dispatch-cache` feature, a repeated call to the same command skipped the capability check, the authorize policy, and the post hook. The cache now remembers only which command a name resolved to, and every call is authorized and validated. Registering a command clears the cache, and the cache lock is no longer held while a command runs, so a command can dispatch another one.
+- Async commands are now authorized like sync ones. `AsyncCommand` gains `required_caps()`, `hidden()`, and `help()`, all with defaults, and the authorize policy is handed the async command being run instead of a placeholder.
+- The argument helpers stop at `--`, so nothing after it is read as an option. New `args::parse` takes the list of options that take a value, so an option's value is never read as another option.
+- Shell history: `history::default_path(app)` gives each program its own history file. On Unix, new history files are created with mode `0600` and new directories with `0700`. `save` and `add` refuse to write through a symbolic link, `save` writes a temporary file and renames it, and neither falls back to the current directory when no home directory is set.
+- Control characters in user input are escaped when mod-cli prints it back: unknown command names, `help` queries, and values that failed to parse. New `output::text::sanitize` does the same for your own output.
+- `print::link` removes control characters from the URL and escapes them in the text, so a URL can no longer end the hyperlink early.
+
+### Fixed
+- `render_markdown`, and so the built-in `help`, panicked on any non-ASCII text (an accent, a long dash, a bullet). It now works on whole characters and copies text outside the markers unchanged.
+- Prefix routing panicked on a command name that starts with a multibyte character.
+- `prompt_password` and `prompt_password_with_validation` retried forever when the password could not be read, for example with no terminal. They now print the error once and return an empty string. They also no longer trim spaces from the password.
+- `render_table_json` escaped only quotes. It now escapes backslashes and control characters as well, so the output is valid JSON.
+- `render_table_csv` now quotes fields that hold a carriage return.
+- Image rendering caps the output at 1024 pixel rows, sets size and memory limits for decoding, can no longer overflow when sizing its buffer, and no longer panics on an image one pixel tall.
+- `help` lists commands in name order, so the listing is the same on every run.
+
+### Added
+- `args::parse` and `args::Parsed`.
+- `output::text::sanitize`.
+- `try_prompt_password` and `try_prompt_password_with_validation`, which return the read error instead of printing it.
+- `output::table::render_table_csv_safe`, which puts a `'` in front of cells that a spreadsheet would run as formulas.
+- `shell::history::default_path`.
+- `output::images::MAX_OUTPUT_ROWS`, `MAX_IMAGE_SIDE`, and `MAX_DECODE_BYTES`.
+
+### Changed
+- When an option is given more than once, the argument helpers now use the last one. They used the first.
+- `shell::history::default_history_path` is deprecated, since every program built on mod-cli shares that path. Passing `None` to `load`, `save`, or `add` still uses it.
+- Docs: the OSC 8 description matches the code. The README no longer shows the interactive shell and config file sections, which describe modules that are no longer in the crate. The path validators are documented as advisory.
+- CI runs the tests with all features as well as the defaults.
+
+
+
+<br>
+
+
 ## [0.6.4] - 2025-09-09
 
 ### Added
@@ -456,7 +494,8 @@ Initial Commit
 
 <!--
  PRE-RELEASE =========================================================== -->
-[Unreleased]: https://github.com/jamesgober/mod-cli/compare/v0.6.3...HEAD
+[Unreleased]: https://github.com/jamesgober/mod-cli/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/jamesgober/mod-cli/compare/v0.6.4...v0.7.0
 [0.6.0]: https://github.com/jamesgober/mod-cli/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/jamesgober/mod-cli/compare/v0.5.0...v0.5.3
 [0.5.0]: https://github.com/jamesgober/mod-cli/compare/v0.4.0...v0.5.0
